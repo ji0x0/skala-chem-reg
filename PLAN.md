@@ -89,7 +89,7 @@
 - [x] 2단계: Base Agent 기동(fake) + 코드 구조 분석 → [docs/base-analysis.md](docs/base-analysis.md)
 - [x] 3단계: GitHub 오픈소스 탐색 → [docs/oss-research.md](docs/oss-research.md)
 - [x] 4단계: 주제 확정 → **국내외 화학물질 규제 브리핑·영향 분석 에이전트** ([docs/topic-final.md](docs/topic-final.md)). 과정 기록: [1차](docs/topic-selection.md), [2차](docs/topic-domain.md)
-- [ ] **17:00까지 Google Spread에 선택 과제 + 진행계획(초안) 등록**
+- [x] **17:00까지 Google Spread에 선택 과제 + 진행계획(초안) 등록**
 
 - [ ] **Day1 오후~저녁: 코드 완성** — 핸즈온 랩 단계(`docs/lab/`)로 한 단계씩 쌓고, 단계마다 설명·실행 확인·커밋
   - 1차 초안은 한 번에 작성돼 단계별 확인이 어려워 `_backup/full-draft-20261020/`에 백업 후 Step 0부터 다시 진행
