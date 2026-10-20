@@ -24,7 +24,7 @@ from app.llm.langchain_llm import build_llm
 from app.repositories.product_db import ProductDB
 from app.repositories.reg_db import RegDB
 from app.streaming.converter import convert
-from app.streaming.events import Done, Error, RunStarted
+from app.streaming.events import ApprovalRequired, Done, Error, RunStarted
 from app.streaming.sse import format_sse
 from app.tools.provider import ToolProvider
 
@@ -85,17 +85,24 @@ class AgentService:
             yield format_sse(RunStarted(thread_id=thread_id, run_id=run_id))
             status = "completed"
             try:
-                async for mode, payload in self.graph.astream(graph_input, self._config(thread_id, run_id),
-                                                              stream_mode=["custom", "updates"]):
+                config = self._config(thread_id, run_id)
+                async for mode, payload in self.graph.astream(graph_input, config, stream_mode=["custom", "updates"]):
                     for event in convert(mode, payload, thread_id):
                         if event.event == "approval_required":
                             status = "awaiting_approval"
+                            event = await self._with_draft(event, config)
                         yield format_sse(event)
             except Exception as exc:                        # 스트림 중간 실패도 이벤트로 알리고 정상 종료
                 log.exception("그래프 실행 실패", extra={"thread_id": thread_id, "run_id": run_id})
                 status = "failed"
                 yield format_sse(Error(message=f"처리 중 오류가 발생했습니다 ({type(exc).__name__})"))
             yield format_sse(Done(thread_id=thread_id, run_id=run_id, status=status))
+
+    async def _with_draft(self, event: ApprovalRequired, config: dict) -> ApprovalRequired:
+        """승인 대기에서는 final 이벤트가 없다 → 승인할 브리핑과 근거를 상태에서 꺼내 함께 보낸다.
+        (토큰 스트림은 모델 원문이라 코드 블록 감싸기 등이 남아 있을 수 있다)"""
+        values = (await self.graph.aget_state(config)).values or {}
+        return event.model_copy(update={"draft": values.get("draft", ""), "citations": values.get("citations", [])})
 
     def stream_chat(self, message: str, thread_id: str) -> AsyncIterator[str]:
         return self._run({"question": message}, thread_id)
@@ -113,6 +120,7 @@ class AgentService:
                 pending = intr.value
         return {"thread_id": thread_id, "exists": bool(values), "awaiting_approval": pending is not None,
                 "pending_approval": pending, "history": values.get("history", []),
+                "draft": values.get("draft", "") if pending else "",
                 "last": {k: values.get(k) for k in ("route", "plan", "impacts", "gaps", "judgement", "approval")},
                 "citations": values.get("citations", [])}
 

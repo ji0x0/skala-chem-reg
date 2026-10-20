@@ -99,7 +99,10 @@ def test_briefing_stream_approval_flow(client):
     names = [e for e, _ in events]
     assert "approval_required" in names and events[-1][1]["status"] == "awaiting_approval"
     assert {"progress", "tool_call_start", "tool_call_end", "token"} <= set(names)
-    assert client.get("/api/v1/threads/api-2").json()["awaiting_approval"] is True
+    pending = next(d for e, d in events if e == "approval_required")
+    assert "## 요약" in pending["draft"] and not pending["draft"].startswith("```") and pending["citations"]
+    state = client.get("/api/v1/threads/api-2").json()
+    assert state["awaiting_approval"] is True and state["draft"] == pending["draft"]
 
     events = sse(client.post("/api/v1/threads/api-2/approval", json={"approved": True}).text)
     final = next(d for e, d in events if e == "final")

@@ -59,6 +59,8 @@ class ApprovalRequired(StreamEvent):
     thread_id: str
     impacted_products: list[dict[str, Any]]
     message: str
+    draft: str = ""                          # 승인 대상 브리핑 (가드 통과본, 코드 블록 제거)
+    citations: list[dict[str, Any]] = []     # 승인자가 근거를 보고 판단하도록 함께 보낸다
 
 
 class Final(StreamEvent):
