@@ -1,7 +1,7 @@
 [project]
-name = "process-anomaly-agent"
+name = "chem-reg-briefing-agent"
 version = "0.1.0"
-description = "공정 운전 이상 조사 에이전트 — LangChain · LangGraph · LangSmith · MCP · FastAPI · Vue"
+description = "국내외 화학물질 규제 브리핑·영향 분석 에이전트 — LangChain · LangGraph · LangSmith · MCP · FastAPI · Vue"
 requires-python = ">=3.11,<3.14"
 dependencies = [
     "pydantic>=2.14.1",
