@@ -16,3 +16,5 @@ data/regulations.db
 .pytest_cache/
 data/feeds/cache/
 data/app.db
+data/checkpoints.db*
+data/feedback.jsonl

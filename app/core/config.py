@@ -49,6 +49,15 @@ class Settings(BaseSettings):
     quality_usd_per_1k: float = 0.005
     tool_timeout_s: float = 30.0
 
+    # ── Step 4: API ──
+    pipeline_version: Literal["v2", "baseline"] = "v2"      # baseline = Before(LLM 단독)
+    checkpoint_db_path: Path = DATA_DIR / "checkpoints.db"  # 대화·승인 대기 상태 (재시작해도 유지)
+    cors_origins: str = "http://localhost:5173,http://127.0.0.1:5173"
+
+    @property
+    def cors_origin_list(self) -> list[str]:
+        return [o.strip() for o in self.cors_origins.split(",") if o.strip()]
+
 
 @lru_cache
 def get_settings() -> Settings:
