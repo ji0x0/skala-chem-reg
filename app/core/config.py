@@ -1,0 +1,30 @@
+"""애플리케이션 설정.
+
+모든 설정은 환경변수(.env)에서 읽어 Settings 하나에 모은다.
+- 코드 곳곳에 상수를 흩어 두지 않는다 → 바꿀 곳이 한 군데
+- 값의 형식을 시작할 때 검증한다 → 오타가 있으면 서버가 바로 멈춘다
+- 테스트에서는 Settings(...)를 직접 만들어 넘긴다 → 의존성 주입의 출발점
+
+단계가 진행되면서 필요한 설정을 아래에 추가한다.
+"""
+from functools import lru_cache
+from pathlib import Path
+from typing import Literal
+
+from pydantic_settings import BaseSettings, SettingsConfigDict
+
+ROOT_DIR = Path(__file__).resolve().parents[2]   # app/core/config.py → 프로젝트 루트
+DATA_DIR = ROOT_DIR / "data"
+
+
+class Settings(BaseSettings):
+    model_config = SettingsConfigDict(env_file=ROOT_DIR / ".env", extra="ignore")
+
+    # ── Step 0: 공통 ──
+    log_level: Literal["DEBUG", "INFO", "WARNING", "ERROR"] = "INFO"
+
+
+@lru_cache
+def get_settings() -> Settings:
+    """설정을 한 번만 읽고 재사용한다."""
+    return Settings()

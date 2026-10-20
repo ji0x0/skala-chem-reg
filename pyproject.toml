@@ -1,0 +1,19 @@
+[project]
+name = "process-anomaly-agent"
+version = "0.1.0"
+description = "공정 운전 이상 조사 에이전트 — LangChain · LangGraph · LangSmith · MCP · FastAPI · Vue"
+requires-python = ">=3.11,<3.14"
+dependencies = [
+    "pydantic>=2.14.1",
+    "pydantic-settings>=2.16.0",
+    "python-dotenv>=1.2.4",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+
+[dependency-groups]
+dev = [
+    "pytest>=9.1.1",
+]
