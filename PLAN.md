@@ -88,7 +88,7 @@
 - [x] 1단계: capstone 강의 요약 + 실습 10종 정리 → REQUIREMENTS.md
 - [x] 2단계: Base Agent 기동(fake) + 코드 구조 분석 → [docs/base-analysis.md](docs/base-analysis.md)
 - [x] 3단계: GitHub 오픈소스 탐색 → [docs/oss-research.md](docs/oss-research.md)
-- [x] 4단계: 주제 확정 → **공정 운전 이상 조사 에이전트** ([docs/topic-final.md](docs/topic-final.md)). 과정 기록: [1차](docs/topic-selection.md), [2차](docs/topic-domain.md)
+- [x] 4단계: 주제 확정 → **국내외 화학물질 규제 브리핑·영향 분석 에이전트** ([docs/topic-final.md](docs/topic-final.md)). 과정 기록: [1차](docs/topic-selection.md), [2차](docs/topic-domain.md)
 - [ ] **17:00까지 Google Spread에 선택 과제 + 진행계획(초안) 등록**
 
 - [ ] **Day1 오후~저녁: 코드 완성** — 핸즈온 랩 단계(`docs/lab/`)로 한 단계씩 쌓고, 단계마다 설명·실행 확인·커밋
@@ -98,7 +98,7 @@
 ### Day2 — 10/21(수) · 트러블슈팅·디벨롭
 - [ ] Ollama 실모델로 전체 시나리오 실행, 발견한 문제 수정 (`troubleshooting.md` 기록)
 - [ ] Before(baseline) vs After(v2) 측정, 비교표 작성
-- [ ] 디벨롭: 서브에이전트 ReAct화, 외부 MCP 서버, Prompt Hub, 추세 차트 등 (topic-final.md C 항목)
+- [ ] 디벨롭: 우선 2·3 규제(XVII, CLP, 중국 우선관리, 화심법) 확장, 외부 MCP 서버, Prompt Hub (topic-final.md)
 - [ ] ADR, README 정리, **코드 프리즈 + GitHub push**
 
 ### Day3 — 10/22(목) · PPT·보고서만
