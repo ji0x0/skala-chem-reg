@@ -18,3 +18,6 @@ data/feeds/cache/
 data/app.db
 data/checkpoints.db*
 data/feedback.jsonl
+frontend/node_modules/
+frontend/dist/
+frontend/.env.local

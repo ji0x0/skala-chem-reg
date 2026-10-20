@@ -1,0 +1,132 @@
+/* 공통 스타일 — 색은 변수로만 쓴다 (라이트/다크 모드 전환) */
+:root {
+  --bg: #f5f6f8;
+  --panel: #ffffff;
+  --panel-2: #f0f2f5;
+  --border: #dde1e7;
+  --text: #1c2430;
+  --muted: #64707f;
+  --accent: #1f6feb;
+  --accent-soft: #e3edfd;
+  --danger: #c62828;
+  --danger-soft: #fdecea;
+  --warn: #b26a00;
+  --warn-soft: #fff4e0;
+  --ok: #2e7d32;
+  --ok-soft: #e8f5e9;
+  --info: #5b5fc7;
+  --info-soft: #eceefd;
+  --radius: 10px;
+  --shadow: 0 1px 2px rgb(0 0 0 / 6%);
+  --mono: ui-monospace, SFMono-Regular, Menlo, monospace;
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #12161c;
+    --panel: #1a2029;
+    --panel-2: #212833;
+    --border: #2e3744;
+    --text: #e4e8ee;
+    --muted: #93a0b0;
+    --accent: #5b9dff;
+    --accent-soft: #1d2d47;
+    --danger: #ff7b72;
+    --danger-soft: #3a1d1d;
+    --warn: #f0b45a;
+    --warn-soft: #3a2c14;
+    --ok: #6fcf75;
+    --ok-soft: #1b3320;
+    --info: #a5a8ff;
+    --info-soft: #262947;
+    --shadow: none;
+    color-scheme: dark;
+  }
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font: 14px/1.6 -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Pretendard", "Noto Sans KR", sans-serif;
+}
+#app { height: 100%; }
+
+button, input, textarea, select { font: inherit; color: inherit; }
+button {
+  cursor: pointer;
+  border: 1px solid var(--border);
+  background: var(--panel);
+  border-radius: 8px;
+  padding: 6px 12px;
+}
+button:hover:not(:disabled) { border-color: var(--accent); }
+button:disabled { opacity: .5; cursor: not-allowed; }
+button.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+button.danger { color: var(--danger); }
+button.ghost { background: transparent; border-color: transparent; }
+input, textarea, select {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 7px 10px;
+  width: 100%;
+}
+input:focus, textarea:focus, select:focus { outline: 2px solid var(--accent-soft); border-color: var(--accent); }
+
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+.muted { color: var(--muted); }
+.small { font-size: 12px; }
+.mono { font-family: var(--mono); font-size: 12.5px; }
+.row { display: flex; gap: 8px; align-items: center; }
+.spacer { flex: 1; }
+.error-box {
+  background: var(--danger-soft);
+  color: var(--danger);
+  border-radius: 8px;
+  padding: 8px 12px;
+}
+.error-box ul { margin: 4px 0 0; padding-left: 18px; }
+
+/* 판정 결과 배지 — 모든 화면에서 같은 색 */
+.badge {
+  display: inline-block;
+  padding: 1px 8px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+  background: var(--panel-2);
+  color: var(--muted);
+}
+.badge.exceeds { background: var(--danger-soft); color: var(--danger); }
+.badge.listed { background: var(--warn-soft); color: var(--warn); }
+.badge.review { background: var(--info-soft); color: var(--info); }
+.badge.below, .badge.official { background: var(--ok-soft); color: var(--ok); }
+.badge.to_verify { background: var(--warn-soft); color: var(--warn); }
+
+table { border-collapse: collapse; width: 100%; }
+th, td { text-align: left; padding: 7px 10px; border-bottom: 1px solid var(--border); vertical-align: top; }
+th { font-size: 12px; color: var(--muted); font-weight: 600; }
+
+/* 답변 Markdown */
+.markdown h2 { font-size: 15px; margin: 16px 0 6px; padding-bottom: 4px; border-bottom: 1px solid var(--border); }
+.markdown h2:first-child { margin-top: 0; }
+.markdown p { margin: 6px 0; }
+.markdown ul { margin: 4px 0; padding-left: 20px; }
+.markdown blockquote { margin: 10px 0; padding: 6px 12px; border-left: 3px solid var(--border); color: var(--muted); }
+.markdown code { font-family: var(--mono); background: var(--panel-2); padding: 0 4px; border-radius: 4px; }
+.cite-ref {
+  color: var(--accent);
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+}
+.cite-ref:hover { text-decoration: underline; }
