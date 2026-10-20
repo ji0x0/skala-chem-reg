@@ -114,7 +114,8 @@ input:focus, textarea:focus, select:focus { outline: 2px solid var(--accent-soft
 
 table { border-collapse: collapse; width: 100%; }
 th, td { text-align: left; padding: 7px 10px; border-bottom: 1px solid var(--border); vertical-align: top; }
-th { font-size: 12px; color: var(--muted); font-weight: 600; }
+th { font-size: 12px; color: var(--muted); font-weight: 600; white-space: nowrap; }
+td.mono, td .mono, td.nowrap { white-space: nowrap; }
 
 /* 답변 Markdown */
 .markdown h2 { font-size: 15px; margin: 16px 0 6px; padding-bottom: 4px; border-bottom: 1px solid var(--border); }

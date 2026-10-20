@@ -1,13 +1,27 @@
 <script setup>
 // 앱 셸 — 상단 바(백엔드 상태)와 탭. 화면 전환은 탭 상태로만 한다 (화면 3개라 라우터 없이)
-import { onMounted, ref } from 'vue'
+// KeepAlive로 탭을 오가도 진행 중인 대화·입력값이 유지된다
+import { onMounted, provide, ref } from 'vue'
 import { api } from './api/client.js'
 import ChatView from './views/ChatView.vue'
+import ProductsView from './views/ProductsView.vue'
+import RegulationsView from './views/RegulationsView.vue'
 
 const tabs = [
   { id: 'chat', label: '질의응답·브리핑', component: ChatView },
+  { id: 'products', label: '제품 관리', component: ProductsView },
+  { id: 'regulations', label: '규제 목록', component: RegulationsView },
 ]
 const active = ref(tabs[0].id)
+
+// 다른 탭에서 제품을 고르면 제품 탭으로 이동해 그 제품을 연다 (규제 검색 → 함유 제품)
+const productFocus = ref(null)
+provide('productFocus', productFocus)
+provide('openProduct', id => {
+  productFocus.value = null              // 같은 제품을 다시 골라도 watch가 반응하도록
+  queueMicrotask(() => { productFocus.value = id })
+  active.value = 'products'
+})
 const health = ref(null)
 const healthError = ref('')
 

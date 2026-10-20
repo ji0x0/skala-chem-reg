@@ -11,5 +11,5 @@
 | 3b | [step03b-graph.md](step03b-graph.md) | LangGraph 멀티에이전트 (chat·lookup·briefing, 병렬 수집·코드 판정·근거·검토·승인), Before 그래프 | ✅ |
 | 4 | [step04-api.md](step04-api.md) | FastAPI REST + SSE, 제품 관리·규제 목록 API (제품은 앱 DB가 원본) | ✅ |
 | 5a | [step05a-frontend-chat.md](step05a-frontend-chat.md) | Vue 화면: 질의응답·브리핑 스트리밍, 근거 원문 카드, 승인, 피드백, 새로고침 복원 | ✅ |
-| 5b | step05b-frontend-manage.md | Vue 화면: 제품 관리(추가·수정·검증·판정), 규제 목록(등재 물질·검색) | |
+| 5b | [step05b-frontend-manage.md](step05b-frontend-manage.md) | Vue 화면: 제품 관리(추가·수정·검증·판정), 규제 목록(등재 물질·검색) | ✅ |
 | 6 | step06-eval-test.md | 평가, LangSmith | |

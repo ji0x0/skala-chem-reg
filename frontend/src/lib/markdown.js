@@ -9,7 +9,7 @@ marked.setOptions({ gfm: true, breaks: true })
 export function linkCitations(text, ids) {
   const known = new Set(ids.map(String))
   return text.replace(/\[(\d{1,3})\](?!\()/g, (m, n) =>
-    known.has(n) ? `<a class="cite-ref" data-cite="${n}">[${n}]</a>` : m)
+    known.has(n) ? `<a class="cite-ref" href="#" data-cite="${n}" aria-label="근거 ${n}번으로 이동">[${n}]</a>` : m)
 }
 
 // 모델이 답 전체를 ```markdown … ``` 으로 감싸 보내는 경우 — 스트리밍 중(닫는 ``` 전)에도 벗긴다

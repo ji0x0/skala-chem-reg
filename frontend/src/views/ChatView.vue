@@ -145,6 +145,7 @@ function newThread() {
 function onBodyClick(e, msg, index) {
   const ref = e.target.closest('.cite-ref')
   if (!ref) return
+  e.preventDefault()                                          // href="#" (키보드 접근용) 기본 이동 막기
   const n = Number(ref.dataset.cite)
   msg.highlight = n
   document.getElementById(`m${index}-${n}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' })
