@@ -14,3 +14,4 @@ _backup/
 # 생성물
 data/regulations.db
 .pytest_cache/
+data/feeds/cache/

@@ -92,3 +92,25 @@ def official_dates(doc: dict) -> list[dict]:
               ("effective_on", "시행일")]
     return [{"label": label, "date": doc[key], "source": "관보 API"}
             for key, label in labels if doc.get(key)]
+
+
+def from_finding(cid: int, finding: dict) -> Citation:
+    """제품 판정 결과(judge.Finding) → 근거. 원문은 해당 등재 행, 판정 이유는 extra에 둔다."""
+    quote = f"{finding['list_name']} · {finding['substance']} (CAS {finding['cas']})"
+    if finding.get("entry_ref"):
+        quote += f" · {finding['entry_ref']}"
+    return Citation(id=cid, kind="listing", source_id=finding["reg_id"],
+                    title=f"{finding['region']} {finding['list_name']}", quote=quote,
+                    url=finding.get("source_url", ""), as_of="규제 DB",
+                    status=finding.get("data_status", "to_verify"),
+                    extra={"outcome": finding["outcome"], "reason": finding["reason"],
+                           "wt_pct": finding.get("wt_pct"), "threshold_wt_pct": finding.get("threshold_wt_pct")})
+
+
+def citations_text(citations: list[dict]) -> str:
+    """LLM에 넘길 근거 목록 (번호 · 제목 · 원문 · 검증 상태)."""
+    lines = []
+    for c in citations:
+        status = "" if c.get("status") == "official" else " [공식 원본 확인 전 데이터]"
+        lines.append(f"[{c['id']}] {c['title']} — {c['quote'][:300]}{status}")
+    return "\n".join(lines) or "(근거 없음)"

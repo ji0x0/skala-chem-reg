@@ -52,7 +52,8 @@ class FakeLLM:
             title_ko=meta.splitlines()[0][:120] if meta else "(제목 없음)",
             summary_ko=f"근거 문장 {len(quotes)}개를 요약했습니다 (Fake). " + (quotes[0][:200] if quotes else ""),
             key_dates=[KeyDate(label="원문 날짜", date=d) for d in dates],
-            substances=[], action_ko="확인 필요")
+            substances=[], action_ko="확인 필요",
+            quote_ko=[f"(Fake 번역) {q}" for q in quotes])
         return summary, self._usage("summarize", "quality", meta, text)
 
     async def write_briefing(self, question, summaries, judgements, citations, feedback,
@@ -80,6 +81,12 @@ class FakeLLM:
         if on_token:
             on_token(text)
         return text, self._usage("answer", "fast", question, text)
+
+    async def baseline_briefing(self, question, documents, products, on_token: TokenCallback = None):
+        text = f"## 규제 변경 요약 (Fake, LLM 단독)\n{documents[:300]}\n\n## 영향 제품\n- 판단 근거 없음"
+        if on_token:
+            on_token(text)
+        return text, self._usage("baseline_briefing", "quality", documents, products, text)
 
 
 def today() -> str:

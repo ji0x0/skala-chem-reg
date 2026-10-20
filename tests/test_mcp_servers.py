@@ -51,17 +51,25 @@ async def test_unknown_product_returns_tool_error():
             await client.call_tool("judge_product_compliance", {"product_id": "P999"})
 
 
-async def test_feed_falls_back_to_snapshot_when_offline(monkeypatch):
+async def test_feed_falls_back_to_snapshot_when_offline(monkeypatch, tmp_path):
     def offline(*args, **kwargs):
         raise httpx.ConnectError("offline")
     monkeypatch.setattr(reg_feed_server.httpx, "get", offline)
+    monkeypatch.setattr(reg_feed_server, "CACHE_DIR", tmp_path)          # 본문 캐시 없음
     async with Client(reg_feed_server.mcp) as client:
         result = data(await client.call_tool("search_federal_register", {}))
         assert result["source"] == "snapshot" and result["documents"]
         doc = data(await client.call_tool("get_federal_register_document",
                                           {"document_number": "2026-20964"}))
         assert doc["source"] == "snapshot" and doc["text_source"] == "abstract"
+        assert "제목·요약만 사용" in doc["text_warning"]            # 대체했다는 사실을 숨기지 않는다
         assert doc["substance_mentions"][0]["cas"] == "79-01-6"    # 제목·요약의 이름으로 TCE 식별
+
+        # 본문 캐시가 있으면 오프라인에서도 본문을 쓴다
+        (tmp_path / "2026-20964.txt").write_text("Trichloroethylene (TCE) full text ...", encoding="utf-8")
+        cached = data(await client.call_tool("get_federal_register_document",
+                                             {"document_number": "2026-20964"}))
+        assert cached["text_source"] == "full_text" and cached["text_warning"] is None
 
 
 async def test_kr_feed_disabled_without_key():

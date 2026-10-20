@@ -14,6 +14,8 @@ except ImportError:
 import html
 import json
 import re
+import threading
+import time
 from datetime import date, timedelta
 
 import httpx
@@ -27,6 +29,8 @@ mcp = FastMCP(name="reg-feed")
 settings = get_settings()
 db = open_db()
 SNAPSHOT = settings.feeds_dir / "federal_register_tsca.json"
+CACHE_DIR = settings.feeds_dir / "cache"          # 관보 본문 캐시 (게시 후 바뀌지 않으므로 안전)
+_fetch_lock = threading.Lock()                    # 본문은 한 번에 하나씩 받는다 (요청 과다 제한 방지)
 FIELDS = ["document_number", "title", "type", "abstract", "publication_date", "html_url",
           "raw_text_url", "effective_on", "comments_close_on"]
 
@@ -34,6 +38,32 @@ FIELDS = ["document_number", "title", "type", "abstract", "publication_date", "h
 def _plain_text(raw: str) -> str:
     """관보 텍스트 본문은 <html><pre>로 감싸져 온다 → 태그를 벗기고 HTML 엔티티를 푼다."""
     return html.unescape(re.sub(r"<[^>]+>", "", raw))
+
+
+def _fetch_full_text(document_number: str, url: str) -> tuple[str | None, str | None]:
+    """본문을 캐시에서 읽거나 받아 온다. (본문, 경고) — 실패하면 본문 None과 이유를 돌려준다."""
+    cache = CACHE_DIR / f"{document_number}.txt"
+    if cache.exists():
+        return cache.read_text(encoding="utf-8"), None
+    with _fetch_lock:
+        for attempt in (1, 2):
+            try:
+                resp = httpx.get(url, timeout=settings.http_timeout_s)
+            except httpx.HTTPError as exc:
+                return None, f"본문 조회 실패({type(exc).__name__}) — 제목·요약만 사용"
+            if resp.status_code == 429:
+                wait = float(resp.headers.get("Retry-After", "0") or 0)
+                if attempt == 1 and 0 < wait <= 5:
+                    time.sleep(wait)
+                    continue
+                return None, "본문 조회 제한(429 Too Many Requests) — 제목·요약만 사용"
+            if resp.status_code != 200:
+                return None, f"본문 조회 실패(HTTP {resp.status_code}) — 제목·요약만 사용"
+            text = _plain_text(resp.text)
+            CACHE_DIR.mkdir(parents=True, exist_ok=True)
+            cache.write_text(text, encoding="utf-8")
+            return text, None
+    return None, "본문 조회 실패 — 제목·요약만 사용"
 
 
 def _snapshot_documents() -> list[dict]:
@@ -79,15 +109,14 @@ def get_federal_register_document(document_number: str, max_chars: int = 12000) 
         source = "snapshot"
 
     text, text_source = f"{doc.get('title', '')}\n{doc.get('abstract') or ''}", "abstract"
-    if source == "live" and doc.get("raw_text_url"):
-        try:
-            raw = httpx.get(doc["raw_text_url"], timeout=settings.http_timeout_s)
-            raw.raise_for_status()
-            text, text_source = _plain_text(raw.text), "full_text"
-        except httpx.HTTPError:
-            pass                      # 본문을 못 받으면 제목·요약만 쓴다
+    warning = None
+    if doc.get("raw_text_url"):
+        full, warning = _fetch_full_text(document_number, doc["raw_text_url"])
+        if full:
+            text, text_source = full, "full_text"
     substances = db.search_substance("")       # 규제 DB의 전체 물질
-    return {"source": source, "text_source": text_source, **{k: doc.get(k) for k in FIELDS},
+    return {"source": source, "text_source": text_source, "text_warning": warning,
+            **{k: doc.get(k) for k in FIELDS},
             "text": text[:max_chars], "text_truncated": len(text) > max_chars,
             "cas_numbers": find_cas_numbers(text),
             "substance_mentions": find_substance_mentions(text, substances)}

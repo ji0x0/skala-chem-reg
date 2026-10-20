@@ -38,7 +38,8 @@ SUMMARIZE_DOC = ChatPromptTemplate.from_messages([
     ("system",
      "당신은 해외 화학물질 규제 문서를 한국어로 요약하는 담당이다. 아래 '근거 문장'만 보고 2~4문장으로 "
      "요약한다. action_ko에는 규제 담당자가 할 일(예: 해당 용도 사용 여부 확인, 의견 제출 검토)을 한 문장으로 "
-     "쓰고, 근거에 없으면 '확인 필요'라고 쓴다. key_dates에는 근거 문장에 나온 날짜만 넣는다.\n"
+     "쓰고, 근거에 없으면 '확인 필요'라고 쓴다. key_dates에는 근거 문장에 나온 날짜만 넣는다. "
+     "quote_ko에는 번호 붙은 근거 문장을 같은 순서로 하나씩 한국어로 번역해 넣는다 (번호는 빼고, 숫자·날짜는 그대로).\n"
      + SOURCE_RULES + "\n\n## 용어집 (이 표기를 쓴다)\n{glossary}"),
     ("human", "## 문서 정보\n{meta}\n\n## 근거 문장 (원문)\n{quotes}"),
 ])
@@ -64,7 +65,17 @@ ANSWER = ChatPromptTemplate.from_messages([
     ("system",
      "당신은 화학물질 규제 질의응답 도우미다. 아래 조회 결과와 근거만으로 한국어로 간결하게 답한다. "
      + GROUNDING_RULES + " 근거마다 [근거 번호]를 붙이고, 조회 결과가 없으면 모른다고 답한다. "
+     "제품 판정은 결과(exceeds=기준 초과, listed=등재, review=확인 필요)와 판정 이유(함량·기준·합산 등)를 "
+     "함께 쓰고, 적용 제외된 규제가 있으면 이유를 한 줄로 알린다. 공식 원본 확인 전 데이터면 그 사실을 알린다. "
      "법률 자문이 아니며 최종 판단은 담당자가 한다는 점을 한 줄로 덧붙인다.\n\n"
      "## 조회 결과\n{context}\n\n## 근거 목록\n{citations}\n\n## 이전 대화\n{history}"),
     ("human", "{question}"),
+])
+
+# ── Before(baseline) 전용: LLM 단독 — 원문과 제품 배합을 통째로 주고 판단까지 맡긴다 ──
+BASELINE_BRIEFING = ChatPromptTemplate.from_messages([
+    ("system",
+     "당신은 화학물질 규제 브리핑 작성자다. 아래 규제 문서 원문과 회사 제품 배합을 보고, 한국어 Markdown으로 "
+     "규제 변경 요약, 영향받는 제품과 이유, 할 일과 기한을 정리하라."),
+    ("human", "## 요청\n{question}\n\n## 규제 문서 원문\n{documents}\n\n## 회사 제품 배합\n{products}"),
 ])

@@ -35,3 +35,8 @@ class AgentLLM(Protocol):
 
     async def answer(self, question: str, context: str, citations: str, history: str,
                      on_token: TokenCallback = None) -> tuple[str, Usage]: ...
+
+    async def baseline_briefing(self, question: str, documents: str, products: str,
+                                on_token: TokenCallback = None) -> tuple[str, Usage]:
+        """Before 비교용: 원문과 제품 배합을 통째로 주고 판단까지 LLM에 맡긴다."""
+        ...

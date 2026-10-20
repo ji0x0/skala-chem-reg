@@ -36,6 +36,8 @@ class DocumentSummary(BaseModel):
     key_dates: list[KeyDate] = Field(default_factory=list, description="근거 문장에 나온 날짜만")
     substances: list[str] = Field(default_factory=list, description="문서가 다루는 물질 이름 (영문)")
     action_ko: str = Field(description="규제 담당자가 할 일 한 문장. 근거에 없으면 '확인 필요'")
+    quote_ko: list[str] = Field(default_factory=list,
+                                description="근거 문장 각각의 한국어 번역 (근거 문장과 같은 순서, 같은 개수)")
 
 
 class Judgement(BaseModel):

@@ -115,6 +115,11 @@ class LangChainLLM:
                                    "citations": citations or "(없음)", "history": history or "(없음)"},
                                   "answer", on_token)
 
+    async def baseline_briefing(self, question, documents, products, on_token: TokenCallback = None):
+        return await self._stream("quality", prompts.BASELINE_BRIEFING,
+                                  {"question": question, "documents": documents, "products": products},
+                                  "baseline_briefing", on_token)
+
 
 def build_llm(settings: Settings):
     if settings.llm_backend == "fake":
