@@ -4,7 +4,9 @@ version = "0.1.0"
 description = "국내외 화학물질 규제 브리핑·영향 분석 에이전트 — LangChain · LangGraph · LangSmith · MCP · FastAPI · Vue"
 requires-python = ">=3.11,<3.14"
 dependencies = [
+    "fastmcp>=3.4.9",
     "httpx>=0.28.1",
+    "mcp>=1.10,<2",
     "pydantic>=2.14.1",
     "pydantic-settings>=2.16.0",
     "python-dotenv>=1.2.4",
@@ -13,8 +15,10 @@ dependencies = [
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["."]
+asyncio_mode = "auto"
 
 [dependency-groups]
 dev = [
     "pytest>=9.1.1",
+    "pytest-asyncio>=1.4.0",
 ]

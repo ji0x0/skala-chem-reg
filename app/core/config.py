@@ -30,6 +30,11 @@ class Settings(BaseSettings):
     feeds_dir: Path = DATA_DIR / "feeds"                  # 해외·국내 변경 원문 스냅샷
     reg_db_path: Path = DATA_DIR / "regulations.db"       # CSV를 검증해 만든 SQLite (생성물)
 
+    # ── Step 2: 외부 규제 원문 API ──
+    federal_register_api: str = "https://www.federalregister.gov/api/v1"
+    law_api_oc: str | None = None      # 법제처 Open API 사용자 ID(OC). 없으면 국내 실시간 조회 비활성
+    http_timeout_s: float = 20.0
+
 
 @lru_cache
 def get_settings() -> Settings:
