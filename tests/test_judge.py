@@ -3,12 +3,16 @@ import pytest
 
 from app.core.config import get_settings
 from app.domain.judge import judge_product
+from app.repositories.product_db import ProductDB
 from app.repositories.reg_db import RegDB
 
 
 @pytest.fixture(scope="module")
-def db() -> RegDB:
-    return RegDB(get_settings().reg_db_path)
+def db(tmp_path_factory) -> RegDB:
+    s = get_settings()
+    products = ProductDB(tmp_path_factory.mktemp("app") / "app.db")
+    products.seed_if_empty(s.products_path)          # 초기 데이터(CSV) 그대로 → Step 1 정답표
+    return RegDB(s.reg_db_path, products)
 
 
 def outcomes(db, product_id) -> dict[tuple[str, str], str]:

@@ -5,6 +5,7 @@ import pytest
 
 from app.core.config import Settings, get_settings
 from app.domain.cas import find_cas_numbers, is_valid_cas
+from app.repositories.product_db import ProductDB
 from scripts.build_reg_db import build, read_csv, validate
 
 
@@ -60,11 +61,12 @@ def test_minor_components_are_modelled(tmp_path):
     """주성분만이 아니라 1 wt% 미만의 첨가제·잔류 단량체·불순물까지 들어 있어야 한다."""
     settings = Settings(_env_file=None, reg_db_path=tmp_path / "reg.db")
     build(settings)
+    products = ProductDB(tmp_path / "app.db")
+    products.seed_if_empty(settings.products_path)
     with sqlite3.connect(settings.reg_db_path) as conn:
-        per_product = dict(conn.execute(
-            "SELECT product_id, COUNT(*) FROM ingredients GROUP BY product_id"))
-        minor_hits = conn.execute(
-            "SELECT DISTINCT i.product_id FROM ingredients i JOIN listings l USING(cas) "
-            "WHERE i.wt_pct < 1").fetchall()
+        listed = {r[0] for r in conn.execute("SELECT DISTINCT cas FROM listings")}
+    per_product = {p["product_id"]: p["ingredient_count"] for p in products.products()}
+    minor_hits = {pid for pid in per_product
+                  for i in products.product(pid)["ingredients"] if i["wt_pct"] < 1 and i["cas"] in listed}
     assert min(per_product.values()) >= 5
     assert len(minor_hits) >= 8        # 미량 성분이 규제 목록에 걸리는 제품이 여러 개

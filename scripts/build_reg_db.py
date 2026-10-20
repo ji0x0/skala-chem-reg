@@ -1,4 +1,7 @@
-"""규제·제품 CSV를 검증하고 SQLite DB(data/regulations.db)로 만든다.
+"""규제 CSV를 검증하고 SQLite DB(data/regulations.db)로 만든다. 제품 CSV는 검증만 한다.
+
+Step 4부터 제품·성분은 data/app.db가 원본이다 (MCP 서버·API가 시작할 때 비어 있으면 products.csv로 채움).
+그래서 이 스크립트는 규제 DB만 다시 만들고, 화면에서 추가한 제품은 건드리지 않는다.
 
     uv run python scripts/build_reg_db.py
 
@@ -88,11 +91,6 @@ def build(settings: Settings) -> dict:
             name_ko TEXT, entry_ref TEXT, threshold_wt_pct REAL, condition_ko TEXT, status TEXT,
             source_url TEXT);
         CREATE INDEX idx_listings_cas ON listings(cas);
-        CREATE TABLE products (product_id TEXT PRIMARY KEY, product_name TEXT, product_form TEXT,
-            export_regions TEXT);
-        CREATE TABLE ingredients (product_id TEXT REFERENCES products(product_id), cas TEXT,
-            ingredient_name TEXT, role TEXT, wt_pct REAL);
-        CREATE INDEX idx_ingredients_cas ON ingredients(cas);
         CREATE TABLE glossary (term TEXT, lang TEXT, ko TEXT, definition_ko TEXT);
     """)
     conn.executemany("INSERT INTO regulations VALUES (?,?,?,?,?,?,?,?,?,?,?)", [
@@ -103,19 +101,13 @@ def build(settings: Settings) -> dict:
         (r["reg_id"], r["cas"], r["name_en"], r["name_ko"], r["entry_ref"],
          to_float(r["threshold_wt_pct"]), r["condition_ko"], r["status"], r["source_url"])
         for r in listings])
-    seen = {}
-    for r in products:
-        seen.setdefault(r["product_id"], (r["product_id"], r["product_name"], r["product_form"],
-                                          r["export_regions"]))
-    conn.executemany("INSERT INTO products VALUES (?,?,?,?)", list(seen.values()))
-    conn.executemany("INSERT INTO ingredients VALUES (?,?,?,?,?)", [
-        (r["product_id"], r["cas"], r["ingredient_name"], r["role"], float(r["wt_pct"]))
-        for r in products])
     conn.executemany("INSERT INTO glossary VALUES (?,?,?,?)", [
         (g["term"], g["lang"], g["ko"], g["definition_ko"]) for g in glossary])
     conn.commit()
     counts = {t: conn.execute(f"SELECT COUNT(*) FROM {t}").fetchone()[0]
-              for t in ("regulations", "listings", "products", "ingredients", "glossary")}
+              for t in ("regulations", "listings", "glossary")}
+    counts["products"] = len({r["product_id"] for r in products})       # 검증한 초기 데이터 (app.db에 들어감)
+    counts["ingredients"] = len(products)
     counts["substances"] = conn.execute("SELECT COUNT(DISTINCT cas) FROM listings").fetchone()[0]
     counts["to_verify"] = conn.execute(
         "SELECT COUNT(*) FROM listings WHERE status='to_verify'").fetchone()[0]
@@ -132,7 +124,9 @@ def main() -> None:
         sys.exit(1)
     print(f"생성: {settings.reg_db_path.name}")
     print(f"  규제 {counts['regulations']}개 · 등재 {counts['listings']}행(물질 {counts['substances']}종) · "
-          f"제품 {counts['products']}개(원료 {counts['ingredients']}행) · 용어 {counts['glossary']}개")
+          f"용어 {counts['glossary']}개")
+    print(f"  제품 초기 데이터 검증 통과: {counts['products']}개(성분 {counts['ingredients']}행) "
+          f"→ app.db가 비어 있으면 서버 시작 시 채워짐")
     print(f"  ⚠️ 공식 원본 확인 전(to_verify): {counts['to_verify']}행")
 
 

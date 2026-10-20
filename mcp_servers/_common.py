@@ -11,8 +11,13 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from app.core.config import get_settings  # noqa: E402
+from app.repositories.product_db import ProductDB  # noqa: E402
 from app.repositories.reg_db import RegDB  # noqa: E402
 
 
 def open_db() -> RegDB:
-    return RegDB(get_settings().reg_db_path)
+    """규제 DB + 제품 DB. 제품 DB가 비어 있으면 products.csv로 한 번 채운다."""
+    s = get_settings()
+    products = ProductDB(s.app_db_path)
+    products.seed_if_empty(s.products_path)
+    return RegDB(s.reg_db_path, products)

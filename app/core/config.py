@@ -28,7 +28,8 @@ class Settings(BaseSettings):
     products_path: Path = DATA_DIR / "products" / "products.csv"
     glossary_path: Path = DATA_DIR / "glossary.csv"
     feeds_dir: Path = DATA_DIR / "feeds"                  # 해외·국내 변경 원문 스냅샷
-    reg_db_path: Path = DATA_DIR / "regulations.db"       # CSV를 검증해 만든 SQLite (생성물)
+    reg_db_path: Path = DATA_DIR / "regulations.db"       # CSV를 검증해 만든 SQLite (생성물, 재생성 가능)
+    app_db_path: Path = DATA_DIR / "app.db"               # Step 4: 제품·성분 원본 (화면에서 추가·수정)
 
     # ── Step 2: 외부 규제 원문 API ──
     federal_register_api: str = "https://www.federalregister.gov/api/v1"
