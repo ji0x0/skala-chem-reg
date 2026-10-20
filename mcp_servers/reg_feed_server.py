@@ -5,6 +5,8 @@
 
 실시간 호출이 실패하면 data/feeds/ 스냅샷으로 대신 답하고, 결과에 source(live/snapshot)를 표시한다.
 규제 판단에서는 "언제, 어디서 받은 데이터인지"가 중요하기 때문이다.
+FEED_MODE=snapshot이면 실시간 호출 없이 스냅샷 목록과 저장된 본문(data/feeds/fulltext/)만 쓴다
+→ 평가(Before/After)를 같은 입력으로 반복할 수 있다.
 """
 try:
     from ._common import open_db
@@ -30,6 +32,7 @@ settings = get_settings()
 db = open_db()
 SNAPSHOT = settings.feeds_dir / "federal_register_tsca.json"
 CACHE_DIR = settings.feeds_dir / "cache"          # 관보 본문 캐시 (게시 후 바뀌지 않으므로 안전)
+FULLTEXT_DIR = settings.feeds_dir / "fulltext"    # 스냅샷 문서의 본문 (저장소에 포함 — 평가 입력 고정)
 _fetch_lock = threading.Lock()                    # 본문은 한 번에 하나씩 받는다 (요청 과다 제한 방지)
 FIELDS = ["document_number", "title", "type", "abstract", "publication_date", "html_url",
           "raw_text_url", "effective_on", "comments_close_on"]
@@ -42,9 +45,11 @@ def _plain_text(raw: str) -> str:
 
 def _fetch_full_text(document_number: str, url: str) -> tuple[str | None, str | None]:
     """본문을 캐시에서 읽거나 받아 온다. (본문, 경고) — 실패하면 본문 None과 이유를 돌려준다."""
-    cache = CACHE_DIR / f"{document_number}.txt"
-    if cache.exists():
-        return cache.read_text(encoding="utf-8"), None
+    for saved in (FULLTEXT_DIR / f"{document_number}.txt", CACHE_DIR / f"{document_number}.txt"):
+        if saved.exists():
+            return saved.read_text(encoding="utf-8"), None
+    if settings.feed_mode == "snapshot":
+        return None, "스냅샷 모드 — 저장된 본문 없음, 제목·요약만 사용"
     with _fetch_lock:
         for attempt in (1, 2):
             try:
@@ -80,6 +85,9 @@ def search_federal_register(term: str = "TSCA", days: int = 30, agency: str = "e
     params = [("conditions[agencies][]", agency), ("conditions[term]", term),
               ("conditions[publication_date][gte]", (date.today() - timedelta(days=days)).isoformat()),
               ("order", "newest"), ("per_page", str(limit))] + [("fields[]", f) for f in FIELDS]
+    if settings.feed_mode == "snapshot":
+        return {"source": "snapshot", "warning": "스냅샷 모드 — 저장된 관보 목록 사용 (기간 조건 무시)",
+                "documents": _snapshot_documents()[:limit]}
     try:
         resp = httpx.get(f"{settings.federal_register_api}/documents.json", params=params,
                          timeout=settings.http_timeout_s)
@@ -98,6 +106,8 @@ def get_federal_register_document(document_number: str, max_chars: int = 12000) 
     - substance_mentions: 규제 DB 물질의 이름·약어로 언급된 물질 (CAS가 없는 문서가 많아서 필요)
     document_number 예: 2026-20964"""
     try:
+        if settings.feed_mode == "snapshot":
+            raise httpx.TransportError("snapshot mode")
         meta = httpx.get(f"{settings.federal_register_api}/documents/{document_number}.json",
                          params=[("fields[]", f) for f in FIELDS], timeout=settings.http_timeout_s)
         meta.raise_for_status()

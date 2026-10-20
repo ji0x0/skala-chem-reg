@@ -1,0 +1,1322 @@
+
+
+Federal Register, Volume 91 Issue 198 (Thursday, October 15, 2026)
+
+
+[Federal Register Volume 91, Number 198 (Thursday, October 15, 2026)]
+[Rules and Regulations]
+[Pages 65461-65471]
+From the Federal Register Online via the Government Publishing Office [www.gpo.gov]
+[FR Doc No: 2026-21051]
+
+
+-----------------------------------------------------------------------
+
+ENVIRONMENTAL PROTECTION AGENCY
+
+40 CFR Part 721
+
+[EPA-HQ-OPPT-2026-0499; FRL-13317-02-OCSPP]
+RIN 2070-AB27
+
+
+Significant New Use Rules on Certain Chemical Substances (26-1)
+
+AGENCY: Environmental Protection Agency (EPA).
+
+ACTION: Final rule.
+
+-----------------------------------------------------------------------
+
+SUMMARY: EPA is issuing significant new use rules (SNURs) under the 
+Toxic Substances Control Act (TSCA) for
+
+[[Page 65462]]
+
+certain chemical substances that were the subject of premanufacture 
+notices (PMNs) and are also subject to an Order issued by EPA pursuant 
+to TSCA. The SNURs require persons to notify EPA at least 90 days 
+before commencing the manufacture (defined by statute to include 
+import) or processing of any of these chemical substances for an 
+activity that is designated as a significant new use in the SNUR. The 
+required notification initiates EPA's evaluation of the conditions of 
+that use for that chemical substance. In addition, the manufacture or 
+processing for the significant new use may not commence until EPA has 
+conducted a review of the required notification; made an appropriate 
+determination regarding that notification; and taken such actions as 
+required by that determination.
+
+DATES: This rule is effective on December 14, 2026. For purposes of 
+judicial review, this rule shall be promulgated at 1 p.m. (EST) on 
+October 29, 2026.
+
+ADDRESSES: The docket for this action, identified under docket 
+identification (ID) number EPA-HQ-OPPT-2026-0499, is available online 
+at https://www.regulations.gov or in person at the Office of Pollution 
+Prevention and Toxics Docket (OPPT Docket) in the Environmental 
+Protection Agency Docket Center (EPA/DC). Please review the visitor 
+instructions and additional information about the docket available at 
+https://www.epa.gov/dockets.
+
+FOR FURTHER INFORMATION CONTACT: 
+    For technical information: Jordan Garbin, New Chemicals Division, 
+Office of Pollution Prevention and Toxics, Environmental Protection 
+Agency, 1200 Pennsylvania Ave. NW, Washington, DC 20460-0001; telephone 
+number: (202) 564-4156; email address: [email protected].
+    For general information on SNURs: Iliriana Mushkolaj, New Chemicals 
+Division, Office of Pollution Prevention and Toxics, Environmental 
+Protection Agency, 1200 Pennsylvania Ave. NW, Washington, DC 20460-
+0001; telephone number: (202) 564-6877; email address: 
+[email protected].
+    For general information on TSCA: The TSCA Assistance Information 
+Service Hotline, Goodwill of the Finger Lakes, 422 South Clinton Ave., 
+Rochester, NY 14620; telephone number: (800) 471-7127 or (202) 554-
+1404; email address: [email protected].
+
+SUPPLEMENTARY INFORMATION:
+
+I. Executive Summary
+
+A. What is the Agency's authority for taking this action?
+
+    TSCA section 5(a)(2) (15 U.S.C. 2604(a)(2)) authorizes EPA to 
+determine that a use of a chemical substance is a ``significant new 
+use.'' EPA must make this determination by rule after considering all 
+relevant factors, including the factors in TSCA section 5(a)(2).
+
+B. What action is the Agency taking?
+
+    EPA is finalizing SNURs under TSCA section 5(a)(2) for the chemical 
+substances identified in this document. These chemical substances were 
+the subject of PMNs and are also subject to an Order issued by EPA 
+pursuant to TSCA section 5(e)(1)(A), as required by the determinations 
+made under TSCA section 5(a)(3)(B). The SNURs identify as significant 
+new uses any manufacturing, processing, use, distribution in commerce, 
+or disposal that does not conform to the restrictions imposed by the 
+underlying TSCA Orders, consistent with TSCA section 5(f)(4). The SNURs 
+require persons who intend to manufacture or process any of these 
+chemical substances for an activity that is designated as a significant 
+new use in the SNURs to notify EPA at least 90 days before commencing 
+that activity.
+    Previously, EPA proposed SNURs for these chemical substances in the 
+Federal Register of June 10, 2026 (91 FR 35156 (FRL-13317-01-OCSPP)). 
+The docket includes information considered by the Agency in developing 
+the proposed and final rules, including public comments and EPA's 
+responses to the comments received as discussed in Unit II.D.
+
+C. Does this action apply to me?
+
+1. General Applicability
+    This action applies to you if you manufacture, process, or use the 
+chemical substances identified in this document. The following list of 
+North American Industrial Classification System (NAICS) codes is not 
+intended to be exhaustive, but rather provides a guide to help readers 
+determine whether this document applies to them. Potentially affected 
+entities may include:
+     Manufacturers or processors of one or more subject 
+chemical substances (NAICS codes 325 and 324110), e.g., chemical 
+manufacturing and petroleum refineries.
+2. Applicability to Importers and Exporters
+    This action may also apply to certain entities through pre-existing 
+import certification and export notification requirements under TSCA 
+(https://www.epa.gov/tsca-import-export-requirements).
+    Chemical importers are subject to TSCA section 13 (15 U.S.C. 2612), 
+the requirements in 19 CFR 12.118 through 12.127, 19 CFR 127.28, and 40 
+CFR part 707, subpart B. Importers of chemical substances in bulk form, 
+as part of a mixture, or as part of an article (if required by rule) 
+must certify that the shipment of the chemical substance complies with 
+all applicable rules and orders under TSCA, including regulations 
+issued under TSCA sections 5, 6, 7 and Title IV.
+    Pursuant to 40 CFR 721.20, any persons who export or intend to 
+export a chemical substance identified in this document are subject to 
+the export notification provisions of TSCA section 12(b) (15 U.S.C. 
+2611(b)) and must comply with the export notification requirements in 
+40 CFR part 707, subpart D.
+
+D. What are the incremental economic impacts of this action?
+
+    EPA has evaluated the potential costs of establishing SNUN 
+reporting requirements for potential manufacturers and processors of 
+the chemical substances identified in this document. This analysis, 
+which is available in the docket, is briefly summarized here.
+1. Estimated Costs for SNUN Submissions
+    A SNUR requires that any person who intends to engage in such 
+activity in the future must first notify EPA by submitting a SNUN. If a 
+SNUN is submitted, costs are an estimated $45,000 per SNUN submission 
+for large business submitters and $14,500 for small business 
+submitters. These estimates include the cost to prepare and submit the 
+SNUN (including registration for EPA's Central Data Exchange (CDX)), 
+and the payment of a user fee. Businesses that submit a SNUN would be 
+subject to either a $37,000 user fee required by 40 CFR 
+700.45(c)(2)(ii) and (d), or, if they are a small business as defined 
+at 13 CFR 121.201, a reduced user fee of $6,480 (40 CFR 
+700.45(c)(1)(ii) and (d)). These estimates reflect the costs and fees 
+as they are known at the time of this rulemaking.
+
+[[Page 65463]]
+
+2. Estimated Costs for Export Notifications
+    EPA has also evaluated the potential costs associated with the pre-
+existing export notification requirements under TSCA section 12(b) and 
+the implementing regulations at 40 CFR part 707, subpart D. For persons 
+exporting a substance that is the subject of a SNUR, a one-time notice 
+to EPA must be provided for the first export or intended export to a 
+particular country. The total costs of export notification will vary by 
+chemical, depending on the number of required notifications (i.e., the 
+number of countries to which the chemical is exported). While EPA is 
+unable to make any estimate of the likely number of export 
+notifications for the chemical substances covered by these SNURs, as 
+stated in the accompanying economic analysis, the estimated cost of the 
+export notification requirement on a per unit basis is approximately 
+$106.
+
+II. Background
+
+A. General Information About SNURs
+
+    Unit II. of the proposed rule provides general information about 
+SNURs, and additional information about EPA's new chemical program is 
+available at https://www.epa.gov/reviewing-new-chemicals-under-toxic-substances-control-act-tsca.
+
+B. Applicability of the Significant New Use Designation
+
+    To establish a significant new use, EPA must determine that the use 
+is not ongoing. As discussed in Unit II.E. of the proposed rule, EPA 
+concluded that the proposed significant new uses were not ongoing. EPA 
+also stated that if EPA subsequently determined that such a use was 
+ongoing as of the date of publication of the proposed rule and did not 
+cease prior to issuance of the final rule, EPA would not designate that 
+use as a significant new use in the final rule. EPA has no information 
+to suggest that any of the significant new uses identified in this rule 
+meet this criterion.
+    As discussed in the Federal Register of April 24, 1990 (55 FR 17376 
+(FRL-3658-5)), EPA believes that the intent of TSCA section 5(a)(1)(B) 
+is best served by designating a use as a significant new use as of the 
+date of publication of the proposed rule rather than as of the 
+effective date of the final rule. The objective of EPA's approach is to 
+ensure that a person cannot impede finalization of a SNUR by initiating 
+a significant new use after publication of the proposed rule but before 
+the effective date of the final rule. Uses arising after the 
+publication of the proposed rule are distinguished from uses that are 
+identified in the final rule as having been ongoing on the date of 
+publication of the proposed rule. The former would be new uses, the 
+latter ongoing uses, except that uses that are identified as ongoing as 
+of the publication of the proposed rule would not be considered ongoing 
+uses if they have ceased by the date of issuance of a final rule.
+    In the unlikely event that before a final rule becomes effective a 
+person begins commercial manufacturing (including importing) or 
+processing of the chemical substances for a use that is designated as a 
+significant new use in that final rule, such a person would have to 
+cease any such activity upon the effective date of the final rule. To 
+resume their activities, these persons would have to first comply with 
+all applicable SNUR notification requirements and wait until all TSCA 
+prerequisites for the commencement of manufacture or processing have 
+been satisfied.
+    Issuance of a SNUR for a chemical substance does not signify that 
+the chemical substance is listed on the TSCA Chemical Substance 
+Inventory (TSCA Inventory). Guidance on how to determine if a chemical 
+substance is on the TSCA Inventory is available on the internet at 
+https://www.epa.gov/tsca-inventory.
+
+C. Important Information About SNUN Submissions
+
+1. SNUN Submissions
+    SNUNs must be submitted on EPA Form No. 7710-25, generated using e-
+PMN software, and submitted to the Agency in accordance with the 
+procedures set forth in 40 CFR 720.40 and 721.25. E-PMN software is 
+available electronically at https://www.epa.gov/reviewing-new-chemicals-under-toxic-substances-control-act-tsca.
+2. Development and Submission of Information
+    EPA recognizes that TSCA section 5 does not require development of 
+any particular new information (e.g., generating test data) before 
+submission of a SNUN. There is an exception: If a person is required to 
+submit information for a chemical substance pursuant to a rule, order 
+or consent agreement under TSCA section 4, then TSCA section 5(b)(1)(A) 
+requires such information to be submitted to EPA at the time of 
+submission of the SNUN.
+    In the absence of a rule, TSCA order, or consent agreement under 
+TSCA section 4 covering the chemical substance, persons are required 
+only to submit information in their possession or control and to 
+describe any other information known to or reasonably ascertainable by 
+them (see 40 CFR 720.50). However, upon review of PMNs and SNUNs, the 
+Agency has the authority to require appropriate testing. To assist with 
+EPA's analysis of the SNUN, submitters are encouraged, but not 
+required, to provide the potentially useful information as identified 
+for the chemical substance in Unit III.C. of the proposed rule.
+    EPA strongly encourages persons, before performing any testing, to 
+consult with the Agency pertaining to protocol selection. Furthermore, 
+pursuant to TSCA section 4(h), which pertains to reduction of testing 
+in vertebrate animals, EPA encourages consultation with the Agency on 
+the use of alternative test methods and strategies (also called New 
+Approach Methodologies, or NAMs), if available, to generate the 
+recommended test data. EPA encourages dialog with Agency 
+representatives to help determine how best the submitter can meet both 
+the data needs and the objective of TSCA section 4(h). For more 
+information on alternative test methods and strategies to reduce 
+vertebrate animal testing, visit https://www.epa.gov/assessing-and-managing-chemicals-under-tsca/alternative-test-methods-and-strategies-reduce.
+    The potentially useful information described in Unit III. of the 
+proposed rule may not be the only means of providing information to 
+evaluate the chemical substance associated with the significant new 
+uses. However, submitting a SNUN without any test data may increase the 
+likelihood that EPA will take action under TSCA sections 5(e) or 5(f). 
+EPA recommends that potential SNUN submitters contact EPA early enough 
+so that they will be able to conduct the appropriate tests.
+    SNUN submitters should be aware that EPA will be better able to 
+evaluate SNUNs which provide detailed information about human exposure 
+and environmental release that may result from the significant new use 
+of the chemical substances.
+
+D. Public Comments on Proposed Rule and EPA Responses
+
+    EPA received public comments on the proposed SNURs and prepared a 
+Response to Comment document that provides the Agency responses. The 
+comments and the Response to Comment document are available in the 
+docket; ID number EPA-HQ-OPPT-2026-0499. EPA is finalizing these SNURs 
+as proposed.
+
+[[Page 65464]]
+
+III. Chemical Substances Subject to These SNURs
+
+A. What is the designated cutoff date for ongoing uses?
+
+    EPA designates the date of publication of the proposed rule as the 
+cutoff date for determining whether the new use is ongoing, i.e., June 
+10, 2026 (91 FR 35156 (FRL-13317-01-OCSPP)). This designation is 
+explained in more detail in Unit II.B.
+
+B. What information was provided for each chemical substance?
+
+    In Unit III.C. of the proposed rule, EPA provided the following 
+information for each chemical substance subject to these SNURs:
+     PMN number (the CFR citation assigned in the regulatory 
+text section of this document).
+     Chemical name (generic name, if the specific name is 
+claimed as CBI).
+     Chemical Abstracts Service Registry Number (CASRN) or 
+Accession Number (if assigned, for confidential chemical identities).
+     Basis for the SNUR (e.g., effective date of and basis for 
+the TSCA Order).
+     Potentially useful information.
+    The regulatory text section of this document specifies the chemical 
+substances and activities designated as significant new uses. Certain 
+new uses, including production volume limits and other uses designated, 
+may be claimed as CBI, as discussed in more detail in Unit II.C. of the 
+proposed rule.
+    In addition, as discussed in Unit III.B. of the proposed rule, 
+these SNURs include PMN substances that are subject to orders issued 
+under TSCA section 5(e)(1)(A), as required by the determinations made 
+under TSCA section 5(a)(3)(B). Those TSCA Orders require protective 
+measures to limit exposures or otherwise mitigate the potential 
+unreasonable risk. As such, the SNURs identify as significant new uses 
+any manufacturing, processing, use, distribution in commerce, or 
+disposal that does not conform to the restrictions imposed by the 
+underlying TSCA Orders, consistent with TSCA section 5(f)(4).
+
+IV. Statutory and Executive Order Reviews
+
+    Additional information about these statutes and Executive orders 
+can be found at https://www.epa.gov/laws-regulations.
+
+A. Executive Order 12866: Regulatory Planning and Review
+
+    This action establishes SNURs for new chemical substances that were 
+the subject of PMNs. The Office of Management and Budget (OMB) has 
+exempted these types of actions from review under Executive Order 12866 
+(58 FR 51735, October 4, 1993).
+
+B. Executive Order 14192: Unleashing Prosperity Through Deregulation
+
+    Executive Order 14192 (90 FR 9065, February 6, 2025) does not apply 
+because a significant new use rule for a new chemical under TSCA 
+section 5 is exempt from review under Executive Order 12866.
+
+C. Paperwork Reduction Act (PRA)
+
+    According to the PRA (44 U.S.C. 3501 et seq.), an agency may not 
+conduct or sponsor, and a person is not required to respond to a 
+collection of information that requires OMB approval under PRA, unless 
+it has been approved by OMB and displays a currently valid OMB control 
+number. The OMB control numbers for EPA's regulations in title 40 of 
+the CFR, after appearing in the Federal Register, are listed in 40 CFR 
+part 9, and included on the related collection instrument or form, if 
+applicable.
+    The information collection requirements related to SNURs have 
+already been approved by OMB pursuant to PRA under OMB control number 
+2070-0038 (EPA ICR No. 1188). This action does not impose any burden 
+requiring additional OMB approval. If an entity were to submit a SNUN 
+to the Agency, the annual burden is estimated to average between 30 and 
+170 hours per submission. This burden estimate includes the time needed 
+to review instructions, search existing data sources, gather and 
+maintain the data needed, and complete, review, and submit the required 
+SNUN.
+
+D. Regulatory Flexibility Act (RFA)
+
+    I certify that this action will not have a significant economic 
+impact on a substantial number of small entities under the RFA (5 
+U.S.C. 601 et seq.). The requirement to submit a SNUN applies to any 
+person (including small or large entities) who intends to engage in any 
+activity described in the final rule as a ``significant new use.'' 
+Because these uses are ``new,'' based on all information currently 
+available to EPA, EPA has concluded that no small or large entities 
+presently engage in such activities.
+    A SNUR requires that any person who intends to engage in such 
+activity in the future must first notify EPA by submitting a SNUN. 
+Although some small entities may decide to pursue a significant new use 
+in the future, EPA cannot presently determine how many, if any, there 
+may be. However, EPA's experience to date is that, in response to the 
+promulgation of SNURs covering over 1,000 chemicals, the Agency 
+receives only a small number of notices per year. For example, the 
+number of SNUNs received was 7 in Federal fiscal year (FY) 2020, 9 in 
+FY2021, 9 in FY2022, 23 in FY2023, and 7 in FY2024, and only a fraction 
+of these submissions were from small businesses.
+    In addition, the Agency currently offers relief to qualifying small 
+businesses by reducing the SNUN submission fee from $37,000 to $6,480. 
+This lower fee reduces the total reporting and recordkeeping cost of 
+submitting a SNUN to about $14,500 per SNUN submission for qualifying 
+small firms. Therefore, the potential economic impacts of complying 
+with these proposed SNURs are not expected to be significant or 
+adversely impact a substantial number of small entities. In a SNUR that 
+published in the Federal Register of June 2, 1997 (62 FR 29684 (FRL-
+5597-1)), the Agency presented its general determination that SNURs are 
+not expected to have a significant economic impact on a substantial 
+number of small entities, which was provided to the Chief Counsel for 
+Advocacy of the Small Business Administration.
+
+E. Unfunded Mandates Reform Act (UMRA)
+
+    This action does not contain an unfunded mandate of $100 million or 
+more (in 1995 dollars) in any one year as described in UMRA, 2 U.S.C. 
+1531-1538, and does not significantly or uniquely affect small 
+governments. Based on EPA's experience with proposing and finalizing 
+SNURs, State, local, and Tribal governments have not been impacted by 
+SNURs, and EPA does not have any reasons to believe that any State, 
+local, or Tribal government will be impacted by these SNURs. In 
+addition, the estimated costs of this action to the private sector do 
+not exceed $183 million or more in any one year (the 1995 dollars are 
+adjusted to 2023 dollars for inflation using the GDP implicit price 
+deflator). The estimated costs for this action are discussed in Unit 
+I.D.
+
+F. Executive Order 13132: Federalism
+
+    This action will not have federalism implications as specified in 
+Executive Order 13132 (64 FR 43255, August 10, 1999), because it is not 
+expected to have a substantial direct effect on States, on the 
+relationship between the national government and the States, or on the 
+distribution of power and responsibilities among the various
+
+[[Page 65465]]
+
+levels of government. Accordingly, the requirements of Executive Order 
+13132 do not apply to this action.
+
+G. Executive Order 13175: Consultation and Coordination With Indian 
+Tribal Governments
+
+    This action will not have Tribal implications as specified in 
+Executive Order 13175 (65 FR 67249, November 9, 2000), because it is 
+not expected to have substantial direct effects on Indian Tribes, 
+significantly or uniquely affect the communities of Indian Tribal 
+governments and does not involve or impose any requirements that affect 
+Indian Tribes. Accordingly, the requirements of Executive Order 13175 
+do not apply to this action.
+
+H. Executive Order 13045: Protection of Children From Environmental 
+Health Risks and Safety Risks
+
+    This action is not subject to Executive Order 13045 (62 FR 19885, 
+April 23, 1997), because it does not concern an environmental health or 
+safety risk. Since this action does not concern a human health risk, 
+EPA's 2026 Policy on Children's Health also does not apply. Although 
+the establishment of these SNURs does not address an existing 
+children's environmental health concern because the chemical uses 
+involved are not ongoing uses, SNURs require that persons notify EPA at 
+least 90 days before commencing manufacture (defined by statute to 
+include import) or processing of the identified chemical substances for 
+an activity that is designated as a significant new use by the SNUR. 
+This notification allows EPA to assess the intended uses to identify 
+potential risks and take appropriate actions before the activities 
+commence.
+
+I. Executive Order 13211: Actions Concerning Regulations That 
+Significantly Affect Energy Supply, Distribution, or Use
+
+    This action is not a ``significant energy action'' as defined in 
+Executive Order 13211 (66 FR 28355, May 22, 2001), because it is not 
+likely to have a significant adverse effect on the supply, 
+distribution, or use of energy.
+
+J. National Technology Transfer and Advancement Act (NTTAA)
+
+    This action does not involve any technical standards subject to 
+NTTAA section 12(d) (15 U.S.C. 272 note).
+
+K. Congressional Review Act (CRA)
+
+    This action is subject to the CRA (5 U.S.C. 801 et seq.), and EPA 
+will submit a rule report to each House of the Congress and to the 
+Comptroller General of the United States. This action is not a ``major 
+rule'' as defined by 5 U.S.C. 804(2).
+
+List of Subjects in 40 CFR Part 721
+
+    Environmental protection, Chemicals, Hazardous substances, 
+Reporting and recordkeeping requirements.
+
+    Dated: October 8, 2026.
+Mary Elissa Reaves,
+Director, Office of Pollution Prevention and Toxics.
+
+    For the reasons stated in the preamble, 40 CFR chapter I is amended 
+as follows:
+
+PART 721--SIGNIFICANT NEW USES OF CHEMICAL SUBSTANCES
+
+0
+1. The authority citation for part 721 continues to read as follows:
+
+    Authority:  15 U.S.C. 2604, 2607, and 2625(c).
+
+
+0
+2. Add Sec. Sec.  721.12260 through 721.12278 to subpart E to read as 
+follows:
+* * * * *
+Sec.
+721.12260 6-Octen-1-ol, 3,7-dimethyl-, homopolymer, monoacetate.
+721.12261 Alkanedioic acid, di branched alkyl esters (generic).
+721.12262 Alkanedioic acid, di C11-14 isoalkyl esters (generic).
+721.12263 Siloxanes and silicones, di-Me, [alkylpiperazinium-
+hydroxyalkoxy]alkyl group-terminated, arylsulfonates (salts) 
+(generic).
+721.12264 Siloxanes and silicones, di-Me, [alkylpiperazinium-
+hydroxyalkoxy]alkyl group- and (hydroxyalkoxy)alkyl group-
+terminated, ethers with polyethylene glycol alkyl ethers, 
+arylsulfonates (salts) (generic).
+721.12265 Soybean oil, polymer with diethylene glycol- and glycerol- 
+and tetraethylene glycol- and triethylene glycol-depolymd. 
+poly(ethylene terephthalate) waste plastics, 3-hydroxy-2-
+(hydroxymethyl)-2-methylpropanoic acid and phthalic anhydride.
+721.12266 Benzoic acid, 
+2[hyphen]([1,1'[hyphen]biphenyl][hyphen]4[hyphen]ylcarbonyl)[hyphen],
+ 2[hyphen]ethylhexyl ester.
+721.12267 Ethyl modified lactam (generic).
+721.12268 Substituted carbopolycyclic dicarboxylic acid dialkyl 
+ester, polymer with alkanediol, carbopolycyclic bis(substituted 
+carbopolycycle)bis[alkanol] and carbopolycyclic bis(substituted 
+carbomonocycle)bis[alkanol] (generic).
+721.12269 Polymeric salt of propenoic acid, acrylamido-methylpropane 
+sulfonic acid sodium salt, hydroxyethyl methacrylate, methyl 
+methacrylate, propenoic acid, methyl-, phosphinicobis(oxy-
+ethanediyl) ester, sodium metabisulfite (generic).
+721.12270 2-Propanamine, N,N'-(oxydi-2,1-ethanediyl)bis[N-methyl-.
+721.12271 Polyalkyl substituted amine, hydrolysis products with 
+alkenyltrialkoxymetalloid and silica (generic).
+721.12272 Alkanol, alkoxyalkylimino, salt (generic).
+721.12273 Alkanol, nitrilo, salt (generic).
+721.12274 Aryl-dicarboxylic acid, polymer with alkanedioic acid, 
+2,2'-oxypoly[alkanol], polymethylenepolyphenylene isocyanate and 
+alkane diol (generic).
+721.12275 Carbonic acid diaryl ester with alkanediol (generic).
+721.12276 1,3-Butanediol, 4,4,4-trifluoro-3-(trifluoromethyl)-.
+721.12277 Sulfonium tris(substitutedcarbomonocycle) substituted 
+oxatricycloalkyloxycarbonyl dihalo alkane sulfonate (generic).
+721.12278 Heteromonocyclic alkylsubstituted carbomonocyclic 
+carbopolycyclic heteromonocyclic dihalo sulfoacetate (generic).
+* * * * *
+
+
+Sec.  721.12260   6-Octen-1-ol, 3,7-dimethyl-, homopolymer, 
+monoacetate.
+
+    (a) Chemical substance and significant new uses subject to 
+reporting. (1) The chemical substance identified as 6-octen-1-ol, 3,7-
+dimethyl-, homopolymer, monoacetate (PMN P-20-174; CASRN 2417284-25-2) 
+is subject to reporting under this section for the significant new uses 
+described in paragraph (a)(2) of this section.
+    (2) The significant new uses are:
+    (i) Hazard communication. Requirements as specified in Sec.  
+721.72(a) through (d), (f), and (g)(1) and (5). For purposes of Sec.  
+721.72(g)(1), this substance may cause: specific target organ toxicity. 
+Alternative hazard and warning statements that meet the criteria of the 
+Globally Harmonized System and OSHA Hazard Communication Standard may 
+be used.
+    (ii) Industrial, commercial, and consumer activities. It is a 
+significant new use to manufacture, process, or use the substance in 
+any manner that results in worker inhalation exposure to the substance.
+    (iii) Release to water. Requirements as specified in Sec.  
+721.90(a)(4), (b)(4), and (c)(4), where N=669.
+    (b) Specific requirements. The provisions of subpart A of this part 
+apply to this section except as modified by this paragraph (b).
+    (1) Recordkeeping. Recordkeeping requirements as specified in Sec.  
+721.125(a) through (c), (f) through (i), and (k) are applicable to 
+manufacturers, importers, and processors of this substance.
+    (2) Limitation or revocation of certain notification requirements. 
+The provisions of Sec.  721.185 apply to this section.
+
+[[Page 65466]]
+
+Sec.  721.12261   Alkanedioic acid, di branched alkyl esters (generic).
+
+    (a) Chemical substance and significant new uses subject to 
+reporting. (1) The chemical substance identified generically as 
+alkanedioic acid, di branched alkyl esters (PMN P-21-104; Accession No. 
+303674) is subject to reporting under this section for the significant 
+new uses described in paragraph (a)(2) of this section.
+    (2) The significant new uses are:
+    (i) Protection in the workplace. Requirements as specified in Sec.  
+721.63(a)(1) and (3) and (c). When determining which persons are 
+reasonably likely to be exposed as required for Sec.  721.63(a)(1), 
+engineering control measures (e.g., enclosure or confinement of the 
+operation, general and local ventilation) or administrative control 
+measures (e.g., workplace policies and procedures) shall be considered 
+and implemented to prevent exposure, where feasible.
+    (ii) Hazard communication. Requirements as specified in Sec.  
+721.72(a) through (d), (f), and (g)(1) and (5). For purposes of Sec.  
+721.72(g)(1), this substance may cause: skin irritation, eye 
+irritation, and specific target organ toxicity. Alternative hazard and 
+warning statements that meet the criteria of the Globally Harmonized 
+System and OSHA Hazard Communication Standard may be used.
+    (iii) Industrial, commercial, and consumer activities. Requirements 
+as specified in Sec.  721.80(o). It is a significant new use to 
+manufacture, process, or use the substance in any manner that results 
+in inhalation exposure to the substance.
+    (b) Specific requirements. The provisions of subpart A of this part 
+apply to this section except as modified by this paragraph (b).
+    (1) Recordkeeping. Recordkeeping requirements as specified in Sec.  
+721.125(a) through (i) are applicable to manufacturers, importers, and 
+processors of this substance.
+    (2) Limitation or revocation of certain notification requirements. 
+The provisions of Sec.  721.185 apply to this section.
+
+
+Sec.  721.12262   Alkanedioic acid, di C11-14 isoalkyl esters 
+(generic).
+
+    (a) Chemical substance and significant new uses subject to 
+reporting. (1) The chemical substance identified generically as 
+alkanedioic acid, di C11-14 isoalkyl esters (PMN P-21-105; Accession 
+No. 303663) is subject to reporting under this section for the 
+significant new uses described in paragraph (a)(2) of this section.
+    (2) The significant new uses are:
+    (i) Protection in the workplace. Requirements as specified in Sec.  
+721.63(a)(1) and (3) and (c). When determining which persons are 
+reasonably likely to be exposed as required for Sec.  721.63(a)(1), 
+engineering control measures (e.g., enclosure or confinement of the 
+operation, general and local ventilation) or administrative control 
+measures (e.g., workplace policies and procedures) shall be considered 
+and implemented to prevent exposure, where feasible.
+    (ii) Hazard communication. Requirements as specified in Sec.  
+721.72(a) through (d), (f), and (g)(1) and (5). For purposes of Sec.  
+721.72(g)(1), this substance may cause: skin irritation, eye 
+irritation, and specific target organ toxicity. Alternative hazard and 
+warning statements that meet the criteria of the Globally Harmonized 
+System and OSHA Hazard Communication Standard may be used.
+    (iii) Industrial, commercial, and consumer activities. Requirements 
+as specified in Sec.  721.80(o). It is a significant new use to 
+manufacture, process, or use the substance in any manner that results 
+in inhalation exposure to the substance.
+    (b) Specific requirements. The provisions of subpart A of this part 
+apply to this section except as modified by this paragraph (b).
+    (1) Recordkeeping. Recordkeeping requirements as specified in Sec.  
+721.125(a) through (i) are applicable to manufacturers, importers, and 
+processors of this substance.
+    (2) Limitation or revocation of certain notification requirements. 
+The provisions of Sec.  721.185 apply to this section.
+
+
+Sec.  721.12263   Siloxanes and silicones, di-Me, [alkylpiperazinium-
+hydroxyalkoxy]alkyl group-terminated, arylsulfonates (salts) (generic).
+
+    (a) Chemical substance and significant new uses subject to 
+reporting. (1) The chemical substance identified generically as 
+siloxanes and silicones, di-Me, [alkylpiperazinium-hydroxyalkoxy]alkyl 
+group-terminated, arylsulfonates (salts) (PMN P-21-166) is subject to 
+reporting under this section for the significant new uses described in 
+paragraph (a)(2) of this section. The requirements of this section do 
+not apply to quantities of the substance when contained in an article 
+as defined at 40 CFR 720.3(c).
+    (2) The significant new uses are:
+    (i) Protection in the workplace. Requirements as specified in Sec.  
+721.63(a)(1) and (3) and (c). When determining which persons are 
+reasonably likely to be exposed as required for Sec.  721.63(a)(1), 
+engineering control measures (e.g., enclosure or confinement of the 
+operation, general and local ventilation) or administrative control 
+measures (e.g., workplace policies and procedures) shall be considered 
+and implemented to prevent exposure, where feasible.
+    (ii) Hazard communication. Requirements as specified in Sec.  
+721.72(a) through (d), (f), (g)(1), (g)(3)(iii), and (g)(5). For 
+purposes of Sec.  721.72(g)(1), this substance may cause: skin 
+sensitization and specific target organ toxicity. Alternative hazard 
+and warning statements that meet the criteria of the Globally 
+Harmonized System and OSHA Hazard Communication Standard may be used.
+    (iii) Industrial, commercial, and consumer activities. Requirements 
+as specified in Sec.  721.80(o). It is a significant new use to 
+manufacture, process, or use the substance other than in the form of a 
+liquid solution. It is a significant new use to manufacture, process, 
+or use the substance in any manner that results in inhalation exposure 
+to the substance.
+    (iv) Release to water. Requirements as specified in Sec.  
+721.90(a)(4), (b)(4), and (c)(4), where N=9. For purposes of Sec.  
+721.91(a)(7), the control technology is primary and secondary 
+wastewater treatment as defined in 40 CFR part 133 and the percentage 
+removal of the substance resulting from use of the specified control 
+technology is 90%.
+    (b) Specific requirements. The provisions of subpart A of this part 
+apply to this section except as modified by this paragraph (b).
+    (1) Recordkeeping. Recordkeeping requirements as specified in Sec.  
+721.125(a) through (i), and (k) are applicable to manufacturers, 
+importers, and processors of this substance.
+    (2) Limitation or revocation of certain notification requirements. 
+The provisions of Sec.  721.185 apply to this section.
+
+
+Sec.  721.12264   Siloxanes and silicones, di-Me, [alkylpiperazinium-
+hydroxyalkoxy]alkyl group- and (hydroxyalkoxy)alkyl group-terminated, 
+ethers with polyethylene glycol alkyl ethers, arylsulfonates (salts) 
+(generic).
+
+    (a) Chemical substance and significant new uses subject to 
+reporting. (1) The chemical substance identified generically as 
+siloxanes and silicones, di-Me, [alkylpiperazinium-hydroxyalkoxy]alkyl 
+group- and (hydroxyalkoxy)alkyl group-terminated, ethers with 
+polyethylene glycol alkyl ethers, arylsulfonates (salts) (PMN P-21-167) 
+is subject to reporting under this section for the significant new uses 
+described in paragraph (a)(2) of this
+
+[[Page 65467]]
+
+section. The requirements of this section do not apply to quantities of 
+the substance when contained in an article as defined at 40 CFR 
+720.3(c).
+    (2) The significant new uses are:
+    (i) Protection in the workplace. Requirements as specified in Sec.  
+721.63(a)(1) and (3) and (c). When determining which persons are 
+reasonably likely to be exposed as required for Sec.  721.63(a)(1), 
+engineering control measures (e.g., enclosure or confinement of the 
+operation, general and local ventilation) or administrative control 
+measures (e.g., workplace policies and procedures) shall be considered 
+and implemented to prevent exposure, where feasible.
+    (ii) Hazard communication. Requirements as specified in Sec.  
+721.72(a) through (d), (f), (g)(1), (g)(3)(iii), and (g)(5). For 
+purposes of Sec.  721.72(g)(1), this substance may cause: skin 
+sensitization and specific target organ toxicity. Alternative hazard 
+and warning statements that meet the criteria of the Globally 
+Harmonized System and OSHA Hazard Communication Standard may be used.
+    (iii) Industrial, commercial, and consumer activities. Requirements 
+as specified in Sec.  721.80(o). It is a significant new use to 
+manufacture, process, or use the substance other than in the form of a 
+liquid solution. It is a significant new use to manufacture, process, 
+or use the substance in any manner that results in inhalation exposure 
+to the substance.
+    (iv) Release to water. Requirements as specified in Sec.  
+721.90(a)(4), (b)(4), and (c)(4), where N=0.7. For purposes of Sec.  
+721.91(a)(7), the control technology is primary and secondary 
+wastewater treatment as defined in 40 CFR part 133 and the percentage 
+removal of the substance resulting from use of the specified control 
+technology is 90%.
+    (b) Specific requirements. The provisions of subpart A of this part 
+apply to this section except as modified by this paragraph (b).
+    (1) Recordkeeping. Recordkeeping requirements as specified in Sec.  
+721.125(a) through (i), and (k) are applicable to manufacturers, 
+importers, and processors of this substance.
+    (2) Limitation or revocation of certain notification requirements. 
+The provisions of Sec.  721.185 apply to this section.
+
+
+Sec.  721.12265   Soybean oil, polymer with diethylene glycol- and 
+glycerol- and tetraethylene glycol- and triethylene glycol-depolymd. 
+poly(ethylene terephthalate) waste plastics, 3-hydroxy-2-
+(hydroxymethyl)-2-methylpropanoic acid and phthalic anhydride.
+
+    (a) Chemical substance and significant new uses subject to 
+reporting. (1) The chemical substance identified as soybean oil, 
+polymer with diethylene glycol- and glycerol- and tetraethylene glycol- 
+and triethylene glycol-depolymd. poly(ethylene terephthalate) waste 
+plastics, 3-hydroxy-2-(hydroxymethyl)-2-methylpropanoic acid and 
+phthalic anhydride (PMN P-23-78; CASRN 2803562-50-5) is subject to 
+reporting under this section for the significant new uses described in 
+paragraph (a)(2) of this section. The requirements of this section do 
+not apply to quantities of the substance after they have been 
+completely reacted or cured (i.e., the substance has been reacted or 
+cured to the extent that no release of the substance can be detected).
+    (2) The significant new uses are:
+    (i) Protection in the workplace. Requirements as specified in Sec.  
+721.63(a)(1), (a)(3) through (6), and (c). When determining which 
+persons are reasonably likely to be exposed as required for Sec.  
+721.63(a)(1) and (4), engineering control measures (e.g., enclosure or 
+confinement of the operation, general and local ventilation) or 
+administrative control measures (e.g., workplace policies and 
+procedures) shall be considered and implemented to prevent exposure, 
+where feasible. For purposes of Sec.  721.63(a)(5), respirators must 
+provide a National Institute for Occupational Safety and Health (NIOSH) 
+assigned protection factor (APF) of at least 1,000.
+    (ii) Hazard communication. Requirements as specified in Sec.  
+721.72(a) through (d), (f), (g)(1), (g)(3)(iii), and (g)(5). For 
+purposes of Sec.  721.72(g)(1), this substance may cause: skin 
+irritation, eye irritation, reproductive toxicity, and specific target 
+organ toxicity. Alternative hazard and warning statements that meet the 
+criteria of the Globally Harmonized System and OSHA Hazard 
+Communication Standard may be used.
+    (iii) Industrial, commercial, and consumer activities. Requirements 
+as specified in Sec.  721.80(o). It is a significant new use to use the 
+substance unless all of the following are true: (1) the substance is 
+used in the B side (polyol) of a spray polyurethane foam formulation, 
+(2) the concentration of the substance on the B side does not exceed 
+the confidential percentage by weight listed in the Order, and (3) the 
+substance is used in an application process designed to result in 
+instant and complete reaction of the B side containing the substance 
+with the A side (isocyanate) such that there is no unreacted polyol 
+present in any overspray.
+    (iv) Release to water. Requirements as specified in Sec.  
+721.90(a)(4), (b)(4), and (c)(4), where N=58.
+    (b) Specific requirements. The provisions of subpart A of this part 
+apply to this section except as modified by this paragraph (b).
+    (1) Recordkeeping. Recordkeeping requirements as specified in Sec.  
+721.125(a) through (i), and (k) are applicable to manufacturers, 
+importers, and processors of this substance.
+    (2) Limitation or revocation of certain notification requirements. 
+The provisions of Sec.  721.185 apply to this section.
+
+
+Sec.  721.12266   Benzoic acid, 2-([1,1'-biphenyl]-4-ylcarbonyl)-, 2-
+ethylhexyl ester.
+
+    (a) Chemical substance and significant new uses subject to 
+reporting. (1) The chemical substance identified as benzoic acid, 2-
+([1,1'-biphenyl]-4-ylcarbonyl)-, 2-ethylhexyl ester (PMN P-23-138; 
+CASRN 75005-95-7) is subject to reporting under this section for the 
+significant new uses described in paragraph (a)(2) of this section. The 
+requirements of this section do not apply to quantities of the 
+substance after they have been completely reacted or cured (i.e., the 
+substance has been reacted or cured to the extent that no release of 
+the substance can be detected).
+    (2) The significant new uses are:
+    (i) Protection in the workplace. Requirements as specified in Sec.  
+721.63(a)(1) and (3) and (c). When determining which persons are 
+reasonably likely to be exposed as required for Sec.  721.63(a)(1), 
+engineering control measures (e.g., enclosure or confinement of the 
+operation, general and local ventilation) or administrative control 
+measures (e.g., workplace policies and procedures) shall be considered 
+and implemented to prevent exposure, where feasible.
+    (ii) Hazard communication. Requirements as specified in Sec.  
+721.72(a) through (d), (f), (g)(1), (g)(3)(iii), and (g)(5). For 
+purposes of Sec.  721.72(g)(1), this substance may cause: skin 
+sensitization. Alternative hazard and warning statements that meet the 
+criteria of the Globally Harmonized System and OSHA Hazard 
+Communication Standard may be used.
+    (iii) Industrial, commercial, and consumer activities. Requirements 
+as
+
+[[Page 65468]]
+
+specified in Sec.  721.80(o). It is a significant new use to use the 
+substance at a concentration greater than 5% by weight in formulation.
+    (iv) Release to water. Requirements as specified in Sec.  
+721.90(a)(1), (b)(1), and (c)(1).
+    (b) Specific requirements. The provisions of subpart A of this part 
+apply to this section except as modified by this paragraph (b).
+    (1) Recordkeeping. Recordkeeping requirements as specified in Sec.  
+721.125(a) through (i), and (k) are applicable to manufacturers, 
+importers, and processors of this substance.
+    (2) Limitation or revocation of certain notification requirements. 
+The provisions of Sec.  721.185 apply to this section.
+
+
+Sec.  721.12267   Ethyl modified lactam (generic).
+
+    (a) Chemical substance and significant new uses subject to 
+reporting. (1) The chemical substance identified generically as ethyl 
+modified lactam (PMN P-23-183) is subject to reporting under this 
+section for the significant new uses described in paragraph (a)(2) of 
+this section. The requirements of this section do not apply to 
+quantities of the substance after they have been completely reacted or 
+cured (i.e., the substance has been reacted or cured to the extent that 
+no release of the substance can be detected).
+    (2) The significant new uses are:
+    (i) Protection in the workplace. Requirements as specified in Sec.  
+721.63(a)(1) and (3) and (c). When determining which persons are 
+reasonably likely to be exposed as required for Sec.  721.63(a)(1), 
+engineering control measures (e.g., enclosure or confinement of the 
+operation, general and local ventilation) or administrative control 
+measures (e.g., workplace policies and procedures) shall be considered 
+and implemented to prevent exposure, where feasible.
+    (ii) Hazard communication. Requirements as specified in Sec.  
+721.72(a) through (d), (f), and (g)(1) and (5). For purposes of Sec.  
+721.72(g)(1), this substance may cause: acute toxicity, serious eye 
+damage, and specific target organ toxicity. Alternative hazard and 
+warning statements that meet the criteria of the Globally Harmonized 
+System and OSHA Hazard Communication Standard may be used.
+    (iii) Industrial, commercial, and consumer activities. Requirements 
+as specified in Sec.  721.80(o). It is a significant new use to use the 
+substance in spray applications unless in an enclosed process.
+    (iv) Disposal. Requirements as specified in Sec.  721.85(a)(1), 
+(b)(1), and (c)(1).
+    (v) Release to water. Requirements as specified in Sec.  
+721.90(a)(4), (b)(4), and (c)(4), where N=3143.
+    (b) Specific requirements. The provisions of subpart A of this part 
+apply to this section except as modified by this paragraph (b).
+    (1) Recordkeeping. Recordkeeping requirements as specified in Sec.  
+721.125(a) through (k) are applicable to manufacturers, importers, and 
+processors of this substance.
+    (2) Limitation or revocation of certain notification requirements. 
+The provisions of Sec.  721.185 apply to this section.
+
+
+Sec.  721.12268   Substituted carbopolycyclic dicarboxylic acid dialkyl 
+ester, polymer with alkanediol, carbopolycyclic bis(substituted 
+carbopolycycle)bis[alkanol] and carbopolycyclic bis(substituted 
+carbomonocycle)bis[alkanol] (generic).
+
+    (a) Chemical substance and significant new uses subject to 
+reporting. (1) The chemical substance identified generically as 
+substituted carbopolycyclic dicarboxylic acid dialkyl ester, polymer 
+with alkanediol, carbopolycyclic bis(substituted 
+carbopolycycle)bis[alkanol] and carbopolycyclic bis(substituted 
+carbomonocycle)bis[alkanol] (PMN P-23-193) is subject to reporting 
+under this section for the significant new uses described in paragraph 
+(a)(2) of this section. The requirements of this section do not apply 
+to quantities of the substance after they have been incorporated into 
+an article as defined at 40 CFR 720.3(c).
+    (2) The significant new uses are:
+    (i) Hazard communication. Requirements as specified in Sec.  
+721.72(a) through (d), (f), and (g)(1) and (5). For purposes of Sec.  
+721.72(g)(1), this substance may cause: specific target organ toxicity. 
+Alternative hazard and warning statements that meet the criteria of the 
+Globally Harmonized System and OSHA Hazard Communication Standard may 
+be used.
+    (ii) Industrial, commercial, and consumer activities. It is a 
+significant new use to manufacture the substance in any manner unless 
+at least one of the following is true: (1) the substance has a mean 
+particle size equal to or greater than 2.5 millimeters or (2) where the 
+percentage of particles of the substance with a diameter less than 1.4 
+millimeters is less than or equal to 0.01 percent by weight.
+    (b) Specific requirements. The provisions of subpart A of this part 
+apply to this section except as modified by this paragraph (b).
+    (1) Recordkeeping. Recordkeeping requirements as specified in Sec.  
+721.125(a) through (c) and (f) through (i) are applicable to 
+manufacturers, importers, and processors of this substance.
+    (2) Limitation or revocation of certain notification requirements. 
+The provisions of Sec.  721.185 apply to this section.
+
+
+Sec.  721.12269   Polymeric salt of propenoic acid, acrylamido-
+methylpropane sulfonic acid sodium salt, hydroxyethyl methacrylate, 
+methyl methacrylate, propenoic acid, methyl-, phosphinicobis(oxy-
+ethanediyl) ester, sodium metabisulfite (generic).
+
+    (a) Chemical substance and significant new uses subject to 
+reporting. (1) The chemical substance identified generically as 
+polymeric salt of propenoic acid, acrylamido-methylpropane sulfonic 
+acid sodium salt, hydroxyethyl methacrylate, methyl methacrylate, 
+propenoic acid, methyl-, phosphinicobis(oxy-ethanediyl) ester, sodium 
+metabisulfite (PMN P-24-6; Accession No. 303721) is subject to 
+reporting under this section for the significant new uses described in 
+paragraph (a)(2) of this section.
+    (2) The significant new uses are:
+    (i) Hazard communication. Requirements as specified in Sec.  
+721.72(a) through (d), (f), and (g)(3)(iii) and (g)(5). Alternative 
+hazard and warning statements that meet the criteria of the Globally 
+Harmonized System and OSHA Hazard Communication Standard may be used.
+    (ii) Release to water. Requirements as specified in Sec.  
+721.90(a)(4), (b)(4), and (c)(4), where N=316.
+    (b) Specific requirements. The provisions of subpart A of this part 
+apply to this section except as modified by this paragraph (b).
+    (1) Recordkeeping. Recordkeeping requirements as specified in Sec.  
+721.125(a) through (c), (f) through (h), and (k) are applicable to 
+manufacturers, importers, and processors of this substance.
+    (2) Limitation or revocation of certain notification requirements. 
+The provisions of Sec.  721.185 apply to this section.
+
+
+Sec.  721.12270   2-Propanamine, N,N'-(oxydi-2,1-ethanediyl)bis[N-
+methyl-.
+
+    (a) Chemical substance and significant new uses subject to 
+reporting. (1) The chemical substance identified as 2-propanamine, 
+N,N'-(oxydi-2,1-ethanediyl)bis[N-methyl- (PMN P-24-16; CASRN 2484716-
+03-0) is subject to reporting under this section for the significant 
+new uses described in paragraph (a)(2) of this section. The
+
+[[Page 65469]]
+
+requirements of this section do not apply to quantities of the 
+substance after they have been completely reacted or cured (i.e., the 
+substance has been reacted or cured to the extent that no release of 
+the substance can be detected).
+    (2) The significant new uses are:
+    (i) Protection in the workplace. Requirements as specified in Sec.  
+721.63(a)(1), (a)(3) through (6), and (c). When determining which 
+persons are reasonably likely to be exposed as required for Sec.  
+721.63(a)(1) and (4), engineering control measures (e.g., enclosure or 
+confinement of the operation, general and local ventilation) or 
+administrative control measures (e.g., workplace policies and 
+procedures) shall be considered and implemented to prevent exposure, 
+where feasible. For purposes of Sec.  721.63(a)(5), respirators must 
+provide a National Institute for Occupational Safety and Health (NIOSH) 
+assigned protection factor (APF) of at least 50.
+    (ii) Hazard communication. Requirements as specified in Sec.  
+721.72(a) through (d), (f), (g)(1), (g)(3)(iii), and (g)(5). For 
+purposes of Sec.  721.72(g)(1), this substance may cause: acute 
+toxicity, skin corrosion, serious eye damage, reproductive toxicity, 
+and specific target organ toxicity. Alternative hazard and warning 
+statements that meet the criteria of the Globally Harmonized System and 
+OSHA Hazard Communication Standard may be used.
+    (iii) Industrial, commercial, and consumer activities. Requirements 
+as specified in Sec.  721.80(o). It is a significant new use to process 
+or use the substance other than as a catalyst in two-part polyurethane 
+spray foam insulation applications. It is a significant new use to 
+process or use the substance at a concentration greater than 3 percent 
+by weight in formulation.
+    (iv) Release to water. Requirements as specified in Sec.  
+721.90(a)(4), (b)(4), and (c)(4), where N=89.
+    (b) Specific requirements. The provisions of subpart A of this part 
+apply to this section except as modified by this paragraph (b).
+    (1) Recordkeeping. Recordkeeping requirements as specified in Sec.  
+721.125(a) through (i), and (k) are applicable to manufacturers, 
+importers, and processors of this substance.
+    (2) Limitation or revocation of certain notification requirements. 
+The provisions of Sec.  721.185 apply to this section.
+
+
+Sec.  721.12271   Polyalkyl substituted amine, hydrolysis products with 
+alkenyltrialkoxymetalloid and silica (generic).
+
+    (a) Chemical substance and significant new uses subject to 
+reporting. (1) The chemical substance identified generically as 
+polyalkyl substituted amine, hydrolysis products with 
+alkenyltrialkoxymetalloid and silica (PMN P-24-20) is subject to 
+reporting under this section for the significant new uses described in 
+paragraph (a)(2) of this section. The requirements of this section do 
+not apply to quantities of the substance after they have been 
+completely reacted or cured (i.e., the substance has been reacted or 
+cured to the extent that no release of the substance can be detected).
+    (2) The significant new uses are:
+    (i) Protection in the workplace. Requirements as specified in Sec.  
+721.63(a)(4) through (6), and (c). When determining which persons are 
+reasonably likely to be exposed as required for Sec.  721.63(a)(4), 
+engineering control measures (e.g., enclosure or confinement of the 
+operation, general and local ventilation) or administrative control 
+measures (e.g., workplace policies and procedures) shall be considered 
+and implemented to prevent exposure, where feasible. For purposes of 
+Sec.  721.63(a)(5), respirators must provide a National Institute for 
+Occupational Safety and Health (NIOSH) assigned protection factor (APF) 
+of at least 1,000.
+    (ii) Hazard communication. Requirements as specified in Sec.  
+721.72(a) through (d), (f), (g)(1), (g)(3)(iii), and (g)(5). For 
+purposes of Sec.  721.72(g)(1), this substance may cause: specific 
+target organ toxicity. Alternative hazard and warning statements that 
+meet the criteria of the Globally Harmonized System and OSHA Hazard 
+Communication Standard may be used.
+    (iii) Industrial, commercial, and consumer activities. Requirements 
+as specified in Sec.  721.80(o). It is a significant new use to 
+manufacture the substance beyond the confidential annual production 
+volume listed in the Order.
+    (iv) Release to water. Requirements as specified in Sec.  
+721.90(a)(1), (b)(1), and (c)(1).
+    (b) Specific requirements. The provisions of subpart A of this part 
+apply to this section except as modified by this paragraph (b).
+    (1) Recordkeeping. Recordkeeping requirements as specified in Sec.  
+721.125(a) through (i), and (k) are applicable to manufacturers, 
+importers, and processors of this substance.
+    (2) Limitation or revocation of certain notification requirements. 
+The provisions of Sec.  721.185 apply to this section.
+
+
+Sec.  721.12272   Alkanol, alkoxyalkylimino, salt (generic).
+
+    (a) Chemical substance and significant new uses subject to 
+reporting. (1) The chemical substance identified generically as 
+alkanol, alkoxyalkylimino, salt (PMN P-24-46) is subject to reporting 
+under this section for the significant new uses described in paragraph 
+(a)(2) of this section.
+    (2) The significant new uses are:
+    (i) Protection in the workplace. Requirements as specified in Sec.  
+721.63(a)(1) and (3) and (c). When determining which persons are 
+reasonably likely to be exposed as required for Sec.  721.63(a)(1), 
+engineering control measures (e.g., enclosure or confinement of the 
+operation, general and local ventilation) or administrative control 
+measures (e.g., workplace policies and procedures) shall be considered 
+and implemented to prevent exposure, where feasible.
+    (ii) Hazard communication. Requirements as specified in Sec.  
+721.72(a) through (d), (f), (g)(1), (g)(3)(iii), and (g)(5). For 
+purposes of Sec.  721.72(g)(1), this substance may cause: serious eye 
+damage and specific target organ toxicity. Alternative hazard and 
+warning statements that meet the criteria of the Globally Harmonized 
+System and OSHA Hazard Communication Standard may be used.
+    (iii) Industrial, commercial, and consumer activities. Requirements 
+as specified in Sec.  721.80(o). It is a significant new use to 
+manufacture, process, or use the substance in any manner that results 
+in inhalation exposure to the substance. It is a significant new use to 
+manufacture, process, or use the substance other than in liquid 
+solution.
+    (iv) Release to water. Requirements as specified in Sec.  
+721.90(a)(4), (b)(4), and (c)(4) where N=101 in aggregate of P-24-46 
+and P-24-47.
+    (b) Specific requirements. The provisions of subpart A of this part 
+apply to this section except as modified by this paragraph (b).
+    (1) Recordkeeping. Recordkeeping requirements as specified in Sec.  
+721.125(a) through (i), and (k) are applicable to manufacturers, 
+importers, and processors of this substance.
+    (2) Limitation or revocation of certain notification requirements. 
+The provisions of Sec.  721.185 apply to this section.
+
+[[Page 65470]]
+
+Sec.  721.12273   Alkanol, nitrilo, salt (generic).
+
+    (a) Chemical substance and significant new uses subject to 
+reporting. (1) The chemical substance identified generically as 
+alkanol, nitrilo, salt (PMN P-24-47) is subject to reporting under this 
+section for the significant new uses described in paragraph (a)(2) of 
+this section.
+    (2) The significant new uses are:
+    (i) Protection in the workplace. Requirements as specified in Sec.  
+721.63(a)(1) and (3) and (c). When determining which persons are 
+reasonably likely to be exposed as required for Sec.  721.63(a)(1), 
+engineering control measures (e.g., enclosure or confinement of the 
+operation, general and local ventilation) or administrative control 
+measures (e.g., workplace policies and procedures) shall be considered 
+and implemented to prevent exposure, where feasible.
+    (ii) Hazard communication. Requirements as specified in Sec.  
+721.72(a) through (d), (f), (g)(1), (g)(3)(iii), and (g)(5). For 
+purposes of Sec.  721.72(g)(1), this substance may cause: serious eye 
+damage and specific target organ toxicity. Alternative hazard and 
+warning statements that meet the criteria of the Globally Harmonized 
+System and OSHA Hazard Communication Standard may be used.
+    (iii) Industrial, commercial, and consumer activities. Requirements 
+as specified in Sec.  721.80(o). It is a significant new use to 
+manufacture, process, or use the substance in any manner that results 
+in inhalation exposure to the substance. It is a significant new use to 
+manufacture, process, or use the substance other than in liquid 
+solution.
+    (iv) Release to water. Requirements as specified in Sec.  
+721.90(a)(4), (b)(4), and (c)(4) where N=101 in aggregate of P-24-46 
+and P-24-47.
+    (b) Specific requirements. The provisions of subpart A of this part 
+apply to this section except as modified by this paragraph (b).
+    (1) Recordkeeping. Recordkeeping requirements as specified in Sec.  
+721.125(a) through (i), and (k) are applicable to manufacturers, 
+importers, and processors of this substance.
+    (2) Limitation or revocation of certain notification requirements. 
+The provisions of Sec.  721.185 apply to this section.
+
+
+Sec.  721.12274   Aryl-dicarboxylic acid, polymer with alkanedioic 
+acid, 2,2'-oxypoly[alkanol], polymethylenepolyphenylene isocyanate and 
+alkane diol (generic).
+
+    (a) Chemical substance and significant new uses subject to 
+reporting. (1) The chemical substance identified generically as aryl-
+dicarboxylic acid, polymer with alkanedioic acid, 2,2'-
+oxypoly[alkanol], polymethylenepolyphenylene isocyanate and alkane diol 
+(PMN P-24-70) is subject to reporting under this section for the 
+significant new uses described in paragraph (a)(2) of this section. The 
+requirements of this section do not apply to quantities of the 
+substance after they have been completely reacted or cured (i.e., the 
+substance has been reacted or cured to the extent that no release of 
+the substance can be detected).
+    (2) The significant new uses are:
+    (i) Protection in the workplace. Requirements as specified in Sec.  
+721.63(a)(1), (a)(3) through (6), and (c). When determining which 
+persons are reasonably likely to be exposed as required for Sec.  
+721.63(a)(1) and (4), engineering control measures (e.g., enclosure or 
+confinement of the operation, general and local ventilation) or 
+administrative control measures (e.g., workplace policies and 
+procedures) shall be considered and implemented to prevent exposure, 
+where feasible. For purposes of Sec.  721.63(a)(5), respirators must 
+provide a National Institute for Occupational Safety and Health (NIOSH) 
+assigned protection factor (APF) of at least 1,000.
+    (ii) Hazard communication. Requirements as specified in Sec.  
+721.72(a) through (d), (f), and (g)(1) and (5). For purposes of Sec.  
+721.72(g)(1), this substance may cause: acute toxicity, eye irritation, 
+respiratory sensitization, skin irritation, skin sensitization, and 
+specific target organ toxicity. Alternative hazard and warning 
+statements that meet the criteria of the Globally Harmonized System and 
+OSHA Hazard Communication Standard may be used.
+    (iii) Industrial, commercial, and consumer activities. Requirements 
+as specified in Sec.  721.80(o). It is a significant new use to 
+manufacture the substance other than by import in a liquid solution 
+into the United States (i.e., no domestic manufacture). It is a 
+significant new use to manufacture, process, or use the substance if 
+the concentration of the substance in solution exceeds the confidential 
+percentage by weight listed in the Order. It is a significant new use 
+to manufacture, process, or use the substance if the proportion of the 
+substance below 1,000 Daltons exceeds the confidential percentage by 
+weight listed in the Order. It is a significant new use to manufacture, 
+process, or use the substance if the concentration of the confidential 
+residual feedstock exceeds the confidential percentage by weight listed 
+in the Order. It is a significant new use to use the substance other 
+than as an adhesive sealant foam for use in construction.
+    (b) Specific requirements. The provisions of subpart A of this part 
+apply to this section except as modified by this paragraph (b).
+    (1) Recordkeeping. Recordkeeping requirements as specified in Sec.  
+721.125(a) through (i) are applicable to manufacturers, importers, and 
+processors of this substance.
+    (2) Limitation or revocation of certain notification requirements. 
+The provisions of Sec.  721.185 apply to this section.
+
+
+Sec.  721.12275   Carbonic acid diaryl ester with alkanediol (generic).
+
+    (a) Chemical substance and significant new uses subject to 
+reporting. (1) The chemical substance identified generically as 
+carbonic acid diaryl ester with alkanediol (PMN P-24-105) is subject to 
+reporting under this section for the significant new uses described in 
+paragraph (a)(2) of this section.
+    (2) The significant new uses are:
+    (i) Hazard communication. Requirements as specified in Sec.  
+721.72(a) through (d), (f), and (g)(3)(iii) and (g)(5). Alternative 
+hazard and warning statements that meet the criteria of the Globally 
+Harmonized System and OSHA Hazard Communication Standard may be used.
+    (ii) Industrial, commercial, and consumer activities. Requirements 
+as specified in Sec.  721.80(o).
+    (iii) Release to water. Requirements as specified in Sec.  
+721.90(a)(4), (b)(4), and (c)(4), where N=22.
+    (b) Specific requirements. The provisions of subpart A of this part 
+apply to this section except as modified by this paragraph (b).
+    (1) Recordkeeping. Recordkeeping requirements as specified in Sec.  
+721.125(a) through (c), (f) through (i), and (k) are applicable to 
+manufacturers, importers, and processors of this substance.
+    (2) Limitation or revocation of certain notification requirements. 
+The provisions of Sec.  721.185 apply to this section.
+
+
+Sec.  721.12276   1,3-Butanediol, 4,4,4-trifluoro-3-(trifluoromethyl)-.
+
+    (a) Chemical substance and significant new uses subject to 
+reporting. (1) The chemical substance identified as 1,3-butanediol, 
+4,4,4-trifluoro-3-(trifluoromethyl)- (PMN P-24-114; CASRN 21379-33-9) 
+is subject to reporting under this section for the significant new uses 
+described in paragraph (a)(2) of this section.
+
+[[Page 65471]]
+
+    (2) The significant new uses are:
+    (i) Protection in the workplace. Requirements as specified in Sec.  
+721.63(a)(1), (a)(3) through (6), and (c). When determining which 
+persons are reasonably likely to be exposed as required for Sec.  
+721.63(a)(1) and (4), engineering control measures (e.g., enclosure or 
+confinement of the operation, general and local ventilation) or 
+administrative control measures (e.g., workplace policies and 
+procedures) shall be considered and implemented to prevent exposure, 
+where feasible. For purposes of Sec.  721.63(a)(5), respirators must 
+provide a National Institute for Occupational Safety and Health (NIOSH) 
+assigned protection factor (APF) of at least 50.
+    (ii) Hazard communication. Requirements as specified in Sec.  
+721.72(a) through (d), (f), and (g)(1) and (5). For purposes of Sec.  
+721.72(g)(1), this substance may cause: acute toxicity, skin corrosion, 
+eye corrosion, reproductive toxicity, and specific target organ 
+toxicity. Alternative hazard and warning statements that meet the 
+criteria of the Globally Harmonized System and OSHA Hazard 
+Communication Standard may be used.
+    (iii) Industrial, commercial, and consumer activities. Requirements 
+as specified in Sec.  721.80(k).
+    (b) Specific requirements. The provisions of subpart A of this part 
+apply to this section except as modified by this paragraph (b).
+    (1) Recordkeeping. Recordkeeping requirements as specified in Sec.  
+721.125(a) through (i) are applicable to manufacturers, importers, and 
+processors of this substance.
+    (2) Limitation or revocation of certain notification requirements. 
+The provisions of Sec.  721.185 apply to this section.
+
+
+Sec.  721.12277   Sulfonium tris(substitutedcarbomonocycle) substituted 
+oxatricycloalkyloxycarbonyl dihalo alkane sulfonate (generic).
+
+    (a) Chemical substance and significant new uses subject to 
+reporting. (1) The chemical substance identified generically as 
+sulfonium tris(substitutedcarbomonocycle) substituted 
+oxatricycloalkyloxycarbonyl dihalo alkane sulfonate (PMN P-25-106) is 
+subject to reporting under this section for the significant new uses 
+described in paragraph (a)(2) of this section. The requirements of this 
+section do not apply to quantities of the substance after they have 
+been completely reacted or adhered (during photolithographic processes) 
+onto a semiconductor wafer surface or similar manufactured article used 
+in the production of semiconductor technologies.
+    (2) The significant new uses are:
+    (i) Protection in the workplace. Requirements as specified in Sec.  
+721.63(a)(1), (a)(2)(i) and (iii), (a)(3), and (c). When determining 
+which persons are reasonably likely to be exposed as required for Sec.  
+721.63(a)(1), engineering control measures (e.g., enclosure or 
+confinement of the operation, general and local ventilation) or 
+administrative control measures (e.g., workplace policies and 
+procedures) shall be considered and implemented to prevent exposure, 
+where feasible.
+    (ii) Hazard communication. Requirements as specified in Sec.  
+721.72(a) through (f), (g)(1), (g)(2)(i) through (iii) and (g)(2)(v), 
+(g)(3)(i) and (ii), and (g)(5). For purposes of Sec.  721.72(e), the 
+concentration is set at 1.0%. For purposes of Sec.  721.72(g)(1), this 
+substance may cause: acute toxicity, skin irritation, serious eye 
+damage, skin sensitization, genetic toxicity, and specific target organ 
+toxicity. Alternative hazard and warning statements that meet the 
+criteria of the Globally Harmonized System and OSHA Hazard 
+Communication Standard may be used.
+    (iii) Industrial, commercial, and consumer activities. Requirements 
+as specified in Sec.  721.80(f), (k), and (t). It is a significant new 
+use to import the substance other than in solution, unless in sealed 
+containers weighing 5 kilograms or less. It is a significant new use to 
+process the substance in any way that generates vapor, dust, mist, or 
+aerosol in a non-enclosed process. It is a significant new use to 
+manufacture the substance longer than 18 months.
+    (b) Specific requirements. The provisions of subpart A of this part 
+apply to this section except as modified by this paragraph (b).
+    (1) Recordkeeping. Recordkeeping requirements as specified in Sec.  
+721.125(a) through (i) are applicable to manufacturers, importers, and 
+processors of this substance.
+    (2) Limitation or revocation of certain notification requirements. 
+The provisions of Sec.  721.185 apply to this section.
+
+
+Sec.  721.12278   Heteromonocyclic alkylsubstituted carbomonocyclic 
+carbopolycyclic heteromonocyclic dihalo sulfoacetate (generic).
+
+    (a) Chemical substance and significant new uses subject to 
+reporting. (1) The chemical substance identified generically as 
+heteromonocyclic alkylsubstituted carbomonocyclic carbopolycyclic 
+heteromonocyclic dihalo sulfoacetate (PMN P-25-107) is subject to 
+reporting under this section for the significant new uses described in 
+paragraph (a)(2) of this section. The requirements of this section do 
+not apply to quantities of the substance after they have been 
+completely reacted or adhered (during photolithographic processes) onto 
+a semiconductor wafer surface or similar manufactured article used in 
+the production of semiconductor technologies.
+    (2) The significant new uses are:
+    (i) Protection in the workplace. Requirements as specified in Sec.  
+721.63(a)(1), (a)(2)(i) and (iii), (a)(3), and (c). When determining 
+which persons are reasonably likely to be exposed as required for Sec.  
+721.63(a)(1), engineering control measures (e.g., enclosure or 
+confinement of the operation, general and local ventilation) or 
+administrative control measures (e.g., workplace policies and 
+procedures) shall be considered and implemented to prevent exposure, 
+where feasible.
+    (ii) Hazard communication. Requirements as specified in Sec.  
+721.72(a) through (f), (g)(1), (g)(2)(i) through (iii) and (g)(2)(v), 
+(g)(3)(i) and (ii), and (g)(5). For purposes of Sec.  721.72(e), the 
+concentration is set at 1.0%. For purposes of Sec.  721.72(g)(1), this 
+substance may cause: acute toxicity, skin irritation, serious eye 
+damage, skin sensitization, genetic toxicity, and specific target organ 
+toxicity. Alternative hazard and warning statements that meet the 
+criteria of the Globally Harmonized System and OSHA Hazard 
+Communication Standard may be used.
+    (iii) Industrial, commercial, and consumer activities. Requirements 
+as specified in Sec.  721.80(f), (k), and (t). It is a significant new 
+use to import the substance other than in solution, unless in sealed 
+containers weighing 5 kilograms or less. It is a significant new use to 
+process the substance in any way that generates vapor, dust, mist, or 
+aerosol in a non-enclosed process. It is a significant new use to 
+manufacture the substance longer than 18 months.
+    (b) Specific requirements. The provisions of subpart A of this part 
+apply to this section except as modified by this paragraph (b).
+    (1) Recordkeeping. Recordkeeping requirements as specified in Sec.  
+721.125(a) through (i) are applicable to manufacturers, importers, and 
+processors of this substance.
+    (2) Limitation or revocation of certain notification requirements. 
+The provisions of Sec.  721.185 apply to this section.
+
+[FR Doc. 2026-21051 Filed 10-14-26; 8:45 am]
+BILLING CODE 6560-50-P
+
+
+

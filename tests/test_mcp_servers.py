@@ -56,6 +56,7 @@ async def test_feed_falls_back_to_snapshot_when_offline(monkeypatch, tmp_path):
         raise httpx.ConnectError("offline")
     monkeypatch.setattr(reg_feed_server.httpx, "get", offline)
     monkeypatch.setattr(reg_feed_server, "CACHE_DIR", tmp_path)          # 본문 캐시 없음
+    monkeypatch.setattr(reg_feed_server, "FULLTEXT_DIR", tmp_path / "none")
     async with Client(reg_feed_server.mcp) as client:
         result = data(await client.call_tool("search_federal_register", {}))
         assert result["source"] == "snapshot" and result["documents"]
@@ -70,6 +71,19 @@ async def test_feed_falls_back_to_snapshot_when_offline(monkeypatch, tmp_path):
         cached = data(await client.call_tool("get_federal_register_document",
                                              {"document_number": "2026-20964"}))
         assert cached["text_source"] == "full_text" and cached["text_warning"] is None
+
+
+async def test_snapshot_mode_uses_frozen_inputs_without_network(monkeypatch):
+    """평가용: FEED_MODE=snapshot이면 네트워크를 전혀 쓰지 않고 저장된 목록·본문만 쓴다."""
+    def no_network(*args, **kwargs):
+        raise AssertionError("스냅샷 모드에서 네트워크 호출")
+    monkeypatch.setattr(reg_feed_server.httpx, "get", no_network)
+    monkeypatch.setattr(reg_feed_server, "settings", reg_feed_server.settings.model_copy(update={"feed_mode": "snapshot"}))
+    async with Client(reg_feed_server.mcp) as client:
+        result = data(await client.call_tool("search_federal_register", {"days": 7}))
+        assert result["source"] == "snapshot" and len(result["documents"]) == 4
+        doc = data(await client.call_tool("get_federal_register_document", {"document_number": "2026-20964"}))
+        assert doc["text_source"] == "full_text" and "December 31, 2027" in doc["text"]
 
 
 async def test_kr_feed_disabled_without_key():

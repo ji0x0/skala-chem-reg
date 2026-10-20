@@ -1,0 +1,793 @@
+
+
+Federal Register, Volume 91 Issue 197 (Wednesday, October 14, 2026)
+
+
+[Federal Register Volume 91, Number 197 (Wednesday, October 14, 2026)]
+[Proposed Rules]
+[Pages 65148-65154]
+From the Federal Register Online via the Government Publishing Office [www.gpo.gov]
+[FR Doc No: 2026-20964]
+
+
+=======================================================================
+-----------------------------------------------------------------------
+
+ENVIRONMENTAL PROTECTION AGENCY
+
+40 CFR Part 751
+
+[EPA-HQ-OPPT-2026-7327; FRL-13574-01-OCSPP]
+RIN 2070-AL45
+
+
+Trichloroethylene (TCE); Regulation Under the Toxic Substances 
+Control Act (TSCA); Compliance Date Extensions
+
+AGENCY: Environmental Protection Agency (EPA).
+
+ACTION: Proposed rule.
+
+-----------------------------------------------------------------------
+
+SUMMARY: The Environmental Protection Agency (EPA or Agency) is 
+proposing to extend certain compliance dates applicable to certain 
+entities subject to the regulation of trichloroethylene (TCE) under the 
+Toxic Substances Control Act (TSCA) until December 31, 2027, including 
+for certain chemical processors in meeting the prohibition compliance 
+deadline for the processing of TCE, industrial and commercial use of 
+TCE as a processing aid, and associated wastewater disposal; and for 
+refrigerant manufacturers in meeting the compliance deadline for 
+phasing down
+
+[[Page 65149]]
+
+TCE feedstock in the production of HFC-134a. This proposed compliance 
+extension would allow for necessary and reasonable transition periods 
+for regulated entities under TSCA section 6(d).
+
+DATES: Comments must be received on or before November 13, 2026.
+
+ADDRESSES: Submit your comments, identified by docket identification 
+(ID) number EPA-HQ-OPPT-2026-7327, using the Federal eRulemaking Portal 
+at https://www.regulations.gov. As required by the Administrative 
+Procedure Act at 5 U.S.C. 553(b)(4), a plain language summary of the 
+rule is available at https://www.regulations.gov. Follow the online 
+instructions for submitting comments. Do not submit electronically any 
+information you consider to be Confidential Business Information (CBI) 
+or other information whose disclosure is restricted by statute. 
+Additional instructions on commenting or visiting the docket, along 
+with more information about dockets generally, is available at https://www.epa.gov/dockets/.
+
+FOR FURTHER INFORMATION CONTACT: 
+    For technical information contact: Simon Regenold, Existing 
+Chemicals Risk Management Division, Office of Pollution Prevention and 
+Toxics, Environmental Protection Agency, 1200 Pennsylvania Ave. NW, 
+Washington, DC 20460-0001; telephone number: (202) 566-1537; email 
+address: [email protected].
+    For general information contact: The TSCA Assistance Information 
+Service Hotline, Goodwill Vision Enterprises, 422 South Clinton Ave., 
+Rochester, NY 14620; telephone number: (800) 471-7127 or (202) 554-
+1404; email address: [email protected].
+
+SUPPLEMENTARY INFORMATION:
+
+I. Executive Summary
+
+A. Does this action apply to me?
+
+    You may be potentially affected by this rule if you manufacture, 
+process, distribute in commerce, use, or dispose of TCE, or products 
+containing TCE. TSCA section 3(9) defines the term ``manufacture'' to 
+mean ``to import into customs territory of the United States (as 
+defined in general note 2 of the Harmonized Tariff Schedule of the 
+United States), produce, or manufacture.'' Therefore, unless expressly 
+stated otherwise, importers of TCE are subject to provisions regulating 
+manufacture of TCE once the chemical enters the customs territory of 
+the United States. Potentially affected entities may be included in the 
+following lists of North American Industrial Classification System 
+(NAICS) codes:
+     Wood Window and Door Manufacturing (NAICS code 321911);
+     Other Basic Inorganic Chemical Manufacturing (NAICS code 
+325180);
+     Medicinal and Botanical Manufacturing (NAICS code 325411);
+     All Other Miscellaneous Chemical Product and Preparation 
+Manufacturing (NAICS code 325998);
+     Rubber and Plastics Hoses and Belting Manufacturing (NAICS 
+code 326220);
+     Rubber Product Manufacturing for Mechanical Use (NAICS 
+code 326291); and
+     Storage Battery Manufacturing (NAICS code 335911).
+
+B. What is the agency's authority for taking this action?
+
+    Under TSCA section 6(a) (15 U.S.C. 2605(a)), if EPA determines 
+through a TSCA section 6(b) risk evaluation that a chemical substance 
+presents an unreasonable risk of injury to health or the environment 
+under the conditions of use, EPA must by rule apply one or more 
+requirements listed in TSCA section 6(a) to the extent necessary so 
+that the chemical substance or mixture no longer presents such risk 
+under the conditions of use. EPA must specify compliance dates under 
+TSCA section 6(d) (15 U.S.C. 2605(d)) for any TSCA section 6(a) rule. 
+For TCE, EPA promulgated a final risk management rule under TSCA 
+section 6(a) in 2024 (``2024 TCE Final Rule'') (Ref. 1) and an interim 
+final rule extending compliance dates for two specific TCE conditions 
+of use in 2025 (``2025 TCE Interim Final Rule'') (Ref. 2). Each of 
+these TSCA section 6(a) actions include compliance dates pursuant to 
+TSCA section 6(d). This action proposes to alter some of the compliance 
+dates finalized in 2024 or finalized in subsequent amended rulemakings. 
+Unless provided otherwise by law, agencies may change existing 
+positions (e.g., reconsider, revise, or rescind prior rules) provided 
+that they acknowledge the change in position, offer a reasoned 
+explanation for the change, and take any serious reliance interests 
+into account. See, e.g., FDA v. Wages & White Lion Invs., L.L.C., 145 
+S. Ct. 898, 917 (2025); Encino Motorcars v. Navarro, 579 U.S. 211, 221 
+(2016); FCC v. Fox Television Stations, Inc., 556 U.S. 502, 515 (2009); 
+Motor Vehicle Mfrs. Ass'n v. State Farm Mut. Auto. Ins. Co., 463 U.S. 
+29 (1983). For the reasons set out in Units II and III of this 
+preamble, EPA is proposing to revise select compliance dates. EPA is 
+not aware of any serious reliance interests regarding this proposal.
+
+C. What action is the agency taking?
+
+    EPA is proposing to amend 40 CFR 751.305 and 40 CFR 751.313 to 
+extend the prohibition compliance dates for processing TCE as a 
+reactant/intermediate, processing for and industrial and commercial use 
+of TCE as a processing aid in: process solvent used in battery 
+manufacture, process solvent used in polymer fiber spinning, 
+fluoroelastomer manufacture and Alcantara manufacture, extraction 
+solvent used in caprolactam manufacture, precipitant used in beta-
+cyclodextrin manufacture (hereinafter referred to as ``industrial and 
+commercial use of TCE as a processing aid''), and the disposal of TCE 
+from such processing or uses to industrial pre-treatment, industrial 
+treatment, or publicly owned treatment works from December 18, 2026, to 
+December 31, 2027.
+    EPA is also proposing to amend 40 CFR 751.307 to extend the 
+compliance timeframe for a step in the phase-out of processing TCE as 
+an intermediate to manufacture HFC-134a. Specifically, EPA is proposing 
+to extend the compliance deadline from June 7, 2027, to December 31, 
+2027, for each manufacturer of HFC-134a via processing TCE as an 
+intermediate to process TCE at an annual volume no greater than 75 
+percent of the baseline.
+    EPA is also proposing to amend 40 CFR 751.321 to amend the 
+compliance deadline for downstream notification, and the text required 
+to be present in the SDS, to accurately reflect the new prohibition 
+compliance deadline for processing TCE as a reactant/intermediate, 
+processing for and industrial and commercial use of TCE as a processing 
+aid, and the disposal of TCE from such processing or uses to industrial 
+pre-treatment, industrial treatment, or publicly owned treatment works. 
+The new text would be required to be updated 30 days after the 
+publication of the final rule.
+
+D. Why is the Agency taking this action?
+
+    EPA is proposing to address ongoing difficulties associated with 
+compliance dates for the 2024 TCE Final Rule and 2025 Interim Final 
+Rule for certain chemical processors and refrigerant manufacturers due 
+to challenges with the implementation of the respective prohibition and 
+phaseout, in order to provide a reasonable transition period to no 
+longer process TCE. As detailed further in Unit III.A.1, soon after 
+publication of the 2024 TCE Final Rule, chemical processors and 
+chemical manufacturers explained to EPA that the prohibition on 
+processing TCE as a
+
+[[Page 65150]]
+
+reactant/intermediate, and associated wastewater disposal, would cause 
+significant hardships to the chemical manufacturing sector because 
+byproduct TCE at levels above the regulatory threshold is regularly 
+transferred between sites during the manufacture of other chemicals 
+(Refs. 3, 4 and 5).
+    EPA is also concerned about the prohibition on the processing for 
+and industrial and commercial use of TCE as a processing aid with the 
+same compliance date, as EPA believes it may also warrant a more 
+reasonable compliance timeframe for chemical processing. Due to the 
+regular transfer of byproduct TCE between sites during the manufacture 
+of other chlorinated solvents, a prohibition on processing TCE on 
+December 18, 2026, could have significant negative impacts on the 
+production of other chlorinated solvents in the United States (Ref. 3).
+    Separately, after publication of the 2024 TCE Final Rule, EPA 
+received information from processors of TCE who manufacture HFC-134a 
+about the continued need for high production of the refrigerant past 
+the 2024 Final Rule's phaseout compliance dates (Ref. 6). As discussed 
+further in Unit III.A.2, HFC-134a manufacturers now need a longer 
+transition period so they can continue using a higher volume of TCE 
+feedstock in order to meet demand for national security and critical 
+infrastructure (Ref. 6). EPA's proposed amendment to the compliance 
+deadline for downstream notification, and the text required to be 
+present in SDSs, is being modified to accurately reflect the new 
+prohibition compliance deadlines for processing being proposed in this 
+action.
+
+E. What are the incremental economic impacts?
+
+    EPA evaluated the potential incremental economic impacts and 
+determined that these changes would have minimal impacts on the 
+estimated costs and benefits of the existing actions and would 
+primarily result in a delay when those costs and benefits begin 
+accruing. Quantified costs are expected to be the same as estimated in 
+the 2024 TCE Final Rule but will not be incurred until the proposed 
+compliance date extensions expire. Relying on the cost estimates in 
+section 7 of the economic analysis of the TCE Final Rule (Ref. 7), EPA 
+estimates that the proposed extension of compliance dates would result 
+in present value cost savings of $0.62-0.65 million (2024$ in 2026), 
+forgone health benefits of $3,795 to $7,844 (2025$), and annualized 
+cost savings of $ 0.04-0.06 million (2024$ in 2026, 3%-7% discount rate 
+respectively, 20-year time horizon). EPA notes that, in the event that 
+alternative compliance timeframes are finalized in response to comments 
+received on this proposal, these impacts would be modified accordingly 
+(e.g., cost savings likely increase as the duration of the compliance 
+timeframe extension increases).
+
+II. Background
+
+    On December 17, 2024, EPA published the 2024 TCE Final Rule under 
+TSCA section 6(a) to address unreasonable risk to human health (89 FR 
+102568) (FRL-8317-02-OCSPP). The 2024 TCE final rule prohibits the 
+manufacture (including import), processing, and distribution in 
+commerce of TCE for all uses (industrial, commercial, and consumer), 
+while including longer compliance timeframes with reasonable worker 
+protections for some processing and industrial and commercial uses 
+until the prohibitions come into effect, so that TCE no longer presents 
+an unreasonable risk to workers, occupational non-users, consumers, and 
+bystanders.
+    After publication of the 2024 TCE Final Rule, EPA was made aware of 
+a previously unidentified use of TCE as a processing aid in the 
+manufacture of nuclear fuel and promulgated an interim final rule in 
+September of 2025 to amend the prohibition compliance deadlines until 
+September 15, 2028, to provide a reasonable transition period for that 
+use (Ref. 2). EPA additionally extended the deadlines for disposal of 
+TCE to wastewater for processors of TCE as a reactant/intermediate and 
+certain processors and industrial and commercial users of TCE as a 
+processing aid to December 18, 2026, to match the prohibition 
+compliance date for these processing conditions of use.
+    EPA received three TSCA section 21 petitions concerning the 2024 
+TCE Final Rule: from American Chemistry Council (ACC) on May 29, 2025 
+(withdrawn September 19, 2025) (Refs. 3 and 8); from PPG Industries, 
+Inc. on March 24, 2025 (withdrawn June 11, 2025) (Refs. 4 and 9); and 
+from the Alliance for a Strong U.S. Battery Sector and Microporous on 
+April 30, 2025 (withdrawn July 25, 2025) (Refs. 5 and 10). While these 
+petitions were withdrawn, EPA recognizes the potential merits of 
+certain requests contained in these petitions and is planning to 
+address them in amendments to the rule through a future notice-and-
+comment rulemaking.
+    After issuing the TCE Final Rule, EPA received petitions for review 
+that were consolidated in the U.S. Court of Appeals for the Third 
+Circuit. EPA has since announced its intention to reconsider the TCE 
+Final Rule.
+
+III. Provisions of This Proposed Rule
+
+    For any TSCA section 6(a) rule, EPA must specify mandatory 
+compliance dates that are ``as soon as practicable,'' while allowing 
+for ``a reasonable transition period.'' 15 U.S.C. 2605(d)(1)(B) and 
+(E). EPA acknowledges that it is proposing a change in position from 
+the 2024 TCE Final Rule and the 2025 TCE Interim Final Rule. EPA 
+intended that the compliance timeframes in these rules would be as soon 
+as practicable while allowing for a reasonable transition period (see 
+Unit I.E of the 2024 TCE Final Rule, and Unit III of the 2025 TCE 
+Interim Final Rule). However, the Agency did not fully anticipate the 
+challenges that certain entities are now experiencing: for chemical 
+processors in meeting the prohibition compliance deadline for the 
+processing of TCE, industrial and commercial use of TCE as a processing 
+aid, and associated wastewater disposal (Unit III.A); and for 
+refrigerant manufacturers in meeting the compliance deadline for 
+phasing down TCE feedstock in the production of HFC-134a (Unit III.B). 
+Accordingly, EPA proposes that the compliance dates detailed in this 
+Unit would be more feasible and workable, and compliant with EPA's 
+obligations under TSCA section 6(d) for TCE, than those finalized in 
+2024 or amended in 2025.
+
+A. Processing TCE as a Reactant/Intermediate, Industrial and Commercial 
+Use of TCE as a Processing Aid, and Their Associated Wastewater 
+Disposal
+
+    EPA is proposing to amend the compliance deadline for the 
+prohibition on processing TCE as a reactant/intermediate and the 
+industrial and commercial use of TCE as a processing aid in certain 
+chemical manufacturing to December 31, 2027. EPA is also proposing to 
+amend the compliance deadline for the prohibition on the associated 
+disposal of TCE to wastewater by processors of TCE and processors and 
+industrial and commercial users of TCE as a processing aid to December 
+31, 2027.
+    In the 2024 TCE Final Rule, EPA finalized a prohibition on 
+processing and distributing in commerce (including making available) of 
+TCE as of June 16, 2025 (40 CFR 751.305(b)(2)). EPA also finalized 
+extended phaseouts for processing of TCE as a reactant/intermediate and 
+processing for and the industrial and commercial use of TCE as a 
+processing aid to continue until December 2026 (40 CFR
+
+[[Page 65151]]
+
+751.305(b)(9)(i)), and an exclusion from all prohibitions and 
+restrictions for processing (including reuse) of TCE as a byproduct 
+when that TCE byproduct is processed within a site-limited, physically 
+enclosed system that is part of the same overall manufacturing process 
+from which the byproduct TCE was generated (40 CFR 751.301(c)).
+    After the publication of the 2024 TCE Final Rule, EPA received a 
+Section 21 petition from the ACC regarding the exclusion on byproduct 
+reprocessing and the wastewater disposal associated with processing TCE 
+(Ref. 3). In response, in the 2025 TCE Interim Final Rule EPA amended 
+the compliance deadline from September 15, 2025, to December 18, 2026, 
+for the prohibition on disposal of TCE to wastewater for processors of 
+TCE as a reactant/intermediate and processors for and industrial and 
+commercial users of TCE as a processing aid for certain industrial 
+sectors. This action aligned the disposal prohibition with the December 
+18, 2026, prohibition on such uses in the 2024 Final Rule. This change 
+responded to the concerns raised to EPA that processing conditions of 
+use also involve disposal of TCE to wastewater that inadvertently was 
+not similarly subject to the same compliance deadline (Ref. 2).
+    Through the Section 21 Petition and subsequent engagement, EPA was 
+made aware after the 2024 final rule that byproduct TCE that is present 
+in feedstock streams is sent by railcar between facilities to be 
+further processed. This usually occurs between facilities of the same 
+company, where one site has chemical manufacturing capabilities that 
+another does not (Refs. 3, 8, 11 and 13). If the prohibition on 
+processing TCE goes into effect on December 18, 2026, then the 
+processing of byproduct TCE that travels between sites will be 
+prohibited, along with disposal of this byproduct TCE to wastewater. 
+Disposal of this byproduct TCE would therefore require incineration; if 
+all byproduct TCE that is currently reused in a different facility must 
+be incinerated, it would cause significant implementation concerns, 
+including exceeded permit limitations and potential facility closures. 
+Petitioners have indicated that the inability to send unpurified 
+chlorinated solvent product streams with byproduct TCE between 
+facilities would significantly disrupt the national supply chain by 
+disproportionately impacting operations in the manufacture of other 
+chlorinated solvents which unintentionally produce TCE as a byproduct 
+(importantly perchloroethylene, carbon tetrachloride, methylene 
+chloride, and 1,2-dichloroethane) in the United States (Refs. 3, 8, 11 
+and 13). In the 2024 TCE Final Rule and 2025 TCE Interim Final Rule EPA 
+did not anticipate these implications.
+    As such, EPA is proposing to amend the compliance deadline for the 
+prohibition on processing TCE as a reactant/intermediate and the 
+wastewater disposal associated with such processing TCE until December 
+31, 2027, so that regulated entities would not be held in non-
+compliance with the relevant requirements in the 2024 TCE Final Rule 
+and the 2025 TCE Interim Final Rule. EPA is also proposing to amend the 
+compliance deadline for the prohibition on industrial and commercial 
+use of TCE as a processing aid because EPA believes, based on ACC's 
+comments, that this condition of use also needs a longer transition 
+period. These ongoing difficulties (see Unit I.D.2) in complying with 
+the prohibitions and restrictions of the TCE final rule, particularly 
+the need to transfer byproduct chemicals off site, warrant a longer 
+reasonable transition period for this group of uses than EPA expected 
+in 2024 or 2025. Given the two years provided for this compliance date 
+in the 2024 TCE rule, EPA considers this extension of no more than one 
+year to be appropriate because it is ``as soon as practicable,'' while 
+allowing for ``a reasonable transition period'' (15 U.S.C. 
+2605(d)(1)(B) and (E)). Separately, EPA has initiated a rulemaking 
+under RIN 2070-AL41 through which the Agency is reconsidering various 
+elements of the 2024 TCE Final Rule, including various workplace 
+exposure controls and prohibitions on certain industrial and commercial 
+uses.
+
+B. Processing TCE as an Intermediate for the Manufacture of HFC-134a
+
+    EPA is proposing to amend the compliance deadline for the first 
+phaseout reduction of the processing of TCE as an intermediate for the 
+manufacture of HFC-134a (1,1,1,2-tetrafluroethane; CASRN 811-97-2). 
+Under the 2024 TCE Final Rule, stakeholders processing TCE to 
+manufacture HFC-134a would have to cut the amount of TCE feedstock they 
+use to 75% of their baseline by June 7, 2027. EPA is proposing to amend 
+the compliance deadline so that this reduction in TCE feedstock would 
+instead occur by December 31, 2027.
+    At the time of publication of the 2024 TCE Final Rule, the public 
+comments EPA had received from the regulated community supported this 
+phaseout schedule. After the publication of the 2024 TCE Final Rule, 
+EPA received new information from Orbia Fluor & Energy Materials 
+(Orbia) regarding the continued need for HFC-134a for military, 
+industrial, and medical applications at rates higher than the 2024 TCE 
+final rule phaseout accounted for (Refs. 6 and 12). Since the 
+publication of the 2024 TCE Final Rule, the 2024 TCE final rule 
+phaseout is no longer in alignment with the AIM Act phasedown because 
+Orbia has received more allowances and anticipates receiving further 
+allowances under the AIM Act to manufacture HFC-134a than initially 
+anticipated (Ref. 6). The demand for HFC-134a from users in critical 
+infrastructure and national security applications is now expected to 
+remain significant through the early 2030s (Ref. 12).
+    By proposing to amend the compliance deadline for the first 
+phasedown reduction in TCE feedstock volume to be in December instead 
+of June 2027, EPA intends to allow time for a reasonable transition 
+period given the changes in AIM Act allowances received for HFC-134a 
+manufacture. This new compliance deadline will allow manufacturers of 
+HFC-134a to meet needs from critical infrastructure and national 
+security users while allowing for a transition that has a reasonable 
+timeframe and will not produce unintended negative consequences. It is 
+important to amend this compliance date because if the June 2027 date 
+is not changed, HFC-134a manufacturers must otherwise begin curtailing 
+their production of the refrigerant before the demand abates, 
+negatively impacting critical infrastructure and national security 
+application needs. Given the two and a half years provided for this 
+compliance date in the 2024 TCE rule, EPA considers this extension of 
+no more than 6 and a half months to be appropriate because it is ``as 
+soon as practicable,'' while allowing for ``a reasonable transition 
+period'' (15 U.S.C. 2605(d)(1)(B) and (E)).
+    Separately, EPA has initiated a rulemaking under RIN 2070-AL41 
+through which the Agency is reconsidering various elements of the 2024 
+TCE final rule, including stakeholders' larger issues with the use of 
+TCE for HFC-134a manufacturing.
+
+C. Downstream Notification
+
+    In keeping with the proposed new prohibition compliance deadline 
+for processing TCE as a reactant/intermediate in chemical 
+manufacturing, processing for and industrial and commercial use of TCE 
+as a processing aid in certain chemical manufacturing, and the disposal 
+of TCE
+
+[[Page 65152]]
+
+from such processing or uses to industrial pre-treatment, industrial 
+treatment, or publicly owned treatment works, EPA also proposes to 
+amend the downstream notification requirements of the 2024 TCE Final 
+Rule to accurately reflect the restrictions on TCE. Accurate downstream 
+notification is necessary to spread awareness throughout the supply 
+chain of the restrictions on use of TCE under TSCA, as well as provide 
+information to commercial end users about allowable uses of TCE until 
+the prohibition compliance dates. EPA recognizes that the 2024 TCE 
+Final Rule and 2025 Interim Final Rule compliance deadlines for 
+updating the SDS of June 16, 2025, and December 16, 2025, respectively, 
+have already passed and as such, manufacturers, processors, and 
+distributors in commerce of TCE would need to update or amend their SDS 
+shortly after doing so already. EPA proposes that 30 days from the 
+publication of the final rule is a practicable time to update the SDS 
+for manufacturers, processors, and distributors in commerce of TCE.
+
+IV. Requests for Comment
+
+    EPA is requesting public comment on all aspects of this proposal. 
+EPA notes that the proposed compliance dates may be subject to change 
+depending on the timing of the final rulemaking and public comment.
+    1. EPA requests comment on the changes proposed in this action, 
+including whether stakeholders have any serious reliance interests that 
+may be impacted and, if so, how such interests should be accounted for 
+in any final action.
+    2. EPA requests comment on a stakeholder requested alternative 
+compliance deadline of December 18, 2028, for the TCE uses that this 
+rule proposes to extend, and whether there is a basis that this longer 
+deadline, compared to the proposed date of December 31, 2027, would be 
+``as soon as practicable,'' while allowing for ``a reasonable 
+transition period.'' (15 U.S.C. 2605(d)(1)(B) and (E)) (Ref. 13).
+    3. EPA requests comment on an expedited (e.g., 14 day) or immediate 
+effective date of this extension rule because the December 18, 2026, 
+compliance deadline is fast approaching.
+
+V. References
+
+    The following is a listing of the documents that are specifically 
+referenced in this document. The docket includes these documents and 
+other information considered by EPA, including documents that are 
+referenced within the documents that are included in the docket, even 
+if the referenced document is not physically located in the docket. For 
+assistance in locating these other documents, please consult the 
+technical person listed under FOR FURTHER INFORMATION CONTACT.
+
+    1. EPA. Trichloroethylene; Regulation under the Toxic Substances 
+Control Act; Final Rule. RIN 2070-AK83. Federal Register (89 FR 
+102568, December 17, 2024) (FRL-8317-02-OCSPP). https://www.govinfo.gov/content/pkg/FR-2024-12-17/pdf/2024-29274.pdf.
+    2. EPA. Trichloroethylene; Regulation Under the Toxic Substances 
+Control Act (TSCA); Compliance Date Extension. RIN 2070-AL32. 
+Federal Register (90 FR 44772, September 17, 2025) (FRL-8317.2-01-
+OCSPP). https://www.govinfo.gov/content/pkg/FR-2025-09-17/pdf/2025-17948.pdf.
+    3. Robert Simon. American Chemistry Council's Petition for 
+Rulemaking to Reconsider Provisions of the Trichloroethylene TSCA 
+Risk Management Rule. (89 FR 102568, December 17, 2024). May 27, 
+2025. https://www.epa.gov/system/files/documents/2025-06/sec.-21-petition-acc-reconsider-tce-rm-rule-25-04529-ao-ex-1.pdf.
+    4. Steven F. Faeth. TSCA Section 21 Petition to Initiate a 
+Proceeding for the Amendment of EPA's Final Rule for 
+Trichloroethylene (TCE) Regarding PPG's Section 6(g) Exemption. 
+March 24, 2025. https://www.epa.gov/system/files/documents/2025-05/tsca-section-21-petition-to-initiate-a-proceeding-for-the-amendment-of-epas-final-rule-for-trichloroethylene-tce-regarding-ppgs-section-6g-exemption.pdf.
+    5. Daniel J. Feith. Alliance for a Strong U.S. Battery Sector 
+and Microporous, LLC's Petition for Reconsideration of Exemption 
+Conditions in the Final Trichloroethylene Ban. April 30, 2025. 
+https://www.epa.gov/system/files/documents/2025-05/alliance-for-a-strong-u.s.-battery-sector-and-microporous-petition-for-reconsideration-of-exemption-conditions-in-the-final-trichloroethylene-ban_1.pdf.
+    6. Orbia. Letter RE: Request for TSCA Section 6(g) Exemption 
+Rulemaking for TCE Processing as a Raw Material in HFC-134a 
+Production at the Orbia St. Gabriel, Louisiana Facility. June 8, 
+2026.
+    7. EPA. Economic Analysis of the Final Regulation of 
+Trichloroethylene Under TSCA Section 6(a). November 2024. https://www.regulations.gov/document/EPA-HQ-OPPT-2020-0642-0728.
+    8. Robert Simon. American Chemistry Council's Withdrawal Letter 
+for Petition for Rulemaking to Reconsider Provisions of the 
+Trichloroethylene TSCA Risk Management Rule, 89 FR 102568. September 
+19, 2025. https://www.epa.gov/system/files/documents/2025-11/section-21_tce-rm-rule_closeout-letter-acc_10.16.2025_od-signature_er_0.pdf.
+    9. EPA. Letter for PPG withdrawal for Petition to Initiate a 
+Proceeding for the Amendment of EPA's Final Rule for 
+Trichloroethylene (TCE) Regarding PPG's Section 6(g) Exemption. June 
+12, 2025. https://www.epa.gov/system/files/documents/2025-06/section-21_tce-rm-rule_closeout-letter-ppg_06.11.2025_od-signature_er.pdf.
+    10. EPA. Letter for Alliance for a Strong U.S. Battery Sector 
+and Microporous, LLC's Withdrawal for Petition for Reconsideration 
+of Exemption Conditions in the Final Trichloroethylene Ban. July 29, 
+2025. https://www.epa.gov/system/files/documents/2025-07/epa-letter-closing-out-april-30-2025-tsca-sec.-21-petition_0.pdf.
+    11. EPA. American Chemistry Council Meeting Memo. July 23, 2025. 
+https://www.regulations.gov/document/EPA-HQ-OPPT-2020-0642-0738.
+    12. Orbia. Meeting with Orbia Fluor & Energy Materials on Risk 
+Management under TSCA Section 6 for Trichloroethylene (TCE). May 12, 
+2026.
+    13. Sarah K. Soliman. Request for an extension of the December 
+18, 2026, prohibition compliance date for (1) off-site processing of 
+feedstock streams containing trichloroethylene (TCE) and (2) 
+disposal of wastewater containing trace levels of TCE by chemical 
+processors under the December 2024 Toxic Substances Control Act 
+(TSCA) risk management rule for TCE. August 24, 2026.
+
+VI. Statutory and Executive Order Reviews
+
+    Additional information about these statutes and Executive Orders 
+can be found at https://www.epa.gov/laws-regulations/laws-and-executive-orders.
+
+A. Executive Order 12866: Regulatory Planning and Review and Executive 
+Order 13563: Improving Regulation and Regulatory Review
+
+    This action is a significant regulatory action that was submitted 
+to the Office of Management and Budget (OMB) for review under Executive 
+Orders 12866 (58 FR 51735, October 4, 1993) and 13563 (76 FR 3821, 
+January 21, 2011). Any changes made in response to Executive Order 
+12866 review have been documented in the docket.
+
+B. Executive Order 14192: Unleashing Prosperity Through Deregulation
+
+    This action is expected to be an Executive Order 14192 deregulatory 
+action because the action is expected to result in cost savings, as 
+discussed in Unit I.E.
+
+C. Paperwork Reduction Act (PRA)
+
+    This action does not impose any new information collection 
+activities or burden subject to OMB review and approval under the PRA, 
+44 U.S.C. 3501 et seq. However, this action defers the costs associated 
+with paperwork and
+
+[[Page 65153]]
+
+recordkeeping burden for an existing information collection because the 
+delayed compliance dates alter the time horizon of the collection's 
+analysis. Burden is defined in 5 CFR 1320.3(b). OMB has previously 
+approved the information collection activities contained in the 
+existing regulations and associated burden under OMB Control No. 2070-
+0232 (EPA ICR No. 2775.02). An agency may not conduct or sponsor, and a 
+person is not required to respond to a collection of information that 
+requires OMB approval under PRA, unless it has been approved by OMB and 
+displays a currently valid OMB control number. The OMB control numbers 
+for EPA's regulations in title 40 of the CFR, after appearing in the 
+Federal Register, are listed in 40 CFR part 9, and included on the 
+related collection instrument or form, if applicable.
+
+D. Regulatory Flexibility Act (RFA)
+
+    I certify that this action will not have a significant economic 
+impact on a substantial number of small entities under the RFA, 5 
+U.S.C. 601 et seq. In making this determination, EPA concludes that the 
+impact of concern for this action is any significant adverse economic 
+impact on small entities, and the Agency is certifying that this rule 
+will not have a significant economic impact on a substantial number of 
+small entities because the rule relieves regulatory burden on the small 
+entities subject to the rule. This action would extend the compliance 
+date for the prohibition on processing TCE as a reactant/intermediate 
+and the industrial and commercial use of TCE as a processing aid and 
+their associated disposal until 2028, the compliance date for the first 
+phase of the phaseout of TCE processing in the manufacture of HFC-134a 
+until 2028, and the compliance deadline for downstream notification and 
+the text required to be present in SDSs for TCE starting 30 days after 
+publication of the final rule. We have therefore concluded that this 
+action will relieve regulatory burden for all directly regulated small 
+entities.
+
+E. Unfunded Mandates Reform Act (UMRA)
+
+    This action does not contain an unfunded mandate as described in 
+UMRA, 2 U.S.C. 1531-1538, and does not significantly or uniquely affect 
+small governments. The costs involved in this action are estimated not 
+to exceed $187 million in 2024$ ($100 million in 1995$, adjusted for 
+inflation using the GDP implicit price deflator) or more in any one 
+year. EPA estimates the annualized cost savings of extending compliance 
+dates in this action to be $0.04-0.06 million.
+
+F. Executive Order 13132: Federalism
+
+    This action does not have federalism implications as specified in 
+Executive Order 13132 (64 FR 43255, August 10, 1999) because it will 
+not have substantial direct effects on the States, on the relationship 
+between the national government and the States, or on the distribution 
+of power and responsibilities among the various levels of government.
+
+G. Executive Order 13175: Consultation and Coordination With Indian 
+Tribal Governments
+
+    This action does not have Tribal implications as specified in 
+Executive Order 13175 (65 FR 67249, November 9, 2000) because it does 
+not have substantial direct effects on one or more Indian Tribes, on 
+the relationship between the Federal Government and Indian Tribes, or 
+on the distribution of power and responsibilities between the Federal 
+Government and Indian Tribes. Thus, Executive Order 13175 does not 
+apply to this action.
+
+H. Executive Order 13045: Protection of Children From Environmental 
+Health Risks and Safety Risks
+
+    Executive Order 13045 (62 FR 19885, April 23, 1997) directs federal 
+agencies to include an evaluation of the health and safety effects of 
+the planned regulation on children in federal health and safety 
+standards and explain why the regulation is preferable to potentially 
+effective and reasonably feasible alternatives. This action is not 
+subject to Executive Order 13045 because it is not a significant 
+regulatory action under section 3(f)(1) of Executive Order 12866, and 
+because the EPA does not believe the environmental health or safety 
+risks addressed by this action present a disproportionate risk to 
+children.
+    Nevertheless, as in the 2024 TCE final rule, EPA's Policy on 
+Children's Health applies to this action. The environmental health or 
+safety risks addressed by the 2024 TCE final rule present a 
+disproportionate risk to children due to TCE's developmental toxicity, 
+as described in Unit VIII.G of that rule. However, this action would 
+not alter the requirements of the final rule promulgated in 2024 that 
+addresses the unreasonable risks presented by TCE under its conditions 
+of use. Rather, this action would delay when entities must comply with 
+certain provisions in order to provide a reasonable transition period 
+for compliance as required under TSCA section 6(d)(1)(E). Information 
+on how the Policy was applied in the 2024 TCE final rule and on that 
+action's health and risk assessments is available under Units II.C., 
+II.D. and IV.A of the final rule as well as in the 2020 Risk 
+Evaluation, and the Economic Analysis for the final rule.
+
+I. Executive Order 13211: Actions Concerning Regulations That 
+Significantly Affect Energy Supply, Distribution, or Use
+
+    This action is not a ``significant energy action'' as defined in 
+Executive Order 13211 (66 FR 28355, May 22, 2001) because it is not 
+likely to have a significant adverse effect on the supply, distribution 
+or use of energy.
+
+J. National Technology Transfer and Advancement Act (NTTAA)
+
+    This action does not involve technical standards under NTTAA 
+section 12(d), 15 U.S.C. 272. EPA determined that the 2024 TCE final 
+rule involves environmental monitoring or measurement for occupational 
+inhalation exposures and, consistent with the Agency's Performance 
+Based Measurement System, decided not to require the use of specific, 
+prescribed analytic methods. However, this action would simply extend 
+compliance dates as described in Unit III.
+
+List of Subjects in 40 CFR Part 751
+
+    Environmental protection, Chemicals, Export notification, Hazardous 
+substances, Import certification, Reporting and recordkeeping.
+
+Lee Zeldin,
+Administrator.
+    For the reasons set forth in the preamble, the EPA proposes to 
+amend 40 CFR part 751 as follows:
+
+PART 751--REGULATION OF CERTAIN CHEMICAL SUBSTANCES AND MIXTURES 
+UNDER SECTION 6 OF THE TOXIC SUBSTANCES CONTROL ACT
+
+0
+1. The authority citation for part 751 continues to read as follows:
+
+    Authority: 15 U.S.C. 2605, 15 U.S.C. 2625(l)(4).
+
+0
+2. Amend Sec.  751.305 by revising (b)(9) introductory text to read as 
+follows:
+
+
+Sec.  751.305  Prohibitions of manufacturing, processing, distribution 
+in commerce, use and disposal.
+
+* * * * *
+    (b) * * *
+* * * * *
+    (9) After December 31, 2027, except for those uses specified in 
+paragraphs
+
+[[Page 65154]]
+
+(b)(14), (23), (24), and (27) of this section, all persons are 
+prohibited from:
+* * * * *
+0
+3. Amend Sec.  751.307 by revising paragraph (b)(1) to read as follows:
+
+
+Sec.  751.307  Phase-out of processing trichloroethylene to manufacture 
+of HFC-134a.
+
+* * * * *
+    (b) * * *
+    (1) Beginning December 31, 2027, each manufacturer of HFC-134a who 
+processes TCE as an intermediate is not permitted to process TCE as an 
+intermediate at an annual volume greater than 75 percent of the 
+baseline.
+* * * * *
+0
+4. Amend Sec.  751.313 by revising paragraph (h) introductory text to 
+read as follows:
+
+
+Sec.  751.313  Phase-out of disposal of TCE to industrial pre-
+treatment, treatment, or publicly owned treatment works.
+
+* * * * *
+    (h) Except for those uses specified in paragraphs (b), (c), and (d) 
+of this section, all persons engaged in the uses specified in 
+paragraphs (h)(i) or (ii) of this section are prohibited from disposal 
+of TCE to industrial pre-treatment, industrial treatment, or publicly 
+owned treatment works after December 31, 2027:
+* * * * *
+0
+5. Amend Sec.  751.321 by:
+0
+a. Revising paragraph (d).
+0
+b. Adding paragraphs (f) and (g).
+    The revisions and additions read as follows:
+
+
+Sec.  751.321  Downstream notification.
+
+* * * * *
+    (d) Beginning on December 16, 2025, and before [DATE 30 DAYS AFTER 
+PUBLICATION OF FINAL RULE IN THE FEDERAL REGISTER], each person who 
+manufactures (including imports), processes, or distributes in commerce 
+TCE or any TCE-containing products must, prior to or concurrent with 
+the shipment, notify companies to whom TCE is shipped, in writing, of 
+the restrictions described in this subpart in accordance with paragraph 
+(e) of this section.
+* * * * *
+    (f) Beginning [DATE 30 DAYS AFTER PUBLICATION OF FINAL RULE IN THE 
+FEDERAL REGISTER], each person who manufactures (including imports), 
+processes, or distributes in commerce TCE or any TCE-containing 
+products must, prior to or concurrent with the shipment, notify 
+companies to whom TCE is shipped, in writing, of the restrictions 
+described in this subpart in accordance with paragraph (g) of this 
+section.
+    (g) The notification required under paragraph (f) of this section 
+must occur by inserting the following text in section 1(c) and 15 of 
+the Safety Data Sheet (SDS) provided with the TCE or with any TCE-
+containing product:
+    ``After June 16, 2025, this chemical/product is and can only be 
+domestically manufactured, imported, processed, or distributed in 
+commerce for the following purposes until the following prohibitions 
+take effect: (1) Processing as an intermediate (a) for the manufacture 
+of HFC-134a until June 18, 2033, and (b) for all other processing as a 
+reactant/intermediate until December 31, 2027; (2) Industrial and 
+commercial use as a solvent for open-top batch vapor degreasing until 
+December 18, 2025; (3) Industrial and commercial use as a solvent for 
+closed-loop batch vapor degreasing until December 18, 2025, except for 
+industrial and commercial use in batch vapor degreasing for land-based 
+DOD defense systems by Federal agencies and their contractors until 
+December 18, 2029, and except for industrial and commercial use as a 
+solvent for closed-loop batch vapor degreasing necessary for rocket 
+engine cleaning by Federal agencies and their contractors until 
+December 18, 2031, and except for industrial and commercial use of TCE 
+in closed-loop and open-top batch vapor degreasing for essential 
+aerospace parts and components and narrow tubing used in medical 
+devices until December 18, 2031, and except for industrial and 
+commercial use as a solvent for closed-loop batch vapor degreasing for 
+rayon fabric scouring for end use in rocket booster nozzle production 
+by Federal agencies and their contractors until December 18, 2034; (4) 
+Industrial and commercial use in processing aid (a) for lithium battery 
+separator manufacturing until December 18, 2029, and (b) for lead-acid 
+battery separator manufacturing until December 18, 2044, and (c) for 
+specialty polymeric microporous sheet material manufacturing until 
+December 18, 2039, and (d) in process solvent used in battery 
+manufacture; in process solvent used in polymer fiber spinning, 
+fluoroelastomer manufacture and Alcantara manufacture; in extraction 
+solvent used in caprolactam manufacture; and in precipitant used in 
+beta-cyclodextrin manufacture until December 31, 2027; (5) Industrial 
+and commercial uses for vessels of the Armed Forces and their systems, 
+and in the maintenance, fabrication, and sustainment for and of such 
+vessels and systems until December 18, 2034; (6) Industrial and 
+commercial use for laboratory use (a) for essential laboratory 
+activities until December 18, 2074 and (b) for asphalt testing and 
+recovery using manual centrifuge processes until December 18, 2029 and 
+for asphalt testing and recovery until December 18, 2034; and (7) 
+Industrial and commercial use as a processing aid in the manufacture of 
+nuclear fuel until September 15, 2028.
+* * * * *
+[FR Doc. 2026-20964 Filed 10-13-26; 8:45 am]
+BILLING CODE 6560-50-P
+
+
+

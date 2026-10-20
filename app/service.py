@@ -19,6 +19,7 @@ from app.agents.baseline import build_baseline_graph
 from app.agents.deps import AgentDeps
 from app.agents.graph import build_graph
 from app.core.config import DATA_DIR, Settings
+from app.core.tracing import send_feedback
 from app.llm.base import AgentLLM
 from app.llm.langchain_llm import build_llm
 from app.repositories.product_db import ProductDB
@@ -124,11 +125,12 @@ class AgentService:
                 "last": {k: values.get(k) for k in ("route", "plan", "impacts", "gaps", "judgement", "approval")},
                 "citations": values.get("citations", [])}
 
-    # ── 피드백 (LangSmith 연동은 Step 6) ─────────────────────────────────────
+    # ── 피드백: 로컬 기록 + LangSmith Run feedback (R41) ──────────────────────
     async def feedback(self, run_id: str, score: int, comment: str) -> dict:
         record = {"run_id": run_id, "score": score, "comment": comment,
                   "ts": datetime.now(timezone.utc).isoformat()}
         FEEDBACK_LOG.parent.mkdir(parents=True, exist_ok=True)
         with FEEDBACK_LOG.open("a", encoding="utf-8") as f:
             f.write(json.dumps(record, ensure_ascii=False) + "\n")
-        return {"stored": True, "langsmith": False}
+        sent, reason = await asyncio.to_thread(send_feedback, run_id, score, comment)   # HTTP는 이벤트 루프 밖에서
+        return {"stored": True, "langsmith": sent, **({"langsmith_reason": reason} if reason else {})}

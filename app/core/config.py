@@ -35,6 +35,8 @@ class Settings(BaseSettings):
     federal_register_api: str = "https://www.federalregister.gov/api/v1"
     law_api_oc: str | None = None      # 법제처 Open API 사용자 ID(OC). 없으면 국내 실시간 조회 비활성
     http_timeout_s: float = 20.0
+    # Step 6: snapshot = 실시간 호출 없이 저장된 관보 목록·본문만 사용 (평가 입력 고정, 오프라인 시연)
+    feed_mode: Literal["live", "snapshot"] = "live"
 
     # ── Step 3a: LLM ──
     llm_backend: Literal["fake", "ollama", "openai"] = "fake"

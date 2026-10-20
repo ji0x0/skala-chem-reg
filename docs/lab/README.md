@@ -12,4 +12,4 @@
 | 4 | [step04-api.md](step04-api.md) | FastAPI REST + SSE, 제품 관리·규제 목록 API (제품은 앱 DB가 원본) | ✅ |
 | 5a | [step05a-frontend-chat.md](step05a-frontend-chat.md) | Vue 화면: 질의응답·브리핑 스트리밍, 근거 원문 카드, 승인, 피드백, 새로고침 복원 | ✅ |
 | 5b | [step05b-frontend-manage.md](step05b-frontend-manage.md) | Vue 화면: 제품 관리(추가·수정·검증·판정), 규제 목록(등재 물질·검색) | ✅ |
-| 6 | step06-eval-test.md | 평가, LangSmith | |
+| 6 | [step06-eval.md](step06-eval.md) | 평가: 회귀 질문 11개·코드 채점기·LLM-as-Judge, Before/After 실측, LangSmith 트레이스·피드백·Dataset | ✅ |
