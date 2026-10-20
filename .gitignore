@@ -1,0 +1,12 @@
+.env
+.venv/
+session.db
+__pycache__/
+*.log
+.DS_Store
+
+# 참고용 자료
+example/
+
+# 1차 전체 초안 백업 (최종본 완성 후 삭제 예정)
+_backup/
