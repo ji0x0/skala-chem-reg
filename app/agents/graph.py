@@ -121,11 +121,14 @@ async def lookup_node(state: AgentState, deps: AgentDeps) -> dict:
     question = state["question"]
     errors: list[dict] = []
     cas_list = resolve_substances(question, deps)[:5]
-    product_ids = [p for p in dict.fromkeys(re.findall(r"P\d{3}", question.upper()))
-                   if p in deps.product_ids][:3]
+    asked = list(dict.fromkeys(re.findall(r"P\d{3}", question.upper())))
+    product_ids = [p for p in asked if p in deps.product_ids][:3]
+    unknown = [p for p in asked if p not in deps.product_ids]
     get_stream_writer()({"type": "plan", "substances": cas_list, "products": product_ids})
 
     context, citations, judgements = [], [], {}
+    for pid in unknown:                     # 없는 제품을 "못 찾음"으로 뭉개지 않고 명확히 알린다 (판정을 지어내지 않게)
+        context.append(f"- 제품 {pid}: 등록되지 않은 제품 — 판정할 수 없음. 제품 관리 화면에서 먼저 등록해야 함")
     for cas in cas_list:
         found = await call_tool(deps, "lookup", "lookup_substance", {"keyword": cas}, errors)
         if not found or not found["listings"]:
@@ -138,6 +141,14 @@ async def lookup_node(state: AgentState, deps: AgentDeps) -> dict:
             citations.append(c.to_dict())
             context.append(f"  [{c.id}] {lst['region']} {lst['list_name']} {lst.get('entry_ref') or ''} "
                            f"{lst.get('condition_ko') or ''}".rstrip())
+        # "이 물질이 든 제품" — 물질 질문에도 회사 제품을 함께 알려 준다 (Step 6 평가에서 발견한 누락)
+        holders = await call_tool(deps, "lookup", "find_products_by_cas", {"cas_numbers": [cas]}, errors) or []
+        if holders:
+            context.append(f"  이 물질을 함유한 회사 제품: " + "; ".join(
+                f"{h['product_id']} {h['product_name']} ({h['ingredient_name']} {h['wt_pct']:g} wt%, "
+                f"수출 {h['export_regions'].replace(';', ', ')})" for h in holders))
+        else:
+            context.append("  이 물질을 함유한 회사 제품: 없음")
     for pid in product_ids:
         judged = await call_tool(deps, "lookup", "judge_product_compliance", {"product_id": pid}, errors)
         if not judged:
@@ -155,7 +166,7 @@ async def lookup_node(state: AgentState, deps: AgentDeps) -> dict:
         for s in judged["skipped"][:5]:
             context.append(f"  (적용 제외) {s['substance']} · {s['reason']}")
 
-    if not cas_list and not product_ids:
+    if not cas_list and not product_ids and not unknown:
         context.append("질문에서 물질(이름·CAS)이나 제품 ID(P001 형식)를 찾지 못함. 사용자에게 물질 이름·CAS 또는 "
                        "제품 ID를 알려 달라고 요청할 것")
     answer, usage = await deps.llm.answer(question, context="\n".join(context),

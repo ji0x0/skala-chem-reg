@@ -61,6 +61,16 @@ async def test_lookup_path_cites_listings_and_judgements():
     await tools.stop()
 
 
+async def test_lookup_lists_products_containing_substance_and_unknown_product():
+    """Step 6 평가에서 발견: 물질 질문에 함유 제품이 빠짐 / 없는 제품을 '못 찾음'으로 뭉갬."""
+    graph, tools = await make_graph()
+    _, _, snap = await run(graph, "트리클로로에틸렌이 들어간 제품과 해당 규제 알려줘", thread="h1")
+    assert "P003" in snap.values["final"] and "함유한 회사 제품" in snap.values["final"]
+    _, _, snap = await run(graph, "P099 규제 문제 있어?", thread="h2")
+    assert "P099: 등록되지 않은 제품" in snap.values["final"] and not snap.values["citations"]
+    await tools.stop()
+
+
 async def test_briefing_runs_parallel_agents_and_waits_for_approval():
     graph, tools = await make_graph()
     cfg, kinds, snap = await run(graph, BRIEFING)
