@@ -1,0 +1,92 @@
+product_id,product_name,product_form,export_regions,cas,ingredient_name,role,wt_pct
+P001,연질 PVC 전선 피복 컴파운드,article,EU;US,9002-86-2,Polyvinyl chloride,주원료(수지),55
+P001,연질 PVC 전선 피복 컴파운드,article,EU;US,117-81-7,DEHP,가소제,28
+P001,연질 PVC 전선 피복 컴파운드,article,EU;US,471-34-1,Calcium carbonate,충전제,10
+P001,연질 PVC 전선 피복 컴파운드,article,EU;US,8013-07-8,Epoxidized soybean oil,보조 안정제,3
+P001,연질 PVC 전선 피복 컴파운드,article,EU;US,1309-64-4,Antimony trioxide,난연 보조제,2.5
+P001,연질 PVC 전선 피복 컴파운드,article,EU;US,1333-86-4,Carbon black,안료,0.8499
+P001,연질 PVC 전선 피복 컴파운드,article,EU;US,57-11-4,Stearic acid,활제,0.5
+P001,연질 PVC 전선 피복 컴파운드,article,EU;US,7439-92-1,Lead (stabilizer),열안정제(납계),0.15
+P001,연질 PVC 전선 피복 컴파운드,article,EU;US,75-01-4,Vinyl chloride,잔류 단량체,0.0001
+P002,저취 PVC 바닥재,article,EU,9002-86-2,Polyvinyl chloride,주원료(수지),60
+P002,저취 PVC 바닥재,article,EU,28553-12-0,Diisononyl phthalate (DINP),가소제,22
+P002,저취 PVC 바닥재,article,EU,471-34-1,Calcium carbonate,충전제,12
+P002,저취 PVC 바닥재,article,EU,13463-67-7,Titanium dioxide,안료,2.3899
+P002,저취 PVC 바닥재,article,EU,8013-07-8,Epoxidized soybean oil,보조 안정제,2
+P002,저취 PVC 바닥재,article,EU,557-05-1,Zinc stearate,Ca/Zn 안정제,1.5
+P002,저취 PVC 바닥재,article,EU,117-81-7,DEHP,불순물(재활용 원료 유래),0.08
+P002,저취 PVC 바닥재,article,EU,84-74-2,DBP,불순물(재활용 원료 유래),0.03
+P002,저취 PVC 바닥재,article,EU,75-01-4,Vinyl chloride,잔류 단량체,0.0001
+P003,금속 탈지 세정제,mixture,US;KR,79-01-6,Trichloroethylene,주용제,94.5
+P003,금속 탈지 세정제,mixture,US;KR,106-88-7,"1,2-Butylene oxide",안정제,3
+P003,금속 탈지 세정제,mixture,US;KR,108-18-9,Diisopropylamine,안정제(산 수용체),1.5
+P003,금속 탈지 세정제,mixture,US;KR,127-18-4,Tetrachloroethylene,불순물(제조 공정),0.8
+P003,금속 탈지 세정제,mixture,US;KR,89-83-8,Thymol,산화방지제,0.1995
+P003,금속 탈지 세정제,mixture,US;KR,56-23-5,Carbon tetrachloride,불순물(제조 공정),0.0005
+P004,2액형 에폭시 코팅제,mixture,EU;JP,25068-38-6,Bisphenol A-epichlorohydrin resin,주원료(수지),55
+P004,2액형 에폭시 코팅제,mixture,EU;JP,1330-20-7,Xylene,용제,15
+P004,2액형 에폭시 코팅제,mixture,EU;JP,13463-67-7,Titanium dioxide,안료,10
+P004,2액형 에폭시 코팅제,mixture,EU;JP,100-51-6,Benzyl alcohol,반응성 희석제,6
+P004,2액형 에폭시 코팅제,mixture,EU;JP,71-36-3,n-Butanol,용제,5
+P004,2액형 에폭시 코팅제,mixture,EU;JP,14807-96-6,Talc,충전제,4.6995
+P004,2액형 에폭시 코팅제,mixture,EU;JP,100-41-4,Ethylbenzene,용제(혼합 크실렌 성분),4
+P004,2액형 에폭시 코팅제,mixture,EU;JP,80-05-7,Bisphenol A,잔류 원료,0.3
+P004,2액형 에폭시 코팅제,mixture,EU;JP,106-89-8,Epichlorohydrin,잔류 원료,0.0005
+P005,우레탄 접착제,mixture,KR;CN,108-88-3,Toluene,용제,32
+P005,우레탄 접착제,mixture,KR;CN,101-68-8,Methylene diphenyl diisocyanate (MDI),경화 성분,28
+P005,우레탄 접착제,mixture,KR;CN,25322-69-4,Polypropylene glycol,폴리올,18
+P005,우레탄 접착제,mixture,KR;CN,75-09-2,Dichloromethane,용제,15
+P005,우레탄 접착제,mixture,KR;CN,112945-52-5,Fumed silica,요변제,4
+P005,우레탄 접착제,mixture,KR;CN,471-34-1,Calcium carbonate,충전제,2.95
+P005,우레탄 접착제,mixture,KR;CN,77-58-7,Dibutyltin dilaurate,촉매,0.05
+P006,난연 PP 마스터배치,article,JP;EU,9003-07-0,Polypropylene,주원료(수지),70
+P006,난연 PP 마스터배치,article,JP;EU,13560-89-9,Dechlorane Plus,난연제,12
+P006,난연 PP 마스터배치,article,JP;EU,84852-53-9,Decabromodiphenyl ethane,난연제,10
+P006,난연 PP 마스터배치,article,JP;EU,1309-64-4,Antimony trioxide,난연 보조제,6
+P006,난연 PP 마스터배치,article,JP;EU,1592-23-0,Calcium stearate,활제,1.42
+P006,난연 PP 마스터배치,article,JP;EU,6683-19-8,Antioxidant 1010,산화방지제,0.5
+P006,난연 PP 마스터배치,article,JP;EU,25637-99-4,HBCDD,불순물(재활용 원료 유래),0.08
+P007,불소계 발수 코팅제,mixture,JP;US,7732-18-5,Water,용매,70
+P007,불소계 발수 코팅제,mixture,JP;US,9002-84-0,Polytetrafluoroethylene dispersion solids,주원료(수지),20
+P007,불소계 발수 코팅제,mixture,JP;US,57-55-6,Propylene glycol,동결 방지제,5
+P007,불소계 발수 코팅제,mixture,JP;US,67-63-0,Isopropanol,용제,4
+P007,불소계 발수 코팅제,mixture,JP;US,69011-36-5,Tridecyl alcohol ethoxylate,계면활성제,0.9975
+P007,불소계 발수 코팅제,mixture,JP;US,335-67-1,PFOA,불순물(제조 공정),0.0025
+P008,산업용 고무 호스,article,EU,9003-18-3,Nitrile butadiene rubber,주원료(고무),55
+P008,산업용 고무 호스,article,EU,1333-86-4,Carbon black,보강제,28
+P008,산업용 고무 호스,article,EU,85535-85-9,MCCP,가소제,8
+P008,산업용 고무 호스,article,EU,1314-13-2,Zinc oxide,가황 활성제,3
+P008,산업용 고무 호스,article,EU,84-69-5,DIBP,가소제,2
+P008,산업용 고무 호스,article,EU,7704-34-9,Sulfur,가황제,1.5
+P008,산업용 고무 호스,article,EU,57-11-4,Stearic acid,가공 조제,1
+P008,산업용 고무 호스,article,EU,793-24-8,6PPD,노화방지제,1
+P008,산업용 고무 호스,article,EU,137-26-8,Thiram (TMTD),가황 촉진제,0.5
+P009,페놀수지 성형재료,mixture,KR;EU,9003-35-4,Phenol-formaldehyde resin,주원료(수지),45
+P009,페놀수지 성형재료,mixture,KR;EU,65997-17-3,Glass fiber,보강재,35
+P009,페놀수지 성형재료,mixture,KR;EU,1332-58-7,Kaolin,충전제,7.7
+P009,페놀수지 성형재료,mixture,KR;EU,100-97-0,Hexamethylenetetramine,경화제,7
+P009,페놀수지 성형재료,mixture,KR;EU,1309-48-4,Magnesium oxide,경화 촉진제,2
+P009,페놀수지 성형재료,mixture,KR;EU,1333-86-4,Carbon black,안료,1
+P009,페놀수지 성형재료,mixture,KR;EU,1592-23-0,Calcium stearate,이형제,1
+P009,페놀수지 성형재료,mixture,KR;EU,108-95-2,Phenol,잔류 단량체,0.8
+P009,페놀수지 성형재료,mixture,KR;EU,50-00-0,Formaldehyde,잔류 단량체,0.5
+P010,수성 아크릴 도료,mixture,EU;US,7732-18-5,Water,용매,45
+P010,수성 아크릴 도료,mixture,EU;US,25035-69-2,Acrylic copolymer,주원료(수지),28
+P010,수성 아크릴 도료,mixture,EU;US,13463-67-7,Titanium dioxide,안료,18
+P010,수성 아크릴 도료,mixture,EU;US,471-34-1,Calcium carbonate,충전제,3.7885
+P010,수성 아크릴 도료,mixture,EU;US,57-55-6,Propylene glycol,동결 방지제,3
+P010,수성 아크릴 도료,mixture,EU;US,25265-77-4,Texanol,조막 조제,2
+P010,수성 아크릴 도료,mixture,EU;US,1336-21-6,Ammonia (aqueous),pH 조절제,0.2
+P010,수성 아크릴 도료,mixture,EU;US,141-32-2,Butyl acrylate,잔류 단량체,0.01
+P010,수성 아크릴 도료,mixture,EU;US,2682-20-4,Methylisothiazolinone (MIT),보존제,0.0015
+P011,자외선 차단 PET 필름,article,EU,25038-59-9,Polyethylene terephthalate,주원료(수지),96.9
+P011,자외선 차단 PET 필름,article,EU,25973-55-1,UV-328,자외선 흡수제,2.5
+P011,자외선 차단 PET 필름,article,EU,6683-19-8,Antioxidant 1010,산화방지제,0.4
+P011,자외선 차단 PET 필름,article,EU,7631-86-9,Silica,블로킹 방지제,0.18
+P011,자외선 차단 PET 필름,article,EU,1309-64-4,Antimony trioxide,중합 촉매 잔류,0.02
+P012,석유계 용제 블렌드,mixture,KR;US,108-88-3,Toluene,주용제,55
+P012,석유계 용제 블렌드,mixture,KR;US,1330-20-7,Xylene,용제,25
+P012,석유계 용제 블렌드,mixture,KR;US,67-56-1,Methanol,용제,9
+P012,석유계 용제 블렌드,mixture,KR;US,110-54-3,n-Hexane,용제,5.8
+P012,석유계 용제 블렌드,mixture,KR;US,100-41-4,Ethylbenzene,용제(혼합 크실렌 성분),5
+P012,석유계 용제 블렌드,mixture,KR;US,71-43-2,Benzene,불순물(원료 유래),0.2

@@ -5,7 +5,7 @@
 | 단계 | 문서 | 만드는 것 | 상태 |
 | --- | --- | --- | --- |
 | 0 | [step00-setup.md](step00-setup.md) | uv 프로젝트, 설정, 구조화 로그 | ✅ |
-| 1 | step01-data.md | 규제 DB(국내외 목록), 가상 제품·원료 목록, 평가 세트 | |
+| 1 | [step01-data.md](step01-data.md) | 규제 목록·가상 제품·용어집·관보 스냅샷, CAS 검증, 규제 DB | ✅ |
 | 2 | step02-mcp.md | 판정 코어(CAS 대조·함량 계산·번역 검사), MCP 서버 | |
 | 3 | step03-agents.md | LangChain LLM 계층, LangGraph 멀티에이전트 | |
 | 4 | step04-api.md | FastAPI REST + SSE | |

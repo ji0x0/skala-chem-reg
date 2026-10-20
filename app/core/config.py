@@ -23,6 +23,13 @@ class Settings(BaseSettings):
     # ── Step 0: 공통 ──
     log_level: Literal["DEBUG", "INFO", "WARNING", "ERROR"] = "INFO"
 
+    # ── Step 1: 데이터 ──
+    regulations_dir: Path = DATA_DIR / "regulations"     # 규제 목록 원본 CSV
+    products_path: Path = DATA_DIR / "products" / "products.csv"
+    glossary_path: Path = DATA_DIR / "glossary.csv"
+    feeds_dir: Path = DATA_DIR / "feeds"                  # 해외·국내 변경 원문 스냅샷
+    reg_db_path: Path = DATA_DIR / "regulations.db"       # CSV를 검증해 만든 SQLite (생성물)
+
 
 @lru_cache
 def get_settings() -> Settings:

@@ -10,3 +10,7 @@ example/
 
 # 1차 전체 초안 백업 (최종본 완성 후 삭제 예정)
 _backup/
+
+# 생성물
+data/regulations.db
+.pytest_cache/

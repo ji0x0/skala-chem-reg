@@ -1,0 +1,68 @@
+{
+ "source": "US Federal Register API",
+ "query": {
+  "agency": "EPA",
+  "term": "TSCA",
+  "since": "2026-09-20"
+ },
+ "fetched_at": "2026-10-20T06:30:23+00:00",
+ "count": 4,
+ "documents": [
+  {
+   "document_number": "2026-21052",
+   "title": "Significant New Use Rules on Certain Chemical Substances (24-5.5e); Correction",
+   "type": "Rule",
+   "abstract": "EPA is making a correction to a final rule that appeared in the Federal Register on August 26, 2026. The final rule established significant new use rules (SNURs) under the Toxic Substances Control Act (TSCA) for chemical substances that were the subject of premanufacture notices (PMNs) and Orders issued by EPA pursuant to TSCA. Subsequent to the publication, the Agency identified an error in a chemical name.",
+   "publication_date": "2026-10-15",
+   "html_url": "https://www.federalregister.gov/documents/2026/10/15/2026-21052/significant-new-use-rules-on-certain-chemical-substances-24-55e-correction",
+   "raw_text_url": "https://www.federalregister.gov/documents/full_text/text/2026/10/15/2026-21052.txt",
+   "agencies": [
+    "Environmental Protection Agency"
+   ],
+   "effective_on": "2026-10-26",
+   "comments_close_on": null
+  },
+  {
+   "document_number": "2026-21051",
+   "title": "Significant New Use Rules on Certain Chemical Substances (26-1)",
+   "type": "Rule",
+   "abstract": "EPA is issuing significant new use rules (SNURs) under the Toxic Substances Control Act (TSCA) for certain chemical substances that were the subject of premanufacture notices (PMNs) and are also subject to an Order issued by EPA pursuant to TSCA. The SNURs require persons to notify EPA at least 90 days before commencing the manufacture (defined by statute to include import) or processing of any of these chemical substances for an activity that is designated as a significant new use in the SNUR. The required notification initiates EPA's evaluation of the conditions of that use for that chemical substance. In addition, the manufacture or processing for the significant new use may not commence until EPA has conducted a review of the required notification; made an appropriate determination regarding that notification; and taken such actions as required by that determination.",
+   "publication_date": "2026-10-15",
+   "html_url": "https://www.federalregister.gov/documents/2026/10/15/2026-21051/significant-new-use-rules-on-certain-chemical-substances-26-1",
+   "raw_text_url": "https://www.federalregister.gov/documents/full_text/text/2026/10/15/2026-21051.txt",
+   "agencies": [
+    "Environmental Protection Agency"
+   ],
+   "effective_on": "2026-12-14",
+   "comments_close_on": null
+  },
+  {
+   "document_number": "2026-20964",
+   "title": "Trichloroethylene (TCE); Regulation Under the Toxic Substances Control Act (TSCA); Compliance Date Extensions",
+   "type": "Proposed Rule",
+   "abstract": "The Environmental Protection Agency (EPA or Agency) is proposing to extend certain compliance dates applicable to certain entities subject to the regulation of trichloroethylene (TCE) under the Toxic Substances Control Act (TSCA) until December 31, 2027, including for certain chemical processors in meeting the prohibition compliance deadline for the processing of TCE, industrial and commercial use of TCE as a processing aid, and associated wastewater disposal; and for refrigerant manufacturers in meeting the compliance deadline for phasing down TCE feedstock in the production of HFC-134a. This proposed compliance extension would allow for necessary and reasonable transition periods for regulated entities under TSCA section 6(d).",
+   "publication_date": "2026-10-14",
+   "html_url": "https://www.federalregister.gov/documents/2026/10/14/2026-20964/trichloroethylene-tce-regulation-under-the-toxic-substances-control-act-tsca-compliance-date",
+   "raw_text_url": "https://www.federalregister.gov/documents/full_text/text/2026/10/14/2026-20964.txt",
+   "agencies": [
+    "Environmental Protection Agency"
+   ],
+   "effective_on": null,
+   "comments_close_on": "2026-11-13"
+  },
+  {
+   "document_number": "2026-20436",
+   "title": "Certain New Chemicals or Significant New Uses; Statements of Findings-June 2026",
+   "type": "Notice",
+   "abstract": "The Toxic Substances Control Act (TSCA) requires EPA to publish in the Federal Register a statement of its findings after its review of certain TSCA submissions when EPA makes a finding that a new chemical substance or significant new use is not likely to present an unreasonable risk of injury to health or the environment. Such statements apply to premanufacture notices (PMNs), microbial commercial activity notices (MCANs), and significant new use notices (SNUNs) submitted to EPA under TSCA. This document presents statements of findings made by EPA on such submissions during the period from June 1, 2026, to June 30, 2026.",
+   "publication_date": "2026-10-06",
+   "html_url": "https://www.federalregister.gov/documents/2026/10/06/2026-20436/certain-new-chemicals-or-significant-new-uses-statements-of-findings-june-2026",
+   "raw_text_url": "https://www.federalregister.gov/documents/full_text/text/2026/10/06/2026-20436.txt",
+   "agencies": [
+    "Environmental Protection Agency"
+   ],
+   "effective_on": null,
+   "comments_close_on": null
+  }
+ ]
+}

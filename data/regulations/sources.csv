@@ -1,0 +1,14 @@
+reg_id,region,law,list_name,authority,rule_type,applies_when,default_threshold_wt_pct,obligation_ko,source_url,priority
+KR_CCA_HAZ,KR,화학물질관리법,유해화학물질(인체급성·인체만성·생태유해성물질),환경부·국립환경과학원,listing,국내 제조·수입·판매·사용,,영업허가·취급시설 기준·표시 의무 (물질별 함량 기준 적용),https://ncis.nier.go.kr,1
+KR_CCA_PERMIT,KR,화학물질관리법,허가물질,환경부,listing,국내 제조·수입·사용,,제조·수입·사용 전 허가 필요,https://ncis.nier.go.kr,1
+KR_CCA_RESTRICTED,KR,화학물질관리법,제한물질,환경부,restriction,고시된 용도로 제조·수입·판매·사용,,해당 용도 사용 제한,https://ncis.nier.go.kr,1
+KR_CCA_PROHIBITED,KR,화학물질관리법,금지물질,환경부,restriction,모든 용도,,제조·수입·판매·보관·사용 금지,https://ncis.nier.go.kr,1
+KR_OSHA_SPECIAL,KR,산업안전보건법,특별관리물질,고용노동부,listing,국내 사업장 취급,1.0,취급 일지 작성·근로자 고지 등 특별 관리,https://www.law.go.kr,1
+KR_OSHA_MANAGED,KR,산업안전보건법,관리대상유해물질,고용노동부,listing,국내 사업장 취급,1.0,설비 기준·작업환경측정·MSDS 관리,https://www.law.go.kr,1
+US_TSCA_S6,US,TSCA,제6조 위험관리 규칙 대상 물질,EPA,restriction,미국 제조·수입·가공·사용,,규칙에 따른 용도 금지·제한·작업자 보호 프로그램,https://www.federalregister.gov,1
+US_TSCA_SNUR,US,TSCA,중요 신규 사용 규칙(SNUR),EPA,notification,미국에서 규칙이 정한 신규 용도로 사용,,해당 신규 용도 개시 90일 전 EPA 신고,https://www.federalregister.gov,1
+EU_REACH_SVHC,EU,REACH,고위험 우려물질(SVHC) 후보 목록,ECHA,listing,EU로 수출하는 성형품(article),0.1,성형품 내 0.1 wt% 초과 시 수요자 정보 제공(제33조)·SCIP 통보,https://echa.europa.eu/candidate-list-table,1
+EU_REACH_XVII,EU,REACH,부속서 XVII 제한 물질,ECHA,restriction,EU 시장 출시(항목별 조건),,항목별 용도·농도 조건 위반 시 출시 금지,https://echa.europa.eu/substances-restricted-under-reach,2
+EU_CLP_ANNEX_VI,EU,CLP,부속서 VI 조화된 분류,ECHA,classification,EU 시장 출시 물질·혼합물,,조화된 분류에 따른 라벨·포장·SDS 작성,https://echa.europa.eu/information-on-chemicals/annex-vi-to-clp,2
+CN_PRIORITY,CN,중국 생태환경부 고시,우선관리 화학물질 목록,생태환경부(MEE),listing,중국 제조·수입·사용,,환경 위험 관리 조치(배출 관리·대체·정보 공개 등),https://www.mee.gov.cn,3
+JP_CSCL_C1,JP,화학물질심사규제법(화심법),제1종 특정화학물질,경제산업성·후생노동성·환경성,restriction,일본 제조·수입·사용,,제조·수입 사실상 금지(허가제),https://www.meti.go.jp/policy/chemical_management/kasinhou/,3
