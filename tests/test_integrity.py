@@ -37,3 +37,11 @@ def test_summary_may_omit_numbers_but_not_invent_them():
     assert report.ok and report.missing_numbers == ["0.1"]     # 생략은 경고만
     invented = short + " 위반 시 벌금 50,000달러."
     assert check(SOURCE, invented).extra_numbers == ["50000"]  # 지어낸 숫자는 오류
+
+
+def test_reference_facts_are_allowed_but_not_required():
+    quotes = "EPA proposes to extend the compliance deadline to December 31, 2027."
+    meta = "게시일 2026-10-14 / 의견 마감 2026-11-13"
+    summary = "준수 기한을 2027년 12월 31일로 연장 제안. 의견 마감은 2026년 11월 13일."
+    assert check(quotes, summary, reference=meta).ok                 # 메타데이터 날짜는 지어냄 아님
+    assert check(quotes, "준수 기한 연장 제안.", reference=meta).missing_dates == ["2027-12-31"]

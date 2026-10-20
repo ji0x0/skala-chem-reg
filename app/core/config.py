@@ -35,6 +35,19 @@ class Settings(BaseSettings):
     law_api_oc: str | None = None      # 법제처 Open API 사용자 ID(OC). 없으면 국내 실시간 조회 비활성
     http_timeout_s: float = 20.0
 
+    # ── Step 3a: LLM ──
+    llm_backend: Literal["fake", "ollama", "openai"] = "fake"
+    ollama_base_url: str = "http://127.0.0.1:11434"
+    ollama_fast_model: str = "qwen3:8b"         # 분류·계획 (짧고 정형적인 작업)
+    ollama_quality_model: str = "qwen3:8b"      # 요약·번역·작성·검토
+    openai_fast_model: str = "gpt-4o-mini"
+    openai_quality_model: str = "gpt-4o"
+    llm_timeout_s: float = 180.0
+    # 비용 비교용 가정 단가 (USD / 1K tokens). 실제 요금표가 아니다.
+    fast_usd_per_1k: float = 0.00015
+    quality_usd_per_1k: float = 0.005
+    tool_timeout_s: float = 30.0
+
 
 @lru_cache
 def get_settings() -> Settings:

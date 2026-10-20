@@ -8,6 +8,7 @@
 - 번역문에만 있는 CAS·날짜·숫자 (지어냄)         → 오류
 - 원문의 CAS·날짜가 번역문에 없음 (누락)           → 오류
 - 원문의 일반 숫자가 번역문에 없음                 → 경고 (요약에서는 생략될 수 있음)
+- reference(참고 정보: 관보 API 메타데이터 등 코드가 준 사실)는 써도 지어냄이 아니고, 빠져도 누락이 아니다
 """
 from __future__ import annotations
 
@@ -86,13 +87,13 @@ def extract_facts(text: str) -> dict[str, set[str]]:
     return {"cas": cas, "dates": dates, "numbers": _numbers(rest)}
 
 
-def check(source: str, result: str) -> IntegrityReport:
-    src, out = extract_facts(source), extract_facts(result)
+def check(source: str, result: str, reference: str = "") -> IntegrityReport:
+    src, out, ref = extract_facts(source), extract_facts(result), extract_facts(reference)
     return IntegrityReport(
         missing_cas=sorted(src["cas"] - out["cas"]),
-        extra_cas=sorted(out["cas"] - src["cas"]),
+        extra_cas=sorted(out["cas"] - src["cas"] - ref["cas"]),
         missing_dates=sorted(src["dates"] - out["dates"]),
-        extra_dates=sorted(out["dates"] - src["dates"]),
+        extra_dates=sorted(out["dates"] - src["dates"] - ref["dates"]),
         missing_numbers=sorted(src["numbers"] - out["numbers"], key=float),
-        extra_numbers=sorted(out["numbers"] - src["numbers"], key=float),
+        extra_numbers=sorted(out["numbers"] - src["numbers"] - ref["numbers"], key=float),
     )

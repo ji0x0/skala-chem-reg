@@ -7,7 +7,8 @@
 | 0 | [step00-setup.md](step00-setup.md) | uv 프로젝트, 설정, 구조화 로그 | ✅ |
 | 1 | [step01-data.md](step01-data.md) | 규제 목록·가상 제품·용어집·관보 스냅샷, CAS 검증, 규제 DB | ✅ |
 | 2 | [step02-mcp.md](step02-mcp.md) | 판정 코어(지역·형태·함량·합산·불순물), 번역 검사, 이름→CAS 매칭, MCP 서버 3개 | ✅ |
-| 3 | step03-agents.md | LangChain LLM 계층, LangGraph 멀티에이전트, 근거(원문·번역·출처) 구조 | |
+| 3a | [step03a-llm.md](step03a-llm.md) | LangChain LLM 계층, 근거 원문 추출, MCP 도구 연결 (실모델 스모크) | ✅ |
+| 3b | step03b-graph.md | LangGraph 멀티에이전트 (병렬 수집·판정·브리핑·검토·승인), Before 그래프 | |
 | 4 | step04-api.md | FastAPI REST + SSE, 제품 관리·규제 목록 API (제품은 앱 DB가 원본) | |
 | 5 | step05-frontend.md | Vue 화면: 브리핑·질의응답(근거 원문 표시), 제품 관리, 규제 목록 | |
 | 6 | step06-eval-test.md | 평가, LangSmith | |
