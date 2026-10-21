@@ -101,7 +101,7 @@ async def run_pipeline(name, graph, items, corpus, deps, use_judge, label_basis)
         score = score_answer(item, out["answer"], out["citations"], route, corpus).to_dict()
         if use_judge:
             score["judge"] = await judge(deps, item, out["answer"], label_basis)
-        row = {**score, **{k: out[k] for k in ("latency_s", "tokens", "usd", "asked_approval", "error")},
+        row = {**score, **{k: out[k] for k in ("latency_s", "tokens", "usd", "error")},
                "answer": out["answer"]}
         rows.append(row)
         fp = row["products"]["false_positives"]

@@ -2,7 +2,7 @@
 from fastapi import APIRouter, HTTPException, Request
 from fastapi.responses import StreamingResponse
 
-from .schemas import ApprovalRequest, ChatRequest, FeedbackRequest, HealthResponse, ThreadRename
+from .schemas import ChatRequest, FeedbackRequest, HealthResponse, ThreadRename
 
 router = APIRouter(prefix="/api/v1", tags=["chat"])
 SSE_HEADERS = {"Cache-Control": "no-cache", "X-Accel-Buffering": "no"}   # 프록시 버퍼링 끄기
@@ -51,15 +51,6 @@ async def rename_thread(request: Request, thread_id: str, body: ThreadRename):
 @router.get("/threads/{thread_id}", summary="대화 상태·승인 대기 여부·근거")
 async def thread_state(request: Request, thread_id: str):
     return await service(request).thread_state(thread_id)
-
-
-@router.post("/threads/{thread_id}/approval", summary="승인·반려 → SSE로 이어서 실행")
-async def approval(request: Request, thread_id: str, body: ApprovalRequest):
-    svc = service(request)
-    if not (await svc.thread_state(thread_id))["awaiting_approval"]:
-        raise HTTPException(409, "승인 대기 중인 항목이 없습니다.")
-    return StreamingResponse(svc.stream_approval(thread_id, body.approved, body.comment, body.approver),
-                             media_type="text/event-stream", headers=SSE_HEADERS)
 
 
 @router.post("/feedback", summary="👍/👎 피드백")

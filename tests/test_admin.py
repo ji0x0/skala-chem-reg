@@ -48,33 +48,22 @@ def test_admin_closed_when_token_not_configured(monkeypatch, tmp_path):
         assert c.get("/api/v1/admin/overview", headers=AUTH).status_code == 503
 
 
-def test_runs_approvals_and_feedback_are_recorded(client):
+def test_runs_and_feedback_are_recorded(client):
     events = sse(client.post("/api/v1/chat/stream", json={"message": "트리클로로에틸렌 해당 규제 알려줘"}).text)
     run_id = events[0][1]["run_id"]
     client.post("/api/v1/feedback", json={"run_id": run_id, "score": 1, "comment": "정확함"})
-
     events = sse(client.post("/api/v1/chat/stream", json={"message": "이번 주 미국 EPA 규제 변경 브리핑해줘"}).text)
-    thread = events[0][1]["thread_id"]
-    assert any(e == "approval_required" for e, _ in events)
-    pending = client.get("/api/v1/admin/approvals", headers=AUTH).json()["pending"]
-    assert [p["thread_id"] for p in pending] == [thread] and pending[0]["impacted"]
-
-    sse(client.post(f"/api/v1/threads/{thread}/approval", json={"approved": False, "comment": "근거 재확인",
-                                                                "approver": "팀장"}).text)
-    approvals = client.get("/api/v1/admin/approvals", headers=AUTH).json()
-    assert approvals["pending"] == []
-    decided = approvals["history"][0]
-    assert decided["approved"] == 0 and decided["approver"] == "팀장" and decided["comment"] == "근거 재확인"
-    assert decided["impacted"] and decided["title"].endswith("규제 브리핑")
+    assert events[-1][1]["status"] == "completed"                       # 대화 답변에는 승인이 없다
 
     runs = client.get("/api/v1/admin/runs", headers=AUTH).json()
-    assert [r["kind"] for r in runs] == ["approval", "question", "question"]
-    assert runs[2]["route"] == "lookup" and runs[2]["tokens"] > 0 and runs[2]["latency_ms"] >= 0
-    assert runs[1]["status"] == "awaiting_approval" and runs[1]["tokens"] == 0   # 사용량은 승인 후 final에 한 번
-    assert runs[0]["quality_passed"] is None and runs[1]["quality_passed"] is not None   # 품질 검토는 브리핑 질문에만
+    assert [r["kind"] for r in runs] == ["question", "question"]
+    assert runs[1]["route"] == "lookup" and runs[1]["tokens"] > 0 and runs[1]["latency_ms"] >= 0
+    assert runs[0]["route"] == "briefing" and runs[0]["tokens"] > 0 and runs[0]["impacted"] == "P003"
+    assert runs[1]["quality_passed"] is None and runs[0]["quality_passed"] is not None   # 품질 검토는 브리핑에만
+    assert client.get("/api/v1/admin/approvals", headers=AUTH).json() == {"pending": [], "history": []}
 
     overview = client.get("/api/v1/admin/overview", headers=AUTH).json()
-    assert overview["runs"]["totals"]["rejected"] == 1 and overview["pending_approvals"] == 0
+    assert overview["runs"]["totals"]["runs"] == 2 and overview["pending_approvals"] == 0
     assert overview["feedback"] == {"total": 1, "up": 1, "down": 0}
     assert overview["regulations"]["count"] == 11 and overview["regulations"]["unverified"] == 0
 

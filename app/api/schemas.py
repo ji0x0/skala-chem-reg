@@ -12,12 +12,6 @@ class ThreadRename(BaseModel):
     title: str = Field(min_length=1, max_length=60, examples=["P003 TCE 규제 대응"])
 
 
-class ApprovalRequest(BaseModel):
-    approved: bool
-    comment: str = Field(default="", max_length=500)
-    approver: str = Field(default="규제 담당자", max_length=50)
-
-
 class FeedbackRequest(BaseModel):
     run_id: str
     score: int = Field(ge=0, le=1, description="1=도움됨, 0=도움 안 됨")

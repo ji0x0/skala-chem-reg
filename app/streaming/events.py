@@ -3,7 +3,7 @@
 화면은 event 이름으로 분기한다. 그래프 내부 이벤트(dict)는 converter가 이 스키마로 바꾼다.
 스키마를 정해 두면 그래프 안쪽을 고쳐도 화면과의 약속은 깨지지 않는다.
 
-    run_started → (progress | tool_call_start | tool_call_end | token)* → (approval_required | final) → done
+    run_started → (progress | tool_call_start | tool_call_end | token)* → final → done
     오류가 나면 error → done(status=failed)
 """
 from typing import Any, Literal
@@ -55,15 +55,6 @@ class Token(StreamEvent):
     attempt: int = 1                  # 재작성이면 2 → 화면이 새 초안으로 바꿔 그린다
 
 
-class ApprovalRequired(StreamEvent):
-    event: Literal["approval_required"] = "approval_required"
-    thread_id: str
-    impacted_products: list[dict[str, Any]]
-    message: str
-    draft: str = ""                          # 승인 대상 브리핑 (가드 통과본, 코드 블록 제거)
-    citations: list[dict[str, Any]] = []     # 승인자가 근거를 보고 판단하도록 함께 보낸다
-
-
 class Final(StreamEvent):
     event: Literal["final"] = "final"
     content: str
@@ -80,4 +71,4 @@ class Done(StreamEvent):
     event: Literal["done"] = "done"
     thread_id: str
     run_id: str
-    status: Literal["completed", "awaiting_approval", "failed"]
+    status: Literal["completed", "failed"]

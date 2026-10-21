@@ -73,6 +73,3 @@ export async function streamSSE(path, body, { onEvent, signal } = {}) {
 
 export const chatStream = (message, threadId, opts) =>
   streamSSE('/chat/stream', { message, thread_id: threadId }, opts)
-
-export const approvalStream = (threadId, approved, comment, approver, opts) =>
-  streamSSE(`/threads/${encodeURIComponent(threadId)}/approval`, { approved, comment, approver }, opts)

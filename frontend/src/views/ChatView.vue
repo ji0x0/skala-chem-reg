@@ -3,11 +3,10 @@
 // 대화 ID는 브라우저에 저장해 새로고침해도 이어진다 (서버 체크포인터에 상태가 있음)
 import { nextTick, onMounted, ref } from 'vue'
 import { api } from '../api/client.js'
-import { approvalStream, chatStream } from '../api/sse.js'
+import { chatStream } from '../api/sse.js'
 import { OUTCOME_HELP, OUTCOME_KO } from '../lib/labels.js'
 import { renderMarkdown } from '../lib/markdown.js'
 import { describe } from '../lib/progress.js'
-import ApprovalPanel from '../components/ApprovalPanel.vue'
 import CitationList from '../components/CitationList.vue'
 import ProgressLog from '../components/ProgressLog.vue'
 
@@ -36,7 +35,7 @@ function save(key, value) { try { value ? localStorage.setItem(key, value) : loc
 function newAssistant(extra = {}) {
   messages.value.push({
     role: 'assistant', status: 'running', progress: [], draft: '', attempt: 1, content: '',
-    citations: [], usage: null, runId: null, approval: null, decision: null, error: '',
+    citations: [], usage: null, runId: null, error: '',
     feedback: null, highlight: null, started: performance.now(), elapsed: null, ...extra,
   })
   return messages.value.at(-1)            // 반응형 프록시를 받아야 화면이 갱신된다
@@ -61,11 +60,6 @@ function handler(msg) {
         msg.content = data.content
         msg.citations = data.citations ?? []
         msg.usage = data.usage ?? null
-        break
-      case 'approval_required':           // 승인 대기: final이 없으므로 승인할 브리핑·근거가 여기 같이 온다
-        msg.approval = { impacted_products: data.impacted_products, message: data.message }
-        if (data.draft) msg.content = data.draft
-        msg.citations = data.citations ?? []
         break
       case 'error':
         msg.error = data.message
@@ -109,15 +103,6 @@ async function send(text = input.value) {
   const msg = newAssistant()
   scrollToBottom(true)
   await run(msg, opts => chatStream(text, threadId.value, opts))
-}
-
-async function decide(msg, decision) {
-  msg.decision = decision
-  msg.approval = null
-  msg.status = 'running'
-  scrollToBottom(true)
-  msg.started = performance.now() - (msg.progress.at(-1)?.at ?? 0) * 1000
-  await run(msg, opts => approvalStream(threadId.value, decision.approved, decision.comment, decision.approver, opts))
 }
 
 async function sendFeedback(msg, score) {
@@ -213,10 +198,10 @@ async function scrollToBottom(force = false) {
   if (stick) el.scrollTop = el.scrollHeight
 }
 
-const STATUS_TEXT = { completed: '완료', awaiting_approval: '승인 대기', failed: '실패', stopped: '중단됨', running: '처리 중' }
+const STATUS_TEXT = { completed: '완료', failed: '실패', stopped: '중단됨', running: '처리 중' }
 const tokens = n => n?.toLocaleString('ko-KR')
 
-// 새로고침 후 이전 대화 복원 — 서버 체크포인터에서 기록·승인 대기를 읽는다
+// 새로고침 후 이전 대화 복원 — 서버 체크포인터에서 기록과 마지막 근거를 읽는다
 async function restore(id) {
   messages.value = []
   if (!id) return
@@ -227,12 +212,7 @@ async function restore(id) {
       if (m.role === 'user') messages.value.push({ role: 'user', content: m.content })
       else newAssistant({ status: 'completed', content: m.content, started: 0 })
     }
-    if (state.awaiting_approval) {
-      newAssistant({ status: 'awaiting_approval', approval: state.pending_approval, citations: state.citations,
-        content: state.draft, restored: true })
-    } else if (messages.value.at(-1)?.role === 'assistant') {
-      messages.value.at(-1).citations = state.citations
-    }
+    if (messages.value.at(-1)?.role === 'assistant') messages.value.at(-1).citations = state.citations
     scrollToBottom(true)
   } catch {
     /* 백엔드가 꺼져 있으면 빈 대화로 시작 */
@@ -298,7 +278,6 @@ onMounted(async () => {
           <article v-else class="bubble assistant panel">
             <ProgressLog :items="m.progress" :running="m.status === 'running'" :started="m.started" />
 
-            <p v-if="m.restored" class="small muted">이 대화에 승인을 기다리는 브리핑이 있습니다.</p>
             <div v-if="m.content || m.draft" class="markdown" @click="onBodyClick($event, m, i)"
                  v-html="renderMarkdown(m.content || m.draft, m.citations.map(c => c.id))"></div>
             <p v-else-if="m.status === 'running'" class="muted small">생각하는 중…</p>
@@ -308,14 +287,9 @@ onMounted(async () => {
 
             <CitationList :citations="m.citations" :highlight="m.highlight" :prefix="`m${i}`" />
 
-            <!-- 승인자는 브리핑과 근거를 읽은 뒤 결정한다 -->
-            <ApprovalPanel v-if="m.approval" :request="m.approval" :busy="busy" @decide="d => decide(m, d)" />
-            <p v-if="m.decision" class="small muted">
-              {{ m.decision.approver }}: {{ m.decision.approved ? '승인' : '반려' }}{{ m.decision.comment ? ` — ${m.decision.comment}` : '' }}
-            </p>
 
             <footer class="row small muted meta" v-if="m.status !== 'running'">
-              <span class="badge" :class="{ below: m.status === 'completed', listed: m.status === 'awaiting_approval', exceeds: m.status === 'failed' }">
+              <span class="badge" :class="{ below: m.status === 'completed', exceeds: m.status === 'failed' }">
                 {{ STATUS_TEXT[m.status] }}
               </span>
               <span v-if="m.elapsed">{{ m.elapsed.toFixed(1) }}초</span>

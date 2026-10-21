@@ -14,8 +14,6 @@ from contextlib import AsyncExitStack
 from datetime import datetime, timezone
 from typing import AsyncIterator
 
-from langgraph.types import Command
-
 from app.agents.baseline import build_baseline_graph
 from app.agents.deps import AgentDeps
 from app.agents.graph import build_graph
@@ -28,7 +26,7 @@ from app.repositories.reg_db import RegDB
 from app.repositories.run_log import RunLog
 from app.repositories.thread_db import ThreadDB
 from app.streaming.converter import convert
-from app.streaming.events import ApprovalRequired, Done, Error, RunStarted
+from app.streaming.events import Done, Error, RunStarted
 from app.streaming.sse import format_sse
 from app.tools.provider import ToolProvider
 
@@ -89,31 +87,28 @@ class AgentService:
         async with lock:
             title = self.threads.ensure(thread_id)["title"]
             yield format_sse(RunStarted(thread_id=thread_id, run_id=run_id, title=title))
-            status, usage, impacted, started = "completed", {}, [], time.perf_counter()
+            status, usage, started = "completed", {}, time.perf_counter()
             config = self._config(thread_id, run_id)
             try:
                 async for mode, payload in self.graph.astream(graph_input, config, stream_mode=["custom", "updates"]):
                     for event in convert(mode, payload, thread_id):
-                        if event.event == "approval_required":
-                            status = "awaiting_approval"
-                            impacted = list(dict.fromkeys(p["product_id"] for p in event.impacted_products))  # 문서별 중복 제거
-                            event = await self._with_draft(event, config)
-                        elif event.event == "final":
-                            usage = event.usage           # 한 턴의 사용량은 final에 한 번만 실린다 (승인 대기 실행은 0)
+                        if event.event == "final":
+                            usage = event.usage           # 한 턴의 사용량은 final에 한 번만 실린다
                         yield format_sse(event)
             except Exception as exc:                        # 스트림 중간 실패도 이벤트로 알리고 정상 종료
                 log.exception("그래프 실행 실패", extra={"thread_id": thread_id, "run_id": run_id})
                 status = "failed"
                 yield format_sse(Error(message=f"처리 중 오류가 발생했습니다 ({type(exc).__name__})"))
-            await self._record(run_id, thread_id, config, status, usage, impacted,
+            await self._record(run_id, thread_id, config, status, usage,
                                int((time.perf_counter() - started) * 1000), record)
             yield format_sse(Done(thread_id=thread_id, run_id=run_id, status=status))
 
-    async def _record(self, run_id, thread_id, config, status, usage, impacted, latency_ms, record) -> None:
+    async def _record(self, run_id, thread_id, config, status, usage, latency_ms, record) -> None:
         """실행 기록 한 줄. 기록 실패가 사용자 응답을 막지 않게 한다."""
         try:
             values = (await self.graph.aget_state(config)).values or {}
             judgement = values.get("judgement") or {}
+            impacted = list(dict.fromkeys(i["product_id"] for i in values.get("impacts") or []))   # 브리핑의 영향 제품
             self.runs.record(run_id=run_id, thread_id=thread_id, route=values.get("route"),
                              question=(values.get("question") or "")[:300], status=status, latency_ms=latency_ms,
                              tokens=usage.get("tokens", 0), usd=usage.get("usd", 0.0),
@@ -123,32 +118,15 @@ class AgentService:
         except Exception:
             log.exception("실행 기록 저장 실패", extra={"run_id": run_id})
 
-    async def _with_draft(self, event: ApprovalRequired, config: dict) -> ApprovalRequired:
-        """승인 대기에서는 final 이벤트가 없다 → 승인할 브리핑과 근거를 상태에서 꺼내 함께 보낸다.
-        (토큰 스트림은 모델 원문이라 코드 블록 감싸기 등이 남아 있을 수 있다)"""
-        values = (await self.graph.aget_state(config)).values or {}
-        return event.model_copy(update={"draft": values.get("draft", ""), "citations": values.get("citations", [])})
-
     def stream_chat(self, message: str, thread_id: str) -> AsyncIterator[str]:
         return self._run({"question": message}, thread_id, {"kind": "question"})
-
-    def stream_approval(self, thread_id: str, approved: bool, comment: str, approver: str) -> AsyncIterator[str]:
-        return self._run(Command(resume={"approved": approved, "comment": comment, "approver": approver}),
-                         thread_id, {"kind": "approval", "approved": int(approved), "approver": approver,
-                                     "comment": comment[:300] or None})
 
     async def thread_state(self, thread_id: str) -> dict:
         snap = await self.graph.aget_state({"configurable": {"thread_id": thread_id}})
         values = snap.values or {}
-        pending = None
-        for task in snap.tasks or []:
-            for intr in getattr(task, "interrupts", []) or []:
-                pending = intr.value
         title = self.threads.register(thread_id)["title"] if values else None
-        return {"thread_id": thread_id, "title": title, "exists": bool(values), "awaiting_approval": pending is not None,
-                "pending_approval": pending, "history": values.get("history", []),
-                "draft": values.get("draft", "") if pending else "",
-                "last": {k: values.get(k) for k in ("route", "plan", "impacts", "gaps", "judgement", "approval")},
+        return {"thread_id": thread_id, "title": title, "exists": bool(values), "history": values.get("history", []),
+                "last": {k: values.get(k) for k in ("route", "plan", "impacts", "gaps", "judgement")},
                 "citations": values.get("citations", [])}
 
     # ── 피드백: 로컬 기록 + LangSmith Run feedback (R41) ──────────────────────

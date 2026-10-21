@@ -12,7 +12,6 @@ import uuid
 from datetime import date
 from pathlib import Path
 
-from langgraph.types import Command
 
 from app.core.config import DATA_DIR, Settings
 
@@ -51,19 +50,14 @@ def load_corpus(settings: Settings) -> dict:
 
 
 async def run_question(graph, question: str, *, pipeline: str, qid: str) -> dict:
-    """그래프 실행 → 승인 대기면 자동 승인(의견 없음: 답변에 제품 ID가 추가되지 않게) → 최종 상태."""
+    """그래프 실행 → 최종 상태 (대화 답변에는 승인이 없다)."""
     thread = f"eval-{pipeline}-{qid}-{uuid.uuid4().hex[:6]}"
     config = {"configurable": {"thread_id": thread}, "run_name": f"eval:{pipeline}:{qid}",
               "tags": ["eval", pipeline], "metadata": {"question_id": qid}}
     started = time.perf_counter()
     error = None
-    asked_approval = False
     try:
         await graph.ainvoke({"question": question}, config)
-        snap = await graph.aget_state(config)
-        if snap.next:                                       # interrupt(승인) 대기
-            asked_approval = True
-            await graph.ainvoke(Command(resume={"approved": True, "comment": "", "approver": "평가"}), config)
     except Exception as exc:                                # 한 문항 실패가 실험 전체를 멈추지 않게
         error = f"{type(exc).__name__}: {exc}"[:300]
     values = (await graph.aget_state(config)).values or {}
@@ -72,7 +66,6 @@ async def run_question(graph, question: str, *, pipeline: str, qid: str) -> dict
         "answer": values.get("final") or values.get("draft") or "",
         "citations": values.get("citations", []),
         "route": values.get("route"),
-        "asked_approval": asked_approval,
         "tokens": sum(u.get("tokens", 0) for u in usage),
         "usd": round(sum(u.get("usd", 0.0) for u in usage), 6),
         "latency_s": round(time.perf_counter() - started, 1),
