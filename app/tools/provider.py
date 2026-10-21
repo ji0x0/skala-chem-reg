@@ -78,7 +78,13 @@ class MCPToolProvider:
         self._tools: dict[str, Any] = {}
 
     def _connections(self) -> dict[str, dict]:
-        env = {"FASTMCP_LOG_LEVEL": "ERROR", "PYTHONPATH": str(ROOT_DIR)}
+        # 자식 프로세스는 부모의 환경변수를 다 받지 않는다 (MCP 기본값: HOME·PATH 등만). 로컬에선 서버가 .env를
+        # 직접 읽어 드러나지 않았지만, Docker엔 .env 파일이 없어 키·DB 경로가 빠졌다 → 백엔드 설정을 명시적으로 넘긴다
+        s = self.settings
+        env = {"FASTMCP_LOG_LEVEL": "ERROR", "PYTHONPATH": str(ROOT_DIR),
+               "APP_DB_PATH": str(s.app_db_path), "REG_DB_PATH": str(s.reg_db_path), "FEEDS_DIR": str(s.feeds_dir),
+               "FEED_MODE": s.feed_mode, "HTTP_TIMEOUT_S": str(s.http_timeout_s),
+               "LAW_API_OC": s.law_api_oc or ""}          # 빈 값도 넘긴다 (서버가 .env의 키를 대신 읽지 않게)
         return {name: {"transport": "stdio", "command": sys.executable,
                        "args": [str(ROOT_DIR / "mcp_servers" / f"{name}_server.py")], "env": env}
                 for name in SERVERS}
