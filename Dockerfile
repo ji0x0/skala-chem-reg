@@ -24,7 +24,7 @@ COPY docs/experiments ./docs/experiments
 # 규제 DB는 CSV(공식 원본에서 가져온 목록)로 이미지 빌드 시 생성 — 데이터 검증에 실패하면 빌드가 멈춘다
 RUN python scripts/build_reg_db.py
 
-# 계속 남아야 하는 데이터(제품·대화·승인 대기·피드백)는 볼륨에
+# 계속 남아야 하는 데이터(제품·대화·피드백·실행 기록·정기 브리핑)는 볼륨에
 ENV APP_DB_PATH=/app/state/app.db \
     CHECKPOINT_DB_PATH=/app/state/checkpoints.db
 VOLUME /app/state

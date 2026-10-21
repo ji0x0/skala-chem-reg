@@ -1,5 +1,5 @@
 <script setup>
-// 질의응답·브리핑 화면 — 질문을 보내면 SSE로 진행 상황·토큰·근거·승인 요청을 받아 그린다
+// 질의응답·브리핑 화면 — 질문을 보내면 SSE로 진행 상황·토큰·근거를 받아 그린다
 // 대화 ID는 브라우저에 저장해 새로고침해도 이어진다 (서버 체크포인터에 상태가 있음)
 import { nextTick, onMounted, ref } from 'vue'
 import { api } from '../api/client.js'

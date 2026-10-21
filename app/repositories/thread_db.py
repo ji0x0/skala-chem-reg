@@ -1,6 +1,6 @@
 """대화 목록 저장소 (data/app.db) — 대화 이름·번호·마지막 사용 시각.
 
-대화 내용과 승인 대기 상태는 LangGraph 체크포인터(checkpoints.db)가 가진다. 여기서는 화면의 대화 목록에
+대화 내용은 LangGraph 체크포인터(checkpoints.db)가 가진다. 여기서는 화면의 대화 목록에
 필요한 정보만 둔다. 새 대화는 "001 규제 브리핑", "002 규제 브리핑" … 순서로 이름을 붙이고, 사용자가 바꿀 수 있다.
 """
 from __future__ import annotations

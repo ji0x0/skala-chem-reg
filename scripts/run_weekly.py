@@ -4,7 +4,7 @@
     uv run python scripts/run_weekly.py --start 2026-10-12                # 그 주 (월요일)
     uv run python scripts/run_weekly.py --backfill 3 --export data/weekly # 처음 실행 때 채울 예시로 내보내기
 
-.env 설정(LLM_BACKEND, LAW_API_OC)을 그대로 쓴다 — 실제 미국 관보·법제처를 그 기간으로 조회한다.
+.env 설정(LLM_BACKEND, LAW_API_OC)을 그대로 쓴다 — 실제 미국 관보·법제처·EU Cellar를 그 기간으로 조회한다.
 """
 import argparse
 import asyncio

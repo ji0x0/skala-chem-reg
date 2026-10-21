@@ -53,7 +53,7 @@ class Settings(BaseSettings):
 
     # ── Step 4: API ──
     pipeline_version: Literal["v2", "baseline"] = "v2"      # baseline = Before(LLM 단독)
-    checkpoint_db_path: Path = DATA_DIR / "checkpoints.db"  # 대화·승인 대기 상태 (재시작해도 유지)
+    checkpoint_db_path: Path = DATA_DIR / "checkpoints.db"  # 대화 상태 (재시작해도 유지)
     cors_origins: str = "http://localhost:5173,http://127.0.0.1:5173"
 
     # ── Step 7: 관리자 페이지 ──

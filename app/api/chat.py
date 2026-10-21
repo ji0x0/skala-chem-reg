@@ -1,4 +1,4 @@
-"""대화 API — 질문 스트리밍, 대화 상태, 승인, 피드백."""
+"""대화 API — 질문 스트리밍, 대화 상태, 피드백."""
 from fastapi import APIRouter, HTTPException, Request
 from fastapi.responses import StreamingResponse
 
@@ -48,7 +48,7 @@ async def rename_thread(request: Request, thread_id: str, body: ThreadRename):
         raise HTTPException(422, str(exc))
 
 
-@router.get("/threads/{thread_id}", summary="대화 상태·승인 대기 여부·근거")
+@router.get("/threads/{thread_id}", summary="대화 상태·근거")
 async def thread_state(request: Request, thread_id: str):
     return await service(request).thread_state(thread_id)
 

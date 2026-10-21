@@ -6,7 +6,7 @@
 
 실시간 호출이 실패하면 data/feeds/ 스냅샷으로 대신 답하고, 결과에 source(live/snapshot)를 표시한다.
 규제 판단에서는 "언제, 어디서 받은 데이터인지"가 중요하기 때문이다.
-FEED_MODE=snapshot이면 실시간 호출 없이 스냅샷 목록과 저장된 본문(data/feeds/fulltext/)만 쓴다
+FEED_MODE=snapshot이면 실시간 호출 없이 스냅샷 목록과 저장된 본문(data/feeds/fulltext·kr_fulltext·eu_fulltext)만 쓴다
 → 평가(Before/After)를 같은 입력으로 반복할 수 있다.
 """
 try:

@@ -3,9 +3,9 @@
 v2와 같은 문서를 수집하지만 그 다음을 전부 LLM에게 맡긴다.
 - 근거 문장 추출 없음: 문서 원문 앞부분을 통째로 넣는다
 - 코드 판정 없음: 제품 배합 표를 주고 영향 여부를 LLM이 판단한다
-- 무결성 검사·가드·검토·승인·근거 번호 없음
+- 무결성 검사·가드·검토·근거 번호 없음
 
-route는 v2와 같은 노드를 쓰고, briefing만 이 경로로 처리한다 (chat·lookup은 v2와 동일하게 비교하지 않는다).
+질문 분류는 Step 3b의 route 노드를 그대로 쓰고(v2는 Step 9부터 understand), briefing만 이 경로로 처리한다 (chat·lookup은 v2와 동일하게 비교하지 않는다).
 """
 from __future__ import annotations
 
