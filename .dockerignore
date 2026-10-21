@@ -1,0 +1,19 @@
+# 이미지에 넣지 않는 것: 비밀값, 로컬 상태, 참고 자료, 원본 캐시, 개발 도구
+.env
+.git
+.venv
+.claude
+.pytest_cache
+**/__pycache__
+_backup
+example
+frontend
+docs
+!docs/experiments
+tests
+data/app.db
+data/checkpoints.db*
+data/feedback.jsonl
+data/regulations.db
+data/regulations/raw
+data/feeds/cache

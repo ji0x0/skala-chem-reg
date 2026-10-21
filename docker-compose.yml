@@ -1,0 +1,41 @@
+# 실행: docker compose up --build  →  http://localhost:8080 (관리자 /admin/)
+# LLM은 기본으로 호스트의 Ollama(qwen3:8b)를 쓴다. Ollama도 컨테이너로 띄우려면:
+#   docker compose --profile ollama up --build   (그리고 .env에 OLLAMA_BASE_URL=http://ollama:11434)
+services:
+  backend:
+    build: .
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      LLM_BACKEND: ${LLM_BACKEND:-ollama}
+      OLLAMA_BASE_URL: ${OLLAMA_BASE_URL:-http://host.docker.internal:11434}
+      CORS_ORIGINS: http://localhost:8080,http://127.0.0.1:8080
+      ADMIN_TOKEN: ${ADMIN_TOKEN:-}     # 관리자 페이지 http://localhost:8080/admin/ (비우면 관리자 API 꺼짐)
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - state:/app/state
+    ports:
+      - "8000:8000"            # API 문서 http://localhost:8000/docs (화면만 쓸 거면 빼도 된다)
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        VITE_API_BASE: /api/v1
+    ports:
+      - "8080:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+
+  ollama:
+    image: ollama/ollama:0.11.10
+    profiles: ["ollama"]
+    volumes:
+      - ollama:/root/.ollama
+
+volumes:
+  state:
+  ollama:
