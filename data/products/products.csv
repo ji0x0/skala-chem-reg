@@ -90,3 +90,37 @@ P012,석유계 용제 블렌드,mixture,KR;US,67-56-1,Methanol,용제,9
 P012,석유계 용제 블렌드,mixture,KR;US,110-54-3,n-Hexane,용제,5.8
 P012,석유계 용제 블렌드,mixture,KR;US,100-41-4,Ethylbenzene,용제(혼합 크실렌 성분),5
 P012,석유계 용제 블렌드,mixture,KR;US,71-43-2,Benzene,불순물(원료 유래),0.2
+P013,PP 범용 사출 컴파운드,article,KR;EU;US,9003-07-0,Polypropylene,주원료(수지),96.6
+P013,PP 범용 사출 컴파운드,article,KR;EU;US,471-34-1,Calcium carbonate,충전제,2.5
+P013,PP 범용 사출 컴파운드,article,KR;EU;US,1592-23-0,Calcium stearate,활제,0.5
+P013,PP 범용 사출 컴파운드,article,KR;EU;US,6683-19-8,Antioxidant 1010,산화방지제,0.2
+P013,PP 범용 사출 컴파운드,article,KR;EU;US,31570-04-4,Antioxidant 168,가공 안정제,0.2
+P014,LDPE 포장 필름,article,KR;EU;JP,9002-88-4,Polyethylene (LDPE),주원료(수지),98.85
+P014,LDPE 포장 필름,article,KR;EU;JP,7631-86-9,"Silica, amorphous",블로킹 방지제,0.6
+P014,LDPE 포장 필름,article,KR;EU;JP,6683-19-8,Antioxidant 1010,산화방지제,0.2
+P014,LDPE 포장 필름,article,KR;EU;JP,31570-04-4,Antioxidant 168,가공 안정제,0.2
+P014,LDPE 포장 필름,article,KR;EU;JP,112-84-5,Erucamide,슬립제,0.15
+P015,재생 PET 섬유 원사,article,EU;US,25038-59-9,Polyethylene terephthalate,주원료(수지),99.4
+P015,재생 PET 섬유 원사,article,EU;US,8002-74-2,Paraffin wax,방사 유제,0.3
+P015,재생 PET 섬유 원사,article,EU;US,1332-58-7,Kaolin,소광제,0.3
+P016,셀룰로오스 단열재,article,KR;JP,9004-34-6,Cellulose,주원료(섬유),85
+P016,셀룰로오스 단열재,article,KR;JP,7783-20-2,Ammonium sulfate,난연제,12
+P016,셀룰로오스 단열재,article,KR;JP,7757-82-6,Sodium sulfate,보조 난연제,2.5
+P016,셀룰로오스 단열재,article,KR;JP,8042-47-5,White mineral oil,분진 억제제,0.5
+P017,전분계 수성 바인더,mixture,KR;CN,7732-18-5,Water,용매,58
+P017,전분계 수성 바인더,mixture,KR;CN,9005-25-8,Starch,주원료(바인더),35
+P017,전분계 수성 바인더,mixture,KR;CN,56-81-5,Glycerol,보습제,6
+P017,전분계 수성 바인더,mixture,KR;CN,6132-04-3,Trisodium citrate dihydrate,완충제,0.8
+P017,전분계 수성 바인더,mixture,KR;CN,9003-01-4,Polyacrylic acid,증점제,0.2
+P018,유리섬유 강화 PA6 컴파운드,article,KR;EU;US;CN,25038-54-4,Polyamide 6,주원료(수지),69.3
+P018,유리섬유 강화 PA6 컴파운드,article,KR;EU;US;CN,65997-17-3,Glass fiber,강화재,30
+P018,유리섬유 강화 PA6 컴파운드,article,KR;EU;US;CN,1592-23-0,Calcium stearate,활제,0.4
+P018,유리섬유 강화 PA6 컴파운드,article,KR;EU;US;CN,6683-19-8,Antioxidant 1010,산화방지제,0.3
+P019,탄산칼슘 PE 마스터배치,article,KR;CN;JP,471-34-1,Calcium carbonate,충전제,75
+P019,탄산칼슘 PE 마스터배치,article,KR;CN;JP,9002-88-4,Polyethylene,캐리어 수지,23.5
+P019,탄산칼슘 PE 마스터배치,article,KR;CN;JP,57-11-4,Stearic acid,분산제,1.2
+P019,탄산칼슘 PE 마스터배치,article,KR;CN;JP,6683-19-8,Antioxidant 1010,산화방지제,0.3
+P020,수용성 PVA 포장 필름,article,KR;EU;US;JP,9002-89-5,Polyvinyl alcohol,주원료(수지),82
+P020,수용성 PVA 포장 필름,article,KR;EU;US;JP,56-81-5,Glycerol,가소제,12
+P020,수용성 PVA 포장 필름,article,KR;EU;US;JP,7732-18-5,Water,잔류 수분,5.5
+P020,수용성 PVA 포장 필름,article,KR;EU;US;JP,7631-86-9,"Silica, amorphous",블로킹 방지제,0.5

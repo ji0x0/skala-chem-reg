@@ -16,14 +16,14 @@ def db(tmp_path):
 
 
 def test_seed_only_once(db):
-    assert db.seed_if_empty(get_settings().products_path) == 12
+    assert db.seed_if_empty(get_settings().products_path) == 20
     assert db.seed_if_empty(get_settings().products_path) == 0          # 이미 있으면 다시 채우지 않음
 
 
 def test_create_assigns_next_id_and_update(db):
     db.seed_if_empty(get_settings().products_path)
     pid = db.save(Product(**GOOD), must_exist=False)
-    assert pid == "P013" and db.product(pid)["ingredients"][0]["cas"] == "79-01-6"
+    assert pid == "P021" and db.product(pid)["ingredients"][0]["cas"] == "79-01-6"
     changed = {**GOOD, "product_id": pid, "product_name": "시험용 세정제 v2"}
     db.save(Product(**changed), must_exist=True)
     assert db.product(pid)["product_name"] == "시험용 세정제 v2"
