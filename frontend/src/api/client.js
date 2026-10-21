@@ -44,6 +44,7 @@ export const api = {
   threads: () => request('/threads'),
   createThread: () => request('/threads', { method: 'POST' }),
   renameThread: (id, title) => request(`/threads/${encodeURIComponent(id)}`, { method: 'PATCH', body: { title } }),
+  deleteThread: id => request(`/threads/${encodeURIComponent(id)}`, { method: 'DELETE' }),   // 목록에서 숨김 (기록은 남음)
   feedback: (runId, score, comment = '') =>
     request('/feedback', { method: 'POST', body: { run_id: runId, score, comment } }),
   products: () => request('/products'),

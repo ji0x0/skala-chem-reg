@@ -59,7 +59,13 @@ async def overview(request: Request):
 @router.get("/runs", summary="최근 실행 기록 (질문·정기 브리핑·갱신 확인·갱신 결정)")
 async def runs(request: Request, kind: str | None = Query(default=None, pattern="^(question|weekly|update|approval)$"),
                limit: int = Query(default=50, ge=1, le=500)):
-    return service(request).runs.recent(limit=limit, kind=kind)
+    svc = service(request)
+    threads = {t["thread_id"]: t for t in svc.threads.list(limit=100000, include_deleted=True)}
+    rows = svc.runs.recent(limit=limit, kind=kind)
+    for r in rows:                                     # 사용자가 삭제한 대화도 기록은 남는다 — 어느 대화였는지 표시
+        t = threads.get(r["thread_id"]) or {}
+        r.update(thread_title=t.get("title"), thread_deleted=bool(t.get("deleted_at")))
+    return rows
 
 
 # ── 규제 DB 갱신 후보 (Step 12) ─────────────────────────────────────────────

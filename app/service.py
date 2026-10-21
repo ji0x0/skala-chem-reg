@@ -21,7 +21,7 @@ from app.agents.deps import AgentDeps
 from app.agents.graph import build_graph
 from app.agents.update_graph import UpdateDeps, build_update_graph, initial_state
 from app.core.config import Settings
-from app.core.tracing import send_feedback
+from app.core.tracing import DELETED_KEY, send_feedback
 from app.llm.base import AgentLLM
 from app.llm.langchain_llm import build_llm
 from app.regupdate.sources import WATCHED
@@ -100,6 +100,10 @@ class AgentService:
             yield format_sse(Done(thread_id=thread_id, run_id=run_id, status="failed"))
             return
         async with lock:
+            if self.threads.is_deleted(thread_id):            # 삭제한 대화에는 이어 질문하지 않는다 (기록은 남아 있음)
+                yield format_sse(Error(message="삭제된 대화입니다. 새 대화에서 질문해 주세요."))
+                yield format_sse(Done(thread_id=thread_id, run_id=run_id, status="failed"))
+                return
             title = self.threads.ensure(thread_id)["title"]
             yield format_sse(RunStarted(thread_id=thread_id, run_id=run_id, title=title))
             status, usage, started = "completed", {}, time.perf_counter()
@@ -136,7 +140,22 @@ class AgentService:
     def stream_chat(self, message: str, thread_id: str) -> AsyncIterator[str]:
         return self._run({"question": message}, thread_id, {"kind": "question"})
 
+    async def delete_thread(self, thread_id: str) -> dict:
+        """대화 목록에서 삭제 (숨김). 처리 중인 대화는 끝난 뒤에. 실행 기록·체크포인터·LangSmith 트레이스는 그대로.
+        LangSmith에는 그 대화의 Run마다 피드백 thread_deleted=1을 남긴다 (실패해도 삭제는 유지)."""
+        if self._locks.get(thread_id) and self._locks[thread_id].locked():
+            raise ValueError("처리 중인 대화는 삭제할 수 없습니다. 답변이 끝난 뒤 다시 시도하세요.")
+        already = self.threads.is_deleted(thread_id)
+        record = self.threads.delete(thread_id)
+        if not already:
+            for run in self.runs.for_thread(thread_id):
+                await asyncio.to_thread(send_feedback, run["run_id"], 1, "사용자가 대화를 목록에서 삭제", DELETED_KEY)
+        return record
+
     async def thread_state(self, thread_id: str) -> dict:
+        if self.threads.is_deleted(thread_id):                 # 삭제한 대화는 사용자 화면에서 다시 열지 않는다
+            return {"thread_id": thread_id, "title": None, "exists": False, "deleted": True, "history": [],
+                    "last": {}, "citations": []}
         snap = await self.graph.aget_state({"configurable": {"thread_id": thread_id}})
         values = snap.values or {}
         title = self.threads.register(thread_id)["title"] if values else None

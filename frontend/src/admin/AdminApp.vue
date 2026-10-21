@@ -105,6 +105,17 @@ async function decide(u, approved) {
 }
 
 const updateStatus = s => UPDATE_STATUS_KO[s] ?? [s, '']
+
+// 대화 ID·Run ID 복사 — LangSmith에서 찾을 때 (Threads 탭·metadata thread_id, Run ID 검색)
+const copied = ref('')
+async function copy(text) {
+  try {
+    await navigator.clipboard.writeText(text)
+    copied.value = text
+    setTimeout(() => { if (copied.value === text) copied.value = '' }, 1500)
+  } catch { window.prompt('복사해서 쓰세요', text) }      // 클립보드 권한이 없는 브라우저
+}
+const short = id => (id ? `${id.slice(0, 8)}…` : '')
 const runKind_ = r => (r.kind === 'approval' ? (r.approved ? '승인' : '반려') : RUN_KIND_KO[r.kind] ?? r.kind)
 const findingText = f => `${f.substance} ${OUTCOME_KO[f.outcome] ?? f.outcome}`
 
@@ -400,6 +411,7 @@ function better(key, dir) {
         <section v-else-if="active === 'runs'" class="panel pad">
           <div class="row wrap">
             <h3>최근 실행 ({{ runs.length }})</h3>
+            <span class="muted small">대화 ID·Run ID를 누르면 복사 → LangSmith 프로젝트의 Threads 탭(대화) · Runs 검색(Run)</span>
             <span class="spacer"></span>
             <label class="sr-only" for="run-kind">종류</label>
             <select id="run-kind" v-model="runKind" class="narrow" @change="reloadRuns">
@@ -410,7 +422,7 @@ function better(key, dir) {
           <div class="scroll">
             <table>
               <thead><tr><th>시각</th><th>종류</th><th>경로</th><th>상태</th><th>질문</th>
-                <th class="num">시간</th><th class="num">토큰</th><th>품질 검토</th></tr></thead>
+                <th class="num">시간</th><th class="num">토큰</th><th>품질 검토</th><th>대화 ID · Run ID</th></tr></thead>
               <tbody>
                 <tr v-for="r in runs" :key="r.run_id">
                   <td class="nowrap">{{ localTime(r.created_at) }}</td>
@@ -418,11 +430,20 @@ function better(key, dir) {
                   <td class="nowrap">{{ ROUTE_KO[r.route] ?? '—' }}</td>
                   <td class="nowrap"><span class="badge" :class="{ exceeds: r.status === 'failed', review: r.status === 'awaiting_approval' }">
                     {{ RUN_STATUS_KO[r.status] ?? r.status }}</span></td>
-                  <td>{{ r.question }}</td>
+                  <td>
+                    {{ r.question }}
+                    <span v-if="r.thread_deleted" class="badge" :title="`사용자가 삭제한 대화: ${r.thread_title ?? ''}`">삭제된 대화</span>
+                  </td>
                   <td class="num">{{ secs(r.latency_ms) }}</td><td class="num">{{ num(r.tokens) }}</td>
                   <td class="nowrap">{{ r.quality_passed === null ? '—' : r.quality_passed ? '통과' : '미통과' }}</td>
+                  <td class="nowrap ids">
+                    <button class="ghost mono" :title="`대화 ID ${r.thread_id} (복사)`" @click="copy(r.thread_id)">
+                      {{ copied === r.thread_id ? '복사됨' : r.thread_id }}</button>
+                    <button class="ghost mono" :title="`Run ID ${r.run_id} (복사)`" @click="copy(r.run_id)">
+                      {{ copied === r.run_id ? '복사됨' : short(r.run_id) }}</button>
+                  </td>
                 </tr>
-                <tr v-if="!runs.length"><td colspan="8" class="muted">아직 기록이 없습니다</td></tr>
+                <tr v-if="!runs.length"><td colspan="9" class="muted">아직 기록이 없습니다</td></tr>
               </tbody>
             </table>
           </div>
@@ -463,6 +484,7 @@ td.good { color: var(--ok); font-weight: 700; }
   display: inline-block; padding: 6px 12px; border-radius: 8px; border: 1px solid var(--accent);
   color: var(--accent); text-decoration: none; white-space: nowrap;
 }
+.ids button { padding: 0 4px; font-size: 12px; color: var(--accent); }
 .candidate { display: flex; flex-direction: column; gap: 6px; border-color: var(--warn); }
 .candidate h4 { margin: 10px 0 4px; font-size: 13px; }
 .candidate p { margin: 0; }

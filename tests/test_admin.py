@@ -74,3 +74,27 @@ def test_runs_and_feedback_are_recorded(client):
 def test_evaluations_list_before_after_results(client):
     items = client.get("/api/v1/admin/evaluations", headers=AUTH).json()
     assert items and "briefing" in items[0]["summary"] and items[0]["name"] >= items[-1]["name"]
+
+
+def test_deleted_thread_is_hidden_but_records_remain(client, monkeypatch):
+    """대화 삭제: 사용자 목록·복원·이어 질문에서는 사라지고, 관리자 실행 기록에는 '삭제된 대화'로 남는다.
+    LangSmith에는 그 대화의 Run마다 피드백 thread_deleted=1 (한 번만)."""
+    import app.service
+    sent = []
+    monkeypatch.setattr(app.service, "send_feedback", lambda *a: sent.append(a) or (True, ""))
+    events = sse(client.post("/api/v1/chat/stream", json={"message": "트리클로로에틸렌 해당 규제 알려줘"}).text)
+    thread_id, run_id = events[0][1]["thread_id"], events[0][1]["run_id"]
+    assert client.delete(f"/api/v1/threads/{thread_id}").status_code == 204
+    assert client.delete(f"/api/v1/threads/{thread_id}").status_code == 204          # 다시 지워도 같은 결과
+    assert client.delete("/api/v1/threads/none").status_code == 404
+    assert sent == [(run_id, 1, "사용자가 대화를 목록에서 삭제", "thread_deleted")]       # 두 번 지워도 한 번
+
+    assert thread_id not in [t["thread_id"] for t in client.get("/api/v1/threads").json()]
+    state = client.get(f"/api/v1/threads/{thread_id}").json()
+    assert not state["exists"] and state["deleted"] and state["history"] == []
+    assert client.patch(f"/api/v1/threads/{thread_id}", json={"title": "x"}).status_code == 404
+    again = sse(client.post("/api/v1/chat/stream", json={"message": "그 근거는?", "thread_id": thread_id}).text)
+    assert again[-1][1]["status"] == "failed" and any("삭제된 대화" in d.get("message", "") for _, d in again)
+
+    [run] = client.get("/api/v1/admin/runs", headers=AUTH).json()                  # 거부된 이어 질문은 기록하지 않음
+    assert run["thread_id"] == thread_id and run["thread_deleted"] and run["thread_title"] == "001 규제 브리핑"

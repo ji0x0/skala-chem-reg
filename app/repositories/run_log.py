@@ -49,6 +49,12 @@ class RunLog:
             rows = conn.execute(sql + " ORDER BY created_at DESC, rowid DESC LIMIT ?", (*args, limit))
             return [dict(r) for r in rows.fetchall()]
 
+    def for_thread(self, thread_id: str) -> list[dict]:
+        """한 대화의 실행 기록 (오래된 순)."""
+        with closing(self._connect()) as conn:
+            rows = conn.execute("SELECT * FROM runs WHERE thread_id = ? ORDER BY created_at, rowid", (thread_id,))
+            return [dict(r) for r in rows.fetchall()]
+
     def summary(self) -> dict:
         """경로별 처리량·평균 시간, 전체 토큰·비용, 승인·반려 수, 품질 검토 통과율."""
         with closing(self._connect()) as conn:

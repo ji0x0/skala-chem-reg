@@ -191,7 +191,7 @@ cd frontend && npm test
 | 메서드 | 경로 | 설명 |
 | --- | --- | --- |
 | POST | `/api/v1/chat/stream` | 질문 → SSE (진행·도구 호출·토큰·근거) |
-| GET | `/api/v1/threads/{id}` | 대화 상태, 근거 |
+| GET·PATCH·DELETE | `/api/v1/threads/{id}` | 대화 상태·근거, 이름 바꾸기, 삭제(목록에서 숨김 — 실행 기록·LangSmith 트레이스는 남음) |
 | GET·POST | `/api/v1/weekly`, `/weekly/{주차}`, `/weekly/{주차}/review` | 정기 브리핑 목록·상세·검토 완료 (생성 `POST /weekly/run`은 관리자) |
 | POST | `/api/v1/feedback` | 👍/👎 → 로컬 기록 + LangSmith Run 피드백 |
 | GET·POST·PUT | `/api/v1/products` | 제품 목록·추가·수정 (검증 실패 시 422 + 오류 목록, 저장 즉시 판정) |
@@ -232,7 +232,7 @@ frontend/        Vue 화면 (사용자 index.html · 관리자 admin.html)
 data/            규제 목록·가상 제품·용어집 CSV, 관보·국내 고시·EU 법령 스냅샷, 정기 브리핑 예시 3주, 평가 질문
 scripts/         DB 빌드, 공식 목록 가져오기, 스냅샷 받기, 정기 브리핑·평가 실행
 Dockerfile, docker-compose.yml   배포 (frontend/Dockerfile·nginx.conf)
-tests/           pytest (백엔드 134개 · 화면 24개)
+tests/           pytest (백엔드 135개 · 화면 24개)
 docs/lab/        단계별 핸즈온 랩 (Step 0 → 12)
 ```
 

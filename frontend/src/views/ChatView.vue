@@ -116,7 +116,7 @@ async function sendFeedback(msg, score) {
 
 function stop() { controller?.abort() }
 
-// ── 대화 목록: 001 규제 브리핑, 002 규제 브리핑 … (이름은 ✎로 바꿀 수 있음) ──
+// ── 대화 목록: 001 규제 브리핑, 002 규제 브리핑 … (이름은 ✎로 바꾸고, ×로 목록에서 삭제) ──
 const threads = ref([])
 const editingId = ref(null)
 const editTitle = ref('')
@@ -162,6 +162,24 @@ async function finishRename(t) {
   } catch (e) {
     alert(`이름을 바꾸지 못했습니다: ${e.message}`)
   }
+}
+
+// 삭제: 목록에서 숨긴다. 실행 기록·LangSmith 트레이스는 남아 관리자가 볼 수 있다
+async function removeThread(t) {
+  if (busy.value && t.thread_id === threadId.value) return
+  if (!confirm(`"${t.title}" 대화를 목록에서 삭제할까요?\n삭제한 대화는 다시 열 수 없습니다. 처리 기록은 관리자 페이지에 남습니다.`)) return
+  try {
+    await api.deleteThread(t.thread_id)
+  } catch (e) {
+    alert(`삭제하지 못했습니다: ${e.message}`)
+    return
+  }
+  if (t.thread_id === threadId.value) {         // 보고 있던 대화면 빈 화면으로
+    messages.value = []
+    threadId.value = null
+    save(THREAD_KEY, null)
+  }
+  await loadThreads()
 }
 
 // 본문의 [n]을 누르면 아래 근거 카드로 이동해 강조
@@ -244,7 +262,9 @@ onMounted(async () => {
               <button class="ghost title" :disabled="busy" :title="t.title" @click="selectThread(t.thread_id)">
                 {{ t.title }}
               </button>
-              <button class="ghost edit" title="이름 바꾸기" aria-label="이름 바꾸기" @click="startRename(t)">✎</button>
+              <button class="ghost edit" title="이름 바꾸기" :aria-label="`${t.title} 이름 바꾸기`" @click="startRename(t)">✎</button>
+              <button class="ghost edit del" title="대화 삭제" :aria-label="`${t.title} 삭제`"
+                      :disabled="busy && t.thread_id === threadId" @click="removeThread(t)">×</button>
             </template>
           </li>
         </ul>
@@ -338,6 +358,7 @@ h2 { font-size: 13px; margin: 0 0 8px; }
 .threads li .edit { padding: 2px 6px; color: var(--muted); visibility: hidden; }
 .threads li:hover .edit, .threads li.on .edit { visibility: visible; }
 .threads .rename { padding: 3px 8px; font-size: 13px; }
+.threads li .del:hover { color: var(--danger); }
 .main { display: flex; flex-direction: column; min-height: 0; min-width: 0; }
 .messages { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; padding-bottom: 12px; }
 .empty { margin: auto; text-align: center; max-width: 460px; }

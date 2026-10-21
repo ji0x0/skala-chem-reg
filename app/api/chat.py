@@ -48,6 +48,17 @@ async def rename_thread(request: Request, thread_id: str, body: ThreadRename):
         raise HTTPException(422, str(exc))
 
 
+@router.delete("/threads/{thread_id}", status_code=204,
+               summary="대화 삭제 — 목록에서 숨김 (실행 기록·LangSmith 트레이스는 남음)")
+async def delete_thread(request: Request, thread_id: str):
+    try:
+        await service(request).delete_thread(thread_id)
+    except KeyError:
+        raise HTTPException(404, "없는 대화입니다.")
+    except ValueError as exc:
+        raise HTTPException(409, str(exc))
+
+
 @router.get("/threads/{thread_id}", summary="대화 상태·근거")
 async def thread_state(request: Request, thread_id: str):
     return await service(request).thread_state(thread_id)

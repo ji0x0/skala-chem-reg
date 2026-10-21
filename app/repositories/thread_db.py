@@ -2,6 +2,9 @@
 
 대화 내용은 LangGraph 체크포인터(checkpoints.db)가 가진다. 여기서는 화면의 대화 목록에
 필요한 정보만 둔다. 새 대화는 "001 규제 브리핑", "002 규제 브리핑" … 순서로 이름을 붙이고, 사용자가 바꿀 수 있다.
+
+삭제는 목록에서 숨기는 것이다 (deleted_at). 사용자는 다시 열거나 이어 질문할 수 없지만, 실행 기록·피드백(관리자 페이지),
+대화 내용(체크포인터), LangSmith 트레이스는 그대로 남는다 — 무엇을 답했는지 나중에 확인할 수 있게.
 """
 from __future__ import annotations
 
@@ -21,7 +24,11 @@ class ThreadDB:
         with closing(self._connect()) as conn, conn:
             conn.execute("""
                 CREATE TABLE IF NOT EXISTS threads (thread_id TEXT PRIMARY KEY, seq INTEGER UNIQUE, title TEXT,
-                    created_at TEXT DEFAULT CURRENT_TIMESTAMP, updated_at TEXT DEFAULT CURRENT_TIMESTAMP)""")
+                    created_at TEXT DEFAULT CURRENT_TIMESTAMP, updated_at TEXT DEFAULT CURRENT_TIMESTAMP,
+                    deleted_at TEXT)""")
+            columns = {r["name"] for r in conn.execute("PRAGMA table_info(threads)")}
+            if "deleted_at" not in columns:                    # 삭제 기능 이전에 만든 DB
+                conn.execute("ALTER TABLE threads ADD COLUMN deleted_at TEXT")
 
     def _connect(self) -> sqlite3.Connection:
         conn = sqlite3.connect(self.db_path)
@@ -33,10 +40,24 @@ class ThreadDB:
             row = conn.execute("SELECT * FROM threads WHERE thread_id = ?", (thread_id,)).fetchone()
         return dict(row) if row else None
 
-    def list(self, limit: int = 100) -> list[dict]:
+    def list(self, limit: int = 100, include_deleted: bool = False) -> list[dict]:
+        where = "" if include_deleted else "WHERE deleted_at IS NULL "
         with closing(self._connect()) as conn:
-            rows = conn.execute("SELECT * FROM threads ORDER BY updated_at DESC, seq DESC LIMIT ?", (limit,))
+            rows = conn.execute(f"SELECT * FROM threads {where}ORDER BY updated_at DESC, seq DESC LIMIT ?", (limit,))
             return [dict(r) for r in rows.fetchall()]
+
+    def is_deleted(self, thread_id: str) -> bool:
+        row = self.get(thread_id)
+        return bool(row and row["deleted_at"])
+
+    def delete(self, thread_id: str) -> dict:
+        """목록에서 숨긴다 (기록은 지우지 않음). 이미 삭제한 대화는 그대로 돌려준다."""
+        if self.get(thread_id) is None:
+            raise KeyError(thread_id)
+        with closing(self._connect()) as conn, conn:
+            conn.execute("UPDATE threads SET deleted_at = CURRENT_TIMESTAMP WHERE thread_id = ? AND deleted_at IS NULL",
+                         (thread_id,))
+        return self.get(thread_id)
 
     def create(self, thread_id: str | None = None) -> dict:
         """새 대화. 번호는 지금까지 가장 큰 번호 + 1 (이름을 바꿔도 번호는 유지)."""
@@ -64,7 +85,8 @@ class ThreadDB:
         if not title:
             raise ValueError("대화 이름이 비어 있습니다.")
         with closing(self._connect()) as conn, conn:
-            changed = conn.execute("UPDATE threads SET title = ? WHERE thread_id = ?", (title, thread_id)).rowcount
+            changed = conn.execute("UPDATE threads SET title = ? WHERE thread_id = ? AND deleted_at IS NULL",
+                                   (title, thread_id)).rowcount
         if not changed:
             raise KeyError(thread_id)
         return self.get(thread_id)
