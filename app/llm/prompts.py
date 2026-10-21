@@ -31,6 +31,23 @@ ROUTE = ChatPromptTemplate.from_messages([
     ("human", "{question}"),
 ])
 
+# Step 9: 질문 이해 — 의도를 여러 개로 나눈다. 지역·물질·제품·규제명은 코드가 따로 뽑는다 (코드가 우선)
+UNDERSTAND = ChatPromptTemplate.from_messages([
+    ("system",
+     "당신은 국내외 화학물질 규제 브리핑 서비스의 질문 분석 담당이다. 사용자 질문에 담긴 요청을 나눠라 (최대 3개).\n"
+     "- service_help: 인사, 서비스로 무엇을 할 수 있는지, 어떤 규제·지역을 다루는지, 데이터 기준일\n"
+     "- explain_regulation: 규제나 용어가 무엇인지 설명 요청 (예: REACH란? SVHC가 뭐야? 제한물질과 금지물질 차이)\n"
+     "- list_query: 규제 목록의 현황 (예: SVHC에 최근 추가된 물질, 금지물질 몇 개야)\n"
+     "- substance_lookup: 특정 물질이 어떤 규제에 해당하는지\n"
+     "- product_check: 제품(P001 형식)의 규제 문제·수출 가능 여부\n"
+     "- change_briefing: 최근 기간의 규제 변경·개정 정리\n"
+     "- followup: 앞 답변에 이어지는 질문 (그 근거는? 그럼 P004는? 더 자세히)\n"
+     "- out_of_scope: 화학물질 규제와 무관한 요청\n"
+     "한 문장에 요청이 둘이면 둘 다 쓴다. 예: 'REACH란 무엇이고 최근 변경은?' → explain_regulation(REACH), "
+     "change_briefing(REACH). topic에는 질문의 표현을 그대로 쓴다."),
+    ("human", "## 앞 대화 (있으면)\n{history}\n\n## 질문\n{question}"),
+])
+
 PLAN = ChatPromptTemplate.from_messages([
     ("system",
      "당신은 규제 브리핑 계획 담당이다. 오늘 날짜: {today}. 사용자 요청에서 기간(일), 지역, 언급된 물질, "

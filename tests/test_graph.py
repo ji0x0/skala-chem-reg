@@ -5,7 +5,6 @@
 import httpx
 import pytest
 from langgraph.checkpoint.memory import InMemorySaver
-from langgraph.types import Command
 
 from app.agents.baseline import build_baseline_graph
 from app.agents.deps import AgentDeps
@@ -71,23 +70,18 @@ async def test_lookup_lists_products_containing_substance_and_unknown_product():
     await tools.stop()
 
 
-async def test_briefing_runs_parallel_agents_and_waits_for_approval():
+async def test_briefing_runs_parallel_agents_and_finishes():
     graph, tools = await make_graph()
     cfg, kinds, snap = await run(graph, BRIEFING)
     v = snap.values
-    assert snap.next == ("approval",)                                  # 영향 제품 공유 승인 대기
+    assert snap.next == () and v["final"]                              # 승인 대기 없이 완료 (대화 답변에는 승인 없음)
     assert kinds.count("agent_start") == 2                             # us_feed ∥ kr_feed
     assert any("법제처" in g for g in v["gaps"])                        # 국내 비활성은 확인하지 못한 항목
     assert [i["product_id"] for i in v["impacts"]] == ["P003"]          # TCE 문서 → TCE 함유 제품
     kinds_of_cites = {c["kind"] for c in v["citations"]}
     assert kinds_of_cites == {"document", "listing"}                    # 원문 근거 + 등재 근거
     assert all(c["translation_ko"] for c in v["citations"] if c["kind"] == "document")
-
-    async for _ in graph.astream(Command(resume={"approved": False, "comment": "추가 검토"}), cfg,
-                                 stream_mode="updates"):
-        pass
-    final = (await graph.aget_state(cfg)).values["final"]
-    assert "반려" in final and "추가 검토" in final
+    assert "P003" in v["final"] and "승인 결과" not in v["final"]
     await tools.stop()
 
 
@@ -127,10 +121,7 @@ class InventingLLM(FakeLLM):
 async def test_guard_catches_invented_fact_and_retries_with_limit():
     graph, tools = await make_graph(llm=InventingLLM())
     cfg, kinds, snap = await run(graph, BRIEFING)
-    if snap.next:                                                       # 승인 대기면 승인하고 끝까지
-        async for _ in graph.astream(Command(resume={"approved": True}), cfg, stream_mode="updates"):
-            pass
-    v = (await graph.aget_state(cfg)).values
+    v = snap.values
     assert v["guard"]["invented"]["extra_dates"] == ["2028-01-01"]
     assert v["writing_attempts"] == 2                                  # 재작성 1회 후 상한
     assert "품질 기준을 완전히 충족하지 못했습니다" in v["final"]
@@ -166,7 +157,7 @@ async def test_briefing_stays_within_requested_substance():
     v = snap.values
     assert "117-81-7" in v["plan"]["focus_cas"]
     assert v["documents"] and not any(d["in_scope"] for d in v["documents"])
-    assert v["impacts"] == [] and v["summaries"] == [] and not snap.next     # 영향 제품·승인 없음
+    assert v["impacts"] == [] and v["summaries"] == [] and not snap.next     # 영향 제품 없음
     assert "찾지 못했습니다" in v["scope_note"] and v["plan"]["days"] == 30  # 기간을 넓혀 다시 찾고도 없음
     assert "요청 범위 확인 결과" in v["final"] and "참고: 요청 범위 밖의 변경" in v["final"]
     doc_no = v["documents"][0]["document_number"]
@@ -190,8 +181,7 @@ async def test_judge_tool_failure_is_reported_not_treated_as_no_impact():
     v = snap.values
     assert any("P003 판정 확인 불가" in g for g in v["gaps"])
     assert [i["product_id"] for i in v["impacts"] if i.get("unresolved")] == ["P003"]
-    pending = snap.tasks[0].interrupts[0].value                               # 확인 불가도 담당자에게
-    assert pending["impacted_products"][0]["outcomes"] == ["unresolved"]
+    assert "판정 확인 불가" in v["final"]                                        # 확인 불가는 답변에 그대로 알린다
     await tools.stop()
 
 
@@ -273,12 +263,12 @@ async def test_lookup_context_explains_zero_findings_and_unsupported_country():
     await tools.stop()
 
 
-async def test_briefing_on_unsupported_country_reports_gap_and_notice():
+async def test_briefing_on_unsupported_country_does_not_fall_back_to_other_regions():
+    """태국 변경을 물었는데 기본 지역(국내·미국)으로 브리핑하면 다른 질문에 답한 것이다."""
     graph, tools = await make_graph()
     _, _, snap = await run(graph, "태국 화학물질 규제 변경 브리핑해줘", thread="c3")
     v = snap.values
-    assert v["plan"]["unsupported"] == ["태국"]
-    assert any(g.startswith("태국: 이 서비스의 규제 DB에 없는 지역") for g in v["gaps"])
-    text = v.get("draft") or v["final"]
-    assert text.startswith("> ⚠️ **태국** 규제는")
+    assert v["slots"]["unsupported"] == ["태국"] and v["route"] == "inform" and not v["documents"]
+    assert "change_briefing" in v["intents"]                           # 요청은 그대로 보이고, 실행만 하지 않는다
+    assert v["final"].startswith("> ⚠️ **태국** 규제는")
     await tools.stop()

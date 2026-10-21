@@ -5,7 +5,8 @@ route ─ chat ────▶ chat_answer ────────────�
       └ briefing ▶ plan ▶ gate ═Send═▶ [us_feed | kr_feed | regdb] (병렬) ▶ review ─부족─▶ (재조사)
                     ▶ summarize(요약·근거 번역·무결성) ▶ impact(코드 판정) ▶ write(스트리밍)
                     ▶ guard ▶ validate ─불합격(상한 내)─▶ write
-                                      └─▶ approval(영향 제품 공유 승인, interrupt) ▶ finalize
+                                      └─▶ finalize
+(대화 답변에는 승인이 없다 — 2026-10-21 결정. 사람의 확인은 규제 DB 갱신 반영·정기 브리핑 검토에만)
 
 모든 노드는 AgentDeps를 functools.partial로 주입받는 순수 비동기 함수다.
 진행 상황은 get_stream_writer()로 이벤트를 보내고, Step 4에서 SSE로 화면에 흘려보낸다.
@@ -16,65 +17,35 @@ import asyncio
 import json
 import logging
 import re
-import time
 from datetime import date
-from functools import partial, wraps
+from functools import partial
 
 from langgraph.config import get_stream_writer
 from langgraph.graph import END, START, StateGraph
-from langgraph.types import Send, interrupt
+from langgraph.types import Send
 
 from app.domain import integrity
-from app.domain.cas import find_cas_numbers
-from app.domain.coverage import SUPPORTED, SUPPORTED_TEXT, regions_in, unsupported_notice
-from app.domain.citations import (citations_text, from_document, from_finding, from_listing,
+from app.domain.coverage import SUPPORTED, SUPPORTED_TEXT, regions_in
+from app.domain.citations import (citations_text, from_document, from_finding, from_listing, from_regulation,
                                   quote_in_source)
 from app.domain.judge import OUTCOME_KO
-from app.domain.mentions import KO_AMBIGUOUS, find_substance_mentions
 from app.llm.fake import FakeLLM
 from app.llm.schemas import DocumentSummary
 
 from .deps import AgentDeps
 from .state import RESET, AgentState, per_turn_reset
+from .common import history_text, node, resolve_substances, token_writer
 from .subagents import run_subagent
+from .understand import VERIFIED_ON, understand_node
 from .tooling import call_tool
 
 log = logging.getLogger(__name__)
 FALLBACK = FakeLLM()      # LLM 구조화 출력이 깨졌을 때 쓰는 코드 규칙
 
-NODE_LABELS = {"route": "질문 분류", "chat_answer": "답변", "lookup": "규제 조회·판정",
-               "plan": "브리핑 계획", "gate": "계획 검증", "review": "수집 결과 확인",
-               "summarize": "문서 요약·근거 번역", "impact": "제품 영향 판정", "write": "브리핑 작성",
-               "guard": "사실·근거 검사", "validate": "품질 검토", "approval": "담당자 승인",
-               "finalize": "최종 정리"}
 FEED_REGIONS = {"US", "KR"}           # 변경 문서를 자동 수집하는 지역 (미국 연방 관보, 국내 법제처 행정규칙)
 KR_MIN_DAYS, KR_WIDE_DAYS = 90, 365   # 국내 고시는 개정이 드물다 → 최소 90일, 없으면 1년으로 넓혀 다시
 REQUIRED_SECTIONS = ["요약", "규제 변경", "제품 영향", "할 일", "확인이 필요한"]
 
-
-
-def node(name: str):
-    """노드 시작을 진행 이벤트로 알리고, 소요 시간을 로그로 남긴다."""
-    def deco(fn):
-        @wraps(fn)
-        async def wrapper(state, deps: AgentDeps):
-            get_stream_writer()({"type": "node_start", "node": name, "label": NODE_LABELS.get(name, name)})
-            started = time.perf_counter()
-            result = await fn(state, deps)
-            log.info("노드 완료", extra={"node": name,
-                                       "latency_ms": int((time.perf_counter() - started) * 1000)})
-            return result
-        return wrapper
-    return deco
-
-
-def history_text(state: AgentState, turns: int = 6) -> str:
-    return "\n".join(f"{m['role']}: {m['content'][:300]}" for m in state.get("history", [])[-turns:])
-
-
-def token_writer(attempt: int = 1):
-    writer = get_stream_writer()
-    return lambda piece: writer({"type": "token", "delta": piece, "attempt": attempt})
 
 
 # ── 1. 질문 분류 ─────────────────────────────────────────────────────────────
@@ -95,7 +66,9 @@ SERVICE_GUIDE = """이 서비스가 할 수 있는 일:
 1. 규제 조회: 물질 이름·CAS(예: 트리클로로에틸렌, 79-01-6)나 제품 ID(예: P003)가 국내외 어떤 규제에 해당하는지 판정과 근거를 알려 준다
 2. 규제 브리핑: "이번 주 미국 EPA 규제 변경 브리핑해줘"처럼 요청하면 최근 규제 문서를 수집해 한국어로 요약하고, 회사 제품 영향과 할 일·기한을 정리한다
 3. 다루는 규제: 국내 화학물질관리법·산업안전보건법, 미국 TSCA, EU REACH(SVHC·부속서 XVII)·CLP, 중국 우선관리 화학물질, 일본 화심법
-4. 영향 제품을 사내에 공유하기 전에는 담당자 승인을 받는다"""
+4. 다루는 지역: 국내·미국·EU·중국·일본. 변경 자동 수집: 미국 연방 관보(최근 30일)·국내 법제처 고시(최근 1년)
+5. 규제 목록 확인일: """ + VERIFIED_ON + """ (공식 원본에서 가져오거나 대조한 9,351행)
+6. 다루지 않는 것: 그 밖의 국가·제도(RoHS 등), 물성·독성 수치, 대체 물질 추천, 법률 판단"""
 
 
 @node("chat_answer")
@@ -106,27 +79,23 @@ async def chat_answer_node(state: AgentState, deps: AgentDeps) -> dict:
 
 
 # ── 3. 규제 조회 (lookup) ────────────────────────────────────────────────────
-def resolve_substances(question: str, deps: AgentDeps) -> list[str]:
-    """질문 속 물질 → CAS. ① CAS 그대로 ② 영문 이름·약어 ③ 한글 이름 (모두 코드 규칙)."""
-    found = find_cas_numbers(question)
-    found += [m["cas"] for m in find_substance_mentions(question, deps.substances)]
-    for s in deps.substances:
-        core = re.sub(r"\s*\(.*?\)\s*", "", s.get("name_ko") or "").strip()
-        if s["cas"] not in KO_AMBIGUOUS and len(core) >= 2 and core in question:
-            found.append(s["cas"])
-    return list(dict.fromkeys(found))
-
-
 @node("lookup")
 async def lookup_node(state: AgentState, deps: AgentDeps) -> dict:
     question = state["question"]
     errors: list[dict] = []
-    cas_list = resolve_substances(question, deps)[:5]
-    asked = list(dict.fromkeys(re.findall(r"P\d{3}", question.upper())))
-    product_ids = [p for p in asked if p in deps.product_ids][:3]
-    unknown = [p for p in asked if p not in deps.product_ids]
+    slots = state.get("slots") or {}
+    if slots:                                   # Step 9: 이해 노드가 뽑은 대상 (후속 질문이면 앞 턴 대상)
+        cas_list, product_ids = slots.get("cas", [])[:5], slots.get("products", [])[:3]
+        unknown, unsupported = slots.get("unknown_products", []), slots.get("unsupported", [])
+    else:
+        cas_list = resolve_substances(question, deps)[:5]
+        asked = list(dict.fromkeys(re.findall(r"P\d{3}", question.upper())))
+        product_ids = [p for p in asked if p in deps.product_ids][:3]
+        unknown = [p for p in asked if p not in deps.product_ids]
+        _, unsupported = regions_in(question)
     get_stream_writer()({"type": "plan", "substances": cas_list, "products": product_ids})
 
+    base = len(state.get("citations", []))     # 앞 노드(inform)의 근거 다음 번호부터
     context, citations, judgements, holder_lines = [], [], {}, {}
     for pid in unknown:                     # 없는 제품을 "못 찾음"으로 뭉개지 않고 명확히 알린다 (판정을 지어내지 않게)
         context.append(f"- 제품 {pid}: 등록되지 않은 제품 — 판정할 수 없음. 제품 관리 화면에서 먼저 등록해야 함")
@@ -146,7 +115,7 @@ async def lookup_node(state: AgentState, deps: AgentDeps) -> dict:
             holder_lines[name] = (held, [h["product_id"] for h in holders])
         context.append("  등재 규제:")
         for lst in found["listings"]:
-            c = from_listing(len(citations) + 1, lst)
+            c = from_listing(base + len(citations) + 1, lst)
             citations.append(c.to_dict())
             context.append(f"  [{c.id}] {lst['region']} {lst['list_name']} {lst.get('entry_ref') or ''} "
                            f"{lst.get('condition_ko') or ''}".rstrip())
@@ -160,7 +129,7 @@ async def lookup_node(state: AgentState, deps: AgentDeps) -> dict:
         for f in judged["findings"]:
             if f["outcome"] == "below":
                 continue
-            c = from_finding(len(citations) + 1, f)
+            c = from_finding(base + len(citations) + 1, f)
             citations.append(c.to_dict())
             context.append(f"  [{c.id}] {OUTCOME_KO[f['outcome']]} · {f['region']} {f['list_name']} · "
                            f"{f['substance']} {f['wt_pct']:g}% · {f['reason']}")
@@ -170,7 +139,6 @@ async def lookup_node(state: AgentState, deps: AgentDeps) -> dict:
             context.append(f"  → 다루는 지역({SUPPORTED_TEXT})의 등재 목록 기준 해당 항목 없음. "
                            "수출 허가·적합 판정이 아니므로 '수출 가능'이라고 쓰지 말 것")
 
-    _, unsupported = regions_in(question)
     if unsupported:       # 규제 DB에 없는 국가 → "확인 불가" (판정 0건을 "수출 가능"으로 읽지 않게)
         context.insert(0, f"- {', '.join(unsupported)}: 이 서비스의 규제 DB에 없는 지역 — 규제 해당 여부를 확인할 수 "
                           f"없음 (다루는 지역: {SUPPORTED_TEXT}). 이 국가에 대해 '수출 가능'·'문제 없음'이라고 쓰지 말 것")
@@ -180,14 +148,12 @@ async def lookup_node(state: AgentState, deps: AgentDeps) -> dict:
     answer, usage = await deps.llm.answer(question, context="\n".join(context),
                                           citations=citations_text(citations),
                                           history=history_text(state), on_token=token_writer())
-    answer = drop_unknown_refs(normalize_refs(answer), {c["id"] for c in citations})
+    answer = drop_unknown_refs(normalize_refs(answer), {c["id"] for c in state.get("citations", []) + citations})
     # 8B 모델이 근거 목록만 옮겨 적고 함유 제품을 빠뜨리는 경우가 있어(재측정에서 발견) 코드가 보장한다
     missing = [f"- **{name} 함유 제품**: {held}" for name, (held, ids) in holder_lines.items()
                if not any(pid in answer for pid in ids)]
     if missing:
         answer = "\n".join(missing) + "\n\n" + answer
-    if unsupported:
-        answer = unsupported_notice(unsupported) + "\n\n" + answer
     return {"final": answer, "citations": citations, "judgements": judgements, "errors": errors,
             "usage": [usage]}
 
@@ -221,8 +187,11 @@ async def gate_node(state: AgentState, deps: AgentDeps) -> dict:
         focus.update(i["cas"] for i in detail.get("ingredients", []))
     focus_cas = sorted(focus) if (cas_list or products) else []
 
-    regions = plan.get("regions") or ["KR", "US"]
+    slots = state.get("slots") or {}
+    regions = slots.get("change_regions") or plan.get("regions") or ["KR", "US"]
     asked, unsupported = regions_in(question)
+    if slots.get("change_regions"):             # Step 9: 수집 가능한 지역만 (안내·불가는 이해 노드가 처리)
+        asked, unsupported = regions, []
     if asked and set(asked) != set(regions):      # 질문에 지역이 명시돼 있으면 LLM 계획보다 질문을 따른다
         corrections.append(f"질문의 지역으로 바로잡음: {regions} → {asked}")
         regions = asked
@@ -242,10 +211,8 @@ async def gate_node(state: AgentState, deps: AgentDeps) -> dict:
     no_feed = [r for r in regions if r not in FEED_REGIONS | {"KR"}]
     if no_feed:
         gaps.append(f"{', '.join(no_feed)} 변경 문서 자동 수집은 아직 지원하지 않음 — 등재 목록 대조로만 확인")
-    if products or no_feed:
-        # 언급 제품이 있으면 그 제품만, 수집이 안 되는 지역만 요청했으면 전체 제품을 목록 대조
-        tasks.append({"agent": "regdb", "product_ids": products or deps.product_ids,
-                      "purpose": "제품 규제 판정"})
+    if products:                                # 언급 제품만 목록 대조 (변경 요청을 "전체 목록 대조"로 바꾸지 않는다)
+        tasks.append({"agent": "regdb", "product_ids": products, "purpose": "제품 규제 판정"})
     plan.update(product_ids=products, cas=cas_list, regions=regions, focus_cas=focus_cas, unsupported=unsupported)
     get_stream_writer()({"type": "plan", "days": plan.get("days"), "regions": regions, "products": products,
                          "substances": cas_list, "tasks": [t["agent"] for t in tasks],
@@ -451,9 +418,6 @@ def _summaries_text(state: AgentState) -> str:
 def _add_scope(draft: str, state: AgentState) -> str:
     """범위 안내(요약 첫 문장)와 범위 밖 참고 목록(규제 변경 끝)을 코드가 넣는다.
     LLM에 옮겨 쓰게 했더니 실모델이 안내 문구를 범위 안 문서에 붙이고, 핵심 변경을 "범위 밖"으로 표시했다."""
-    unsupported = (state.get("plan") or {}).get("unsupported") or []
-    if unsupported:
-        draft = unsupported_notice(unsupported) + "\n\n" + draft
     if state.get("scope_note"):
         line = f"**요청 범위 확인 결과**: {state['scope_note']}\n\n"
         draft = draft.replace("## 요약\n", "## 요약\n" + line, 1) if "## 요약\n" in draft else line + draft
@@ -579,46 +543,87 @@ async def validate_node(state: AgentState, deps: AgentDeps) -> dict:
 
 def after_validate(state: AgentState, max_writing: int = 2, max_validation: int = 3) -> str:
     if state.get("validation_feedback") is None:
-        return "approval"
+        return "finalize"
     if state.get("writing_attempts", 0) >= max_writing or state.get("validation_attempts", 0) >= max_validation:
-        return "approval"                                  # 상한 도달 → 미달 사실을 알리고 진행
+        return "finalize"                                  # 상한 도달 → 미달 사실을 알리고 진행
     return "write"
 
 
-# ── 12. 브리핑: 담당자 승인 (Human-in-the-loop) ──────────────────────────────
-@node("approval")
-async def approval_node(state: AgentState, deps: AgentDeps) -> dict:
-    impacted = [{"product_id": i["product_id"], "product_name": i["product_name"],
-                 "document_number": i["document_number"],
-                 "outcomes": ["unresolved"] if i.get("unresolved") else sorted({f["outcome"] for f in i["findings"]})}
-                for i in state.get("impacts", [])]
-    if not impacted:
-        return {"approval": {"required": False}}
-    # interrupt: 그래프가 여기서 멈추고 체크포인터에 상태를 저장한다.
-    # API가 Command(resume={...})로 승인 결과를 넣으면 이 줄부터 이어서 실행된다.
-    decision = interrupt({"type": "approval_required", "impacted_products": impacted,
-                          "message": "영향 제품을 영업·생산·고객 대응 담당에게 공유하기 전에 규제 담당자 승인이 필요합니다."})
-    decision = decision if isinstance(decision, dict) else {"approved": bool(decision)}
-    return {"approval": {"required": True, "impacted_products": impacted,
-                         "approved": bool(decision.get("approved")),
-                         "approver": decision.get("approver", "규제 담당자"),
-                         "comment": decision.get("comment", "")}}
+# ── Step 9. 안내: 규제 설명 · 목록 조회 · 앞 답변 근거 (이해 노드가 정한 일만) ────────────
+def _list_section(ov: dict, cid: int, holders: list[dict]) -> str:
+    """목록 조회는 코드가 쓴다 — 등재 수·확인일·최근 추가·함유 제품 (LLM이 숫자를 바꿀 여지가 없게)."""
+    lines = [f"## {ov['region']} {ov['list_name']} — 등재 현황 (규제 DB 확인일 {ov.get('verified_on') or '-'})",
+             f"- 등재 {ov['listing_count']:,}행 · 물질 {ov['substance_count']:,}종 [{cid}]"]
+    for r in ov.get("recent_additions", []):
+        shown = list(dict.fromkeys(x["name"][:60] for x in r["substances"]))[:4]   # 염류처럼 이름이 비슷하면 한 번만
+        names = ", ".join(shown)
+        more = f" 외 {r['count'] - len(shown)}종" if r["count"] > len(shown) else ""
+        lines.append(f"- {r['date']} 추가: {names}{more} [{cid}]")
+    if not ov.get("recent_additions"):
+        lines.append("- 이 목록은 원본에 등재일 정보가 없어 최근 추가 물질을 알 수 없습니다")
+    elif holders:
+        lines.append("- 최근 추가 물질을 함유한 회사 제품: " + "; ".join(
+            f"{h['product_id']} {h['product_name']} ({h['ingredient_name']} {h['wt_pct']:g} wt%)" for h in holders))
+    else:
+        lines.append("- 최근 추가 물질을 함유한 회사 제품: 없음")
+    return "\n".join(lines)
+
+
+@node("inform")
+async def inform_node(state: AgentState, deps: AgentDeps) -> dict:
+    todo = state.get("inform") or {}
+    if not todo:
+        return {}
+    errors: list[dict] = []
+    citations = [dict(c) for c in todo.get("prev_citations", [])]          # 앞 답변 근거는 번호 그대로
+    sections, usage = [], []
+    if citations:
+        sections.append("## 앞 답변의 근거\n" + "\n".join(
+            f"- [{c['id']}] {c['title']} — {c['quote'][:200]}" for c in citations))
+    reg_ids = list(dict.fromkeys(todo.get("explain", []) + todo.get("list", [])))
+    overviews, cite_of = {}, {}
+    for reg_id in reg_ids:
+        ov = await call_tool(deps, "inform", "regulation_overview", {"reg_id": reg_id}, errors)
+        if ov:
+            c = from_regulation(len(citations) + 1, ov)
+            citations.append(c.to_dict())
+            overviews[reg_id], cite_of[reg_id] = ov, c.id
+    for reg_id in todo.get("list", []):
+        if reg_id not in overviews:
+            continue
+        recent = [x["cas"] for r in overviews[reg_id].get("recent_additions", []) for x in r["substances"]]
+        holders = await call_tool(deps, "inform", "find_products_by_cas", {"cas_numbers": recent}, errors) or [] \
+            if recent else []
+        sections.append(_list_section(overviews[reg_id], cite_of[reg_id], holders))
+    explain = [r for r in todo.get("explain", []) if r in overviews]
+    if explain or todo.get("glossary"):
+        context = ["규제 설명 요청 — 아래 카탈로그·용어집에 있는 의무·적용 범위만 쓴다. 없는 의무(등록 톤수 등)는 쓰지 않는다. "
+                   "질문에 '최근 변경'이 있어도 설명에서는 변경을 쓰지 않는다 (변경·등재 현황은 다른 절에서 코드가 답한다)."]
+        for reg_id in explain:
+            ov = overviews[reg_id]
+            context.append(f"[{cite_of[reg_id]}] {ov['region']} {ov['law']} {ov['list_name']}: 의무 {ov.get('obligation_ko')} "
+                           f"/ 적용 {ov.get('applies_when')} / 기본 기준 {ov.get('default_threshold_wt_pct') or '물질별'} wt% "
+                           f"/ {ov.get('listing_note') or ''} / 등재 {ov['substance_count']:,}종")
+        context += [f"- 용어 {g['term']}({g['ko']}): {g.get('definition_ko') or ''}" for g in todo.get("glossary", [])]
+        answer, u = await deps.llm.answer(state["question"], context="\n".join(context),
+                                          citations=citations_text(citations), history="", on_token=token_writer())
+        usage.append(u)
+        answer = drop_unknown_refs(normalize_refs(answer), {c["id"] for c in citations})
+        sections.insert(0, "## 규제 설명\n" + answer)
+    return {"sections": sections, "citations": citations, "errors": errors, "usage": usage}
 
 
 # ── 마지막. 최종 정리 ────────────────────────────────────────────────────────
 @node("finalize")
 async def finalize_node(state: AgentState, deps: AgentDeps) -> dict:
-    final = state.get("final") or state.get("draft") or "죄송합니다. 요청을 처리하지 못했습니다."
+    main = state.get("final") or state.get("draft") or ""
     judgement = state.get("judgement") or {}
     if state.get("draft") and judgement and not judgement.get("passed", True):
-        final += ("\n\n---\n> ⚠️ 브리핑이 품질 기준을 완전히 충족하지 못했습니다 "
-                  f"(검토 의견: {state.get('validation_feedback')}). 근거 원문을 직접 확인해 주세요.")
-    approval = state.get("approval") or {}
-    if approval.get("required"):
-        status = "승인 — 관련 부서에 공유" if approval.get("approved") else "반려 — 공유하지 않음"
-        final += f"\n\n## 승인 결과\n- {approval.get('approver')}: **{status}**"
-        if approval.get("comment"):
-            final += f" ({approval['comment']})"
+        main += ("\n\n---\n> ⚠️ 브리핑이 품질 기준을 완전히 충족하지 못했습니다 "
+                 f"(검토 의견: {state.get('validation_feedback')}). 근거 원문을 직접 확인해 주세요.")
+    # Step 9 합성: 범위 밖·확인 불가 안내(코드) → 설명·목록 절 → 본 답변
+    parts = list(state.get("notices", [])) + list(state.get("sections", [])) + ([main] if main else [])
+    final = "\n\n".join(parts) or "죄송합니다. 요청을 처리하지 못했습니다."
     if any(c.get("status") != "official" for c in state.get("citations", [])):
         final += "\n\n> ℹ️ 규제 목록 근거 일부는 공식 원본 확인 전 데이터입니다. 법률 자문이 아니며 최종 판단은 담당자가 합니다."
     usage = state.get("usage", [])
@@ -631,24 +636,26 @@ async def finalize_node(state: AgentState, deps: AgentDeps) -> dict:
 
 
 def after_route(state: AgentState) -> str:
-    return {"chat": "chat_answer", "lookup": "lookup", "briefing": "plan"}.get(state["route"], "chat_answer")
+    return {"chat": "chat_answer", "lookup": "lookup", "briefing": "plan", "inform": "finalize"}.get(
+        state["route"], "chat_answer")
 
 
 def build_graph(deps: AgentDeps, checkpointer=None):
     g = StateGraph(AgentState)
     bind = lambda fn: partial(fn, deps=deps)   # noqa: E731 — 명시적 의존성 주입
-    g.add_node("route", bind(route_node))
+    g.add_node("understand", bind(understand_node))
+    g.add_node("inform", bind(inform_node))
     g.add_node("chat_answer", bind(chat_answer_node))
     g.add_node("lookup", bind(lookup_node))
     for name, fn in [("plan", plan_node), ("gate", gate_node), ("research", run_subagent),
                      ("review", review_node), ("summarize", summarize_node), ("impact", impact_node),
-                     ("write", write_node), ("guard", guard_node), ("validate", validate_node),
-                     ("approval", approval_node)]:
+                     ("write", write_node), ("guard", guard_node), ("validate", validate_node)]:
         g.add_node(name, bind(fn))
     g.add_node("finalize", bind(finalize_node))
 
-    g.add_edge(START, "route")
-    g.add_conditional_edges("route", after_route, ["chat_answer", "lookup", "plan"])
+    g.add_edge(START, "understand")
+    g.add_edge("understand", "inform")                      # 설명·목록·앞 근거 (할 일이 없으면 그냥 통과)
+    g.add_conditional_edges("inform", after_route, ["chat_answer", "lookup", "plan", "finalize"])
     g.add_edge("chat_answer", "finalize")
     g.add_edge("lookup", "finalize")
     g.add_edge("plan", "gate")
@@ -659,9 +666,7 @@ def build_graph(deps: AgentDeps, checkpointer=None):
     g.add_edge("impact", "write")
     g.add_edge("write", "guard")
     g.add_edge("guard", "validate")
-    s = deps.settings
     g.add_conditional_edges("validate", partial(after_validate, max_writing=2, max_validation=3),
-                            ["write", "approval"])
-    g.add_edge("approval", "finalize")
+                            ["write", "finalize"])
     g.add_edge("finalize", END)
     return g.compile(checkpointer=checkpointer)

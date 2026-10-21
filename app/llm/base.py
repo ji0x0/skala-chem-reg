@@ -10,7 +10,7 @@ from __future__ import annotations
 
 from typing import Any, Callable, Protocol
 
-from .schemas import BriefingPlan, DocumentSummary, Judgement, RouteDecision
+from .schemas import BriefingPlan, DocumentSummary, IntentPlan, Judgement, RouteDecision
 
 TokenCallback = Callable[[str], None] | None
 Usage = dict
@@ -25,6 +25,8 @@ class AgentLLM(Protocol):
     def usage_for(self, stage: str, tokens: int) -> Usage: ...
 
     async def route(self, question: str) -> tuple[RouteDecision, Usage]: ...
+
+    async def understand(self, question: str, history: str) -> tuple[IntentPlan | None, Usage]: ...   # Step 9
 
     async def plan(self, question: str, today: str) -> tuple[BriefingPlan, Usage]: ...
 

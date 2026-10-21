@@ -45,7 +45,7 @@ def sse(text: str) -> list[tuple[str, dict]]:
 
 def test_health_and_cors(client):
     h = client.get("/api/v1/health").json()
-    assert h["status"] == "ok" and h["products"] == 20 and len(h["tools"]) == 12
+    assert h["status"] == "ok" and h["products"] == 20 and len(h["tools"]) == 13
     ok = client.options("/api/v1/chat/stream", headers={"Origin": "http://localhost:5173",
                                                        "Access-Control-Request-Method": "POST"})
     assert ok.headers["access-control-allow-origin"] == "http://localhost:5173"
@@ -95,22 +95,19 @@ def test_lookup_stream_returns_citations(client):
     assert final["citations"] and all("quote" in c and "url" in c for c in final["citations"])
 
 
-def test_briefing_stream_approval_flow(client):
+def test_briefing_stream_completes_without_approval(client):
+    """대화 답변에는 승인이 없다 (2026-10-21 결정) — 영향 제품이 있어도 바로 완료된다."""
     events = sse(client.post("/api/v1/chat/stream", json={"message": "이번 주 미국 EPA랑 국내 규제 변경 브리핑해줘",
                                                           "thread_id": "api-2"}).text)
     names = [e for e, _ in events]
-    assert "approval_required" in names and events[-1][1]["status"] == "awaiting_approval"
-    assert {"progress", "tool_call_start", "tool_call_end", "token"} <= set(names)
-    pending = next(d for e, d in events if e == "approval_required")
-    assert "## 요약" in pending["draft"] and not pending["draft"].startswith("```") and pending["citations"]
-    state = client.get("/api/v1/threads/api-2").json()
-    assert state["awaiting_approval"] is True and state["draft"] == pending["draft"]
-
-    events = sse(client.post("/api/v1/threads/api-2/approval", json={"approved": True}).text)
+    assert "approval_required" not in names and events[-1][1]["status"] == "completed"
+    assert {"progress", "tool_call_start", "tool_call_end", "token", "final"} <= set(names)
     final = next(d for e, d in events if e == "final")
-    assert "승인" in final["content"] and events[-1][1]["status"] == "completed"
+    assert "## 요약" in final["content"] and not final["content"].startswith("```") and "승인 결과" not in final["content"]
     assert {c["kind"] for c in final["citations"]} == {"document", "listing"}
-    assert client.post("/api/v1/threads/api-2/approval", json={"approved": True}).status_code == 409
+    state = client.get("/api/v1/threads/api-2").json()
+    assert state["exists"] and "awaiting_approval" not in state and state["citations"]
+    assert client.post("/api/v1/threads/api-2/approval", json={"approved": True}).status_code in (404, 405)
 
 
 def test_threads_are_numbered_listed_and_renamed(client):

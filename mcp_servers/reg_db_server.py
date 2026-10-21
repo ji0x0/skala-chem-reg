@@ -1,6 +1,6 @@
 """MCP 서버 ② reg-db — 규제 목록 조회·판정·용어집.
 
-- Tool: lookup_substance, judge_product, judge_all_products, glossary_lookup, list_regulations
+- Tool: lookup_substance, judge_product, judge_all_products, glossary_lookup, list_regulations, regulation_overview
 - Resource: regulation://{reg_id} — 규제 하나의 설명과 등재 물질 (문서처럼 읽는 정보)
 - Prompt: briefing_procedure — 규제 브리핑 작성 표준 절차
 
@@ -10,6 +10,8 @@ try:
     from ._common import open_db
 except ImportError:
     from _common import open_db
+
+import re
 
 from fastmcp import FastMCP
 
@@ -23,6 +25,24 @@ db = open_db()
 def list_regulations() -> list[dict]:
     """다루는 국내외 규제 목록(지역, 법, 목록명, 판정 방식, 기본 기준 함량, 의무, 출처)을 조회합니다."""
     return db.regulations()
+
+
+@mcp.tool()
+def regulation_overview(reg_id: str, recent: int = 2) -> dict:
+    """규제 목록 하나의 개요: 법·목록명·의무·출처·확인일, 등재 물질 수, 최근 등재일별 물질 (등재일이 기록된 목록만).
+    규제 설명("SVHC가 뭐야?")과 목록 조회("최근 추가된 물질은?")의 근거로 씁니다. reg_id 예: EU_REACH_SVHC"""
+    reg = db.regulation(reg_id)
+    if reg is None:
+        raise ValueError(f"다루지 않는 규제입니다: {reg_id}")
+    listings = db.listings_for_reg(reg_id)
+    by_date: dict[str, list[dict]] = {}
+    for lst in listings:                              # 근거 기록의 "2026-02-04 등재" (ECHA 후보 목록 등)
+        for day in re.findall(r"(\d{4}-\d{2}-\d{2}) 등재", lst.get("evidence") or ""):
+            by_date.setdefault(day, []).append({"cas": lst["cas"], "name": lst.get("name_ko") or lst["name_en"]})
+    latest = sorted(by_date, reverse=True)[:recent]
+    return {**reg, "listing_count": len(listings), "substance_count": len({x["cas"] for x in listings}),
+            "verified_on": max((x.get("verified_on") or "" for x in listings), default="") or None,
+            "recent_additions": [{"date": d, "substances": by_date[d][:12], "count": len(by_date[d])} for d in latest]}
 
 
 @mcp.tool()

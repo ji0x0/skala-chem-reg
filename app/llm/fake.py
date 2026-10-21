@@ -10,10 +10,16 @@ from datetime import date
 from app.domain.integrity import extract_facts
 
 from .base import TokenCallback, Usage
-from .schemas import BriefingPlan, DocumentSummary, Judgement, KeyDate, RouteDecision
+from .schemas import BriefingPlan, DocumentSummary, Intent, IntentPlan, Judgement, KeyDate, RouteDecision
 
 BRIEFING_WORDS = r"브리핑|이번 주|최근|지난주|변경|바뀐|새로 나온|동향|업데이트"
 LOOKUP_WORDS = r"\d{2,7}-\d{2}-\d|P\d{3}|해당|규제 대상|등재|SVHC|TSCA|REACH|CLP|화관법|산안법|들어 있|포함"
+# Step 9 의도 규칙 (실제 LLM이 형식을 어기면 이 규칙으로 대신한다)
+HELP_WORDS = r"^\s*(?:안녕|반가|고마|감사|hello|hi\b)|뭘 할 수|무엇을 할 수|무슨 일을|사용법|어떻게 써|어떤 규제를 다|어떤 지역을 다|다루는 규제|기준일|언제 기준"
+EXPLAIN_WORDS = r"(?<![가-힣])란\b|이란|란 무엇|[가이] 뭐|뭐야|뭔가요|무엇인가|무엇인지|설명해|차이[가는점]?"
+LIST_WORDS = r"최근 (?:추가|등재)|새로 (?:추가|등재)|추가된|등재된 물질|몇 개|몇 종|목록 (?:보여|알려)"
+FOLLOWUP_WORDS = r"^\s*(?:그럼|그러면|그건|그거|그게|이건|왜|더 자세히)|그 근거|근거는|원문 보여|출처는"
+LOOKUP_ASK = r"\d{2,7}-\d{2}-\d|해당|규제 대상|들어 있|포함|어떤 규제|걸려"
 REGION_WORDS = {"KR": r"국내|한국", "US": r"미국|EPA|TSCA", "EU": r"EU|유럽|REACH|ECHA|CLP",
                 "CN": r"중국", "JP": r"일본"}
 
@@ -41,6 +47,29 @@ class FakeLLM:
         else:
             route, why = "chat", "인사·사용법"
         return RouteDecision(route=route, reasoning=why), self._usage("route", "fast", question)
+
+    async def understand(self, question, history):
+        intents: list[Intent] = []
+        add = lambda t, topic="": intents.append(Intent(type=t, topic=topic))  # noqa: E731
+        listing = re.search(LIST_WORDS, question)
+        if re.search(FOLLOWUP_WORDS, question):
+            add("followup")
+        if re.search(HELP_WORDS, question):
+            add("service_help")
+        if re.search(EXPLAIN_WORDS, question):
+            add("explain_regulation")
+        if listing:
+            add("list_query")
+        if re.search(BRIEFING_WORDS, re.sub(LIST_WORDS, " ", question)):    # "최근 추가된 물질"은 목록 조회
+            add("change_briefing")
+        if re.search(r"P\d{3}", question.upper()) and not any(i.type == "followup" for i in intents):
+            add("product_check")
+        if re.search(LOOKUP_ASK, question) and not any(i.type in ("explain_regulation", "list_query") for i in intents):
+            add("substance_lookup")
+        if not intents:
+            add("out_of_scope")
+        unique = list({i.type: i for i in intents}.values())[:3]
+        return IntentPlan(intents=unique), self._usage("understand", "fast", question)
 
     async def plan(self, question, today):
         days = int(m.group(1)) if (m := re.search(r"(\d+)\s*일", question)) else 7

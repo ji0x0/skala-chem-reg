@@ -35,10 +35,16 @@ class AgentState(TypedDict, total=False):
     # 대화 (질문이 바뀌어도 유지)
     question: str
     history: Annotated[list[dict], operator.add]
+    last_targets: dict                                      # Step 9: 앞 턴의 대상(제품·물질·지역·제도·의도·근거) — 후속 질문용
 
     # 질문마다 새로 채우는 값
     route: str
     route_reasoning: str
+    intents: list[str]                                      # Step 9: 질문에 담긴 요청들 (최대 3개)
+    slots: dict                                             # Step 9: 코드가 뽑은 지역·제도·물질·제품·기간
+    notices: list[str]                                      # Step 9: 범위 밖·확인 불가 안내 (코드 문구, 답변 맨 앞)
+    inform: dict                                            # Step 9: 설명·목록 조회·앞 근거 다시 보기 할 일
+    sections: list[str]                                     # Step 9: inform이 만든 절 (최종 답변에 합친다)
     plan: dict
     corrections: list[str]                                  # 코드가 LLM 계획을 바로잡은 기록
     tasks: list[dict]                                       # 병렬 조사 에이전트에 줄 일
@@ -56,7 +62,6 @@ class AgentState(TypedDict, total=False):
     validation_feedback: str | None
     guard: dict
     judgement: dict
-    approval: dict
     final: str
     scope_note: str                                         # 요청 물질·제품 관련 변경이 없을 때 브리핑 첫머리에 밝힐 문장
     usage: Annotated[list[dict], add_or_reset]
@@ -64,8 +69,9 @@ class AgentState(TypedDict, total=False):
 
 def per_turn_reset(question: str) -> dict:
     """새 질문을 받을 때 비울 값들."""
-    return {"question": question, "route": "", "route_reasoning": "", "plan": {}, "corrections": [],
+    return {"question": question, "route": "", "route_reasoning": "", "intents": [], "slots": {}, "notices": [],
+            "inform": {}, "sections": [], "plan": {}, "corrections": [],
             "tasks": [], "research_round": 0, "documents": RESET, "judgements": RESET,
             "summaries": [], "impacts": [], "citations": RESET, "errors": RESET, "gaps": [],
             "draft": "", "writing_attempts": 0, "validation_attempts": 0, "validation_feedback": None,
-            "guard": {}, "judgement": {}, "approval": {}, "final": "", "scope_note": ""}
+            "guard": {}, "judgement": {}, "final": "", "scope_note": ""}

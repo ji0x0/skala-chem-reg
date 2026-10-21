@@ -18,7 +18,7 @@ from app.core.config import Settings
 
 from . import prompts
 from .base import TokenCallback, Usage
-from .schemas import BriefingPlan, DocumentSummary, Judgement, RouteDecision
+from .schemas import BriefingPlan, DocumentSummary, IntentPlan, Judgement, RouteDecision
 
 log = logging.getLogger(__name__)
 
@@ -90,6 +90,10 @@ class LangChainLLM:
     # ── 인터페이스 구현 ───────────────────────────────────────────────────────
     async def route(self, question):
         return await self._structured("fast", prompts.ROUTE, RouteDecision, {"question": question}, "route")
+
+    async def understand(self, question, history):
+        return await self._structured("fast", prompts.UNDERSTAND, IntentPlan,
+                                      {"question": question, "history": history or "(없음)"}, "understand")
 
     async def plan(self, question, today):
         return await self._structured("fast", prompts.PLAN, BriefingPlan,

@@ -16,6 +16,24 @@ class RouteDecision(BaseModel):
     reasoning: str = Field(description="판단 이유 한 문장")
 
 
+# ── Step 9: 질문 이해 — 한 질문에 의도가 여럿일 수 있다 (예: "REACH란 무엇이고 최근 변경은?") ──
+IntentType = Literal["service_help", "explain_regulation", "list_query", "substance_lookup", "product_check",
+                     "change_briefing", "followup", "out_of_scope"]
+
+
+class Intent(BaseModel):
+    type: IntentType = Field(description=(
+        "service_help: 서비스 사용법·다루는 범위 / explain_regulation: 규제·용어가 무엇인지 설명 / "
+        "list_query: 규제 목록의 등재 현황·최근 추가 물질 / substance_lookup: 물질이 어떤 규제에 해당하는지 / "
+        "product_check: 제품(P001 형식)의 규제 문제 / change_briefing: 최근 기간의 규제 변경 정리 / "
+        "followup: 앞 답변에 이어지는 질문(그 근거는? 그럼 P004는?) / out_of_scope: 화학물질 규제와 무관"))
+    topic: str = Field(default="", description="이 의도가 가리키는 대상 (규제명·물질·제품·지역 등, 질문의 표현 그대로)")
+
+
+class IntentPlan(BaseModel):
+    intents: list[Intent] = Field(min_length=1, max_length=3, description="질문에 담긴 요청들 (최대 3개, 질문 순서대로)")
+
+
 class BriefingPlan(BaseModel):
     days: int = Field(default=7, ge=1, le=90, description="최근 며칠의 변경을 볼지")
     regions: list[Region] = Field(default_factory=lambda: ["KR", "US"],

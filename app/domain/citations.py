@@ -78,6 +78,19 @@ def from_listing(cid: int, listing: dict) -> Citation:
                     as_of=listing.get("verified_on") or "규제 DB", status=listing.get("status", "to_verify"))
 
 
+def from_regulation(cid: int, reg: dict) -> Citation:
+    """규제 카탈로그 행(규제 설명·목록 조회의 근거) — 법·목록·의무·적용 범위·출처·확인일."""
+    parts = [f"{reg.get('law', '')} {reg.get('list_name', '')}".strip(), f"의무: {reg.get('obligation_ko') or '-'}",
+             f"적용: {reg.get('applies_when') or '-'}"]
+    if reg.get("listing_note"):
+        parts.append(reg["listing_note"])
+    if reg.get("listing_count") is not None:
+        parts.append(f"등재 {reg['listing_count']:,}행")
+    return Citation(id=cid, kind="listing", source_id=reg["reg_id"], title=f"{reg.get('region', '')} {reg.get('list_name', '')}",
+                    quote=" · ".join(parts), url=reg.get("source_url", ""), as_of=reg.get("verified_on") or "규제 DB",
+                    status="official", extra={"catalog": True})
+
+
 def from_document(cid: int, doc: dict, quote: str) -> Citation:
     return Citation(id=cid, kind="document", source_id=doc.get("document_number", ""),
                     title=doc.get("title", ""), quote=quote, url=doc.get("html_url", ""),

@@ -115,7 +115,7 @@ async def test_domestic_briefing_widens_window_and_judges_domestic_rules():
     _, _, snap = await run(graph, QUESTION, thread="kr2")
     v = snap.values
     assert v["research_round"] == 2 and v["plan"]["kr_days"] == 365          # 90일에 없어 1년으로
-    assert snap.next == ("approval",)
+    assert snap.next == ()                                                   # 승인 대기 없이 완료
     assert sorted(i["product_id"] for i in v["impacts"]) == ["P004", "P012"]  # 크실렌 함유 제품
     assert all(f["region"] == "KR" for i in v["impacts"] for f in i["findings"])
     doc_cites = [c for c in v["citations"] if c["kind"] == "document"]
@@ -136,6 +136,6 @@ async def test_question_region_overrides_llm_plan():
     graph, tools = await make_graph(llm=BothRegions())
     _, _, snap = await run(graph, QUESTION, thread="kr3")
     v = snap.values
-    assert v["plan"]["regions"] == ["KR"] and any("질문의 지역으로 바로잡음" in c for c in v["corrections"])
+    assert v["plan"]["regions"] == ["KR"] and v["slots"]["change_regions"] == ["KR"]   # 이해 노드가 질문의 지역으로
     assert {d["region"] for d in v["documents"]} == {"KR"}
     await tools.stop()
