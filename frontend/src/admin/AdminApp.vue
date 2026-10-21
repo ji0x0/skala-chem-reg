@@ -1,12 +1,16 @@
 <script setup>
 // 관리자 페이지 (규제대응 팀장) — 사용자 화면과 분리된 페이지(/admin/), 관리자 토큰이 있어야 열린다
-// 앱이 가진 기록(실행·승인·피드백·평가·규제 데이터)을 모아 보여 주고, 상세 추적은 LangSmith로 넘긴다
+// 앱이 가진 기록(실행·피드백·평가·규제 데이터)을 모아 보여 주고, 상세 추적은 LangSmith로 넘긴다
+// Step 12: 규제 DB 갱신 후보를 보고 승인(반영·재판정)·반려한다 — 사람이 확인해야 DB가 바뀐다
 import { computed, onMounted, ref } from 'vue'
-import { adminApi, loadToken, localTime, ROUTE_KO, RUN_STATUS_KO, saveToken } from './api.js'
+import {
+  adminApi, CHANGE_KO, CHECK_KO, loadToken, localTime, OUTCOME_KO, ROUTE_KO, RUN_KIND_KO, RUN_STATUS_KO, saveToken,
+  UPDATE_STATUS_KO, versionDate,
+} from './api.js'
 
 const tabs = [
   { id: 'overview', label: '운영 요약' },
-  { id: 'approvals', label: '승인 이력' },
+  { id: 'updates', label: 'DB 갱신' },
   { id: 'feedback', label: '피드백' },
   { id: 'evaluations', label: '품질 평가' },
   { id: 'runs', label: '실행 기록' },
@@ -18,7 +22,13 @@ const loading = ref(false)
 const error = ref('')
 
 const overview = ref(null)
-const approvals = ref({ pending: [], history: [] })
+const updates = ref([])
+const details = ref({})                                   // 승인 대기 후보의 상세 (바뀐 행 전체)
+const checking = ref(false)
+const checkResults = ref([])
+const approver = ref('규제 담당자')
+const comments = ref({})
+const deciding = ref(null)
 const feedback = ref([])
 const evaluations = ref([])
 const evalIndex = ref(0)
@@ -29,10 +39,11 @@ async function load() {
   loading.value = true
   error.value = ''
   try {
-    const [o, a, f, e, r] = await Promise.all([adminApi.overview(), adminApi.approvals(), adminApi.feedback(),
+    const [o, u, f, e, r] = await Promise.all([adminApi.overview(), adminApi.updates(), adminApi.feedback(),
       adminApi.evaluations(), adminApi.runs(runKind.value)])
-    overview.value = o; approvals.value = a; feedback.value = f; evaluations.value = e; runs.value = r
+    overview.value = o; updates.value = u; feedback.value = f; evaluations.value = e; runs.value = r
     unlocked.value = true
+    await loadDetails()
   } catch (e) {
     if (e.status === 401 || e.status === 503) { unlocked.value = false; saveToken('') }
     error.value = e.message
@@ -57,6 +68,46 @@ async function reloadRuns() {
   try { runs.value = await adminApi.runs(runKind.value) } catch (e) { error.value = e.message }
 }
 
+// ── 규제 DB 갱신 (Step 12) ──
+const pendingUpdates = computed(() => updates.value.filter(u => u.status === 'pending'))
+const pastUpdates = computed(() => updates.value.filter(u => u.status !== 'pending'))
+const today = new Date().toISOString().slice(0, 10)
+
+async function loadDetails() {
+  const pairs = await Promise.all(pendingUpdates.value.map(async u => [u.id, await adminApi.update(u.id)]))
+  details.value = Object.fromEntries(pairs)
+}
+
+async function checkNow() {
+  checking.value = true
+  error.value = ''
+  try {
+    checkResults.value = await adminApi.checkUpdates()
+    await load()
+  } catch (e) {
+    error.value = e.message
+  } finally {
+    checking.value = false
+  }
+}
+
+async function decide(u, approved) {
+  deciding.value = u.id
+  error.value = ''
+  try {
+    await adminApi.decideUpdate(u.id, approved, approver.value.trim() || '규제 담당자', (comments.value[u.id] ?? '').trim())
+    await load()
+  } catch (e) {
+    error.value = e.message
+  } finally {
+    deciding.value = null
+  }
+}
+
+const updateStatus = s => UPDATE_STATUS_KO[s] ?? [s, '']
+const runKind_ = r => (r.kind === 'approval' ? (r.approved ? '승인' : '반려') : RUN_KIND_KO[r.kind] ?? r.kind)
+const findingText = f => `${f.substance} ${OUTCOME_KO[f.outcome] ?? f.outcome}`
+
 onMounted(() => { if (loadToken()) load() })
 
 const pct = v => (v === null || v === undefined || v === '' ? '—' : `${Math.round(v * 100)}%`)
@@ -69,7 +120,7 @@ const tiles = computed(() => {
   const t = o.runs.totals
   return [
     { label: '처리한 요청', value: num(t.runs), sub: `대화 ${num(t.threads)}개 · 실패 ${num(t.failed)}` },
-    { label: '승인 대기', value: num(o.pending_approvals), sub: `승인 ${num(t.approved)} · 반려 ${num(t.rejected)}`,
+    { label: 'DB 갱신 승인 대기', value: num(o.pending_approvals), sub: `반영 ${num(t.approved)} · 반려 ${num(t.rejected)}`,
       warn: o.pending_approvals > 0 },
     { label: '브리핑 품질 검토 통과율', value: pct(t.quality_pass_rate), sub: '가드 + LLM-as-Judge' },
     { label: '담당자 피드백', value: `👍 ${o.feedback.up} · 👎 ${o.feedback.down}`, sub: `전체 ${o.feedback.total}건` },
@@ -107,12 +158,12 @@ function better(key, dir) {
     <header class="topbar">
       <div class="brand">
         <h1>규제 브리핑 관리자</h1>
-        <span class="muted small">처리량·승인·피드백·품질 — 상세 추적은 LangSmith</span>
+        <span class="muted small">처리량·DB 갱신·피드백·품질 — 상세 추적은 LangSmith</span>
       </div>
       <nav v-if="unlocked" class="tabs">
         <button v-for="t in tabs" :key="t.id" :class="{ on: active === t.id }" @click="active = t.id">
           {{ t.label }}
-          <span v-if="t.id === 'approvals' && overview?.pending_approvals" class="count">{{ overview.pending_approvals }}</span>
+          <span v-if="t.id === 'updates' && overview?.pending_approvals" class="count">{{ overview.pending_approvals }}</span>
         </button>
       </nav>
       <div v-if="unlocked" class="row">
@@ -189,33 +240,108 @@ function better(key, dir) {
           </p>
         </section>
 
-        <!-- 승인 이력 -->
-        <section v-else-if="active === 'approvals'" class="stack">
+        <!-- 규제 DB 갱신 (Step 12) -->
+        <section v-else-if="active === 'updates'" class="stack">
           <div class="panel pad">
-            <h3>승인 대기 ({{ approvals.pending.length }})</h3>
+            <div class="row wrap">
+              <div>
+                <h3>규제 DB 갱신</h3>
+                <p class="muted small">
+                  공식 원본(EU 출판국 Cellar 통합본)의 새 버전을 감지해 바뀐 행과 제품 판정 변화를 미리 계산합니다.
+                  승인해야 DB에 반영됩니다. 감시: EU CLP 부속서 VI · REACH 부속서 XVII — 매주 정기 브리핑 뒤 자동 확인
+                </p>
+              </div>
+              <span class="spacer"></span>
+              <button class="primary" :disabled="checking" @click="checkNow">{{ checking ? '확인 중… (원본 수십 MB)' : '지금 확인' }}</button>
+            </div>
+            <ul v-if="checkResults.length" class="small">
+              <li v-for="c in checkResults" :key="c.reg_id">
+                {{ c.label }}: {{ CHECK_KO[c.outcome] ?? c.outcome }}
+                <span class="muted">({{ c.current ?? '—' }}<template v-if="c.latest"> → {{ c.latest }}</template>)</span>
+              </li>
+            </ul>
+          </div>
+
+          <article v-for="u in pendingUpdates" :key="u.id" class="panel pad candidate">
+            <div class="row wrap">
+              <h3>#{{ u.id }} {{ u.label }}</h3>
+              <span class="badge review">승인 대기</span>
+              <span v-if="u.effective_date > today" class="badge">적용 예정 판 ({{ u.effective_date }})</span>
+              <span class="spacer"></span>
+              <span class="muted small">감지 {{ localTime(u.detected_at) }}</span>
+            </div>
+            <p class="small mono">{{ u.current_version }} ({{ versionDate(u.current_version) }}) → {{ u.new_version }} ({{ u.effective_date }})</p>
+            <p class="small">바뀐 행: 추가 {{ u.counts.added }} · 삭제 {{ u.counts.removed }} · 내용 변경 {{ u.counts.changed }}</p>
+            <p v-if="u.summary" class="explain">{{ u.summary }}</p>
+
+            <h4>제품 판정 변화 (후보 DB로 미리 판정)</h4>
             <table>
-              <thead><tr><th>요청 시각</th><th>대화</th><th>질문</th><th>영향 제품</th></tr></thead>
+              <thead><tr><th>제품</th><th>사라지는 판정</th><th>새 판정</th><th>바뀌는 판정</th></tr></thead>
               <tbody>
-                <tr v-for="p in approvals.pending" :key="p.run_id">
-                  <td class="nowrap">{{ localTime(p.created_at) }}</td><td>{{ p.title }}</td>
-                  <td>{{ p.question }}</td><td class="mono">{{ p.impacted }}</td>
+                <tr v-for="p in u.products" :key="p.product_id">
+                  <td class="nowrap"><span class="mono">{{ p.product_id }}</span> {{ p.product_name }}</td>
+                  <td>{{ p.removed.map(findingText).join(', ') || '—' }}</td>
+                  <td>{{ p.added.map(findingText).join(', ') || '—' }}</td>
+                  <td>{{ p.changed.map(f => `${f.substance} ${OUTCOME_KO[f.before] ?? f.before} → ${OUTCOME_KO[f.outcome] ?? f.outcome}`).join(', ') || '—' }}</td>
                 </tr>
-                <tr v-if="!approvals.pending.length"><td colspan="4" class="muted">대기 중인 승인이 없습니다</td></tr>
+                <tr v-if="!u.products.length"><td colspan="4" class="muted">판정이 바뀌는 제품이 없습니다</td></tr>
               </tbody>
             </table>
-          </div>
-          <div class="panel pad">
-            <h3>승인·반려 이력</h3>
+
+            <h4>회사 성분에 해당하는 행</h4>
             <table>
-              <thead><tr><th>결정 시각</th><th>결정</th><th>담당자</th><th>코멘트</th><th>대화</th><th>영향 제품</th></tr></thead>
+              <thead><tr><th>변화</th><th>성분</th><th>CAS</th><th>항목</th><th>원문 내용</th></tr></thead>
               <tbody>
-                <tr v-for="h in approvals.history" :key="h.run_id">
-                  <td class="nowrap">{{ localTime(h.created_at) }}</td>
-                  <td><span class="badge" :class="h.approved ? 'below' : 'exceeds'">{{ h.approved ? '승인' : '반려' }}</span></td>
-                  <td>{{ h.approver }}</td><td>{{ h.comment ?? '' }}</td><td>{{ h.title }}</td>
-                  <td class="mono">{{ h.impacted }}</td>
+                <tr v-for="c in u.company" :key="c.change + c.cas + c.entry_ref">
+                  <td class="nowrap">{{ CHANGE_KO[c.change] }}</td><td>{{ c.ingredient }}</td>
+                  <td class="mono nowrap">{{ c.cas }}</td><td class="mono nowrap">{{ c.entry_ref }}</td>
+                  <td class="small">{{ c.condition }}</td>
                 </tr>
-                <tr v-if="!approvals.history.length"><td colspan="6" class="muted">아직 결정한 승인이 없습니다</td></tr>
+                <tr v-if="!u.company.length"><td colspan="5" class="muted">없음</td></tr>
+              </tbody>
+            </table>
+
+            <details v-if="details[u.id]">
+              <summary class="small">바뀐 행 전체 보기</summary>
+              <table>
+                <thead><tr><th>변화</th><th>CAS</th><th>항목</th><th>물질명</th><th>내용</th></tr></thead>
+                <tbody>
+                  <template v-for="change in ['added', 'removed', 'changed']" :key="change">
+                    <tr v-for="r in details[u.id].diff[change].slice(0, 100)" :key="change + r.cas + r.entry_ref">
+                      <td class="nowrap">{{ CHANGE_KO[change] }}</td><td class="mono nowrap">{{ r.cas }}</td>
+                      <td class="mono nowrap">{{ r.entry_ref }}</td><td class="small">{{ r.name }}</td>
+                      <td class="small">{{ r.fields ? Object.keys(r.fields).join(', ') + ' 변경' : r.condition }}</td>
+                    </tr>
+                  </template>
+                </tbody>
+              </table>
+            </details>
+
+            <form class="row wrap decide" @submit.prevent>
+              <label class="sr-only" :for="`approver-${u.id}`">담당자</label>
+              <input :id="`approver-${u.id}`" v-model="approver" class="narrow" maxlength="50" placeholder="담당자">
+              <label class="sr-only" :for="`comment-${u.id}`">의견</label>
+              <input :id="`comment-${u.id}`" v-model="comments[u.id]" maxlength="500" placeholder="의견 (예: 적용일 확인 후 반영)">
+              <button class="primary" type="button" :disabled="deciding === u.id" @click="decide(u, true)">승인 · DB 반영</button>
+              <button type="button" :disabled="deciding === u.id" @click="decide(u, false)">반려</button>
+            </form>
+          </article>
+          <p v-if="!pendingUpdates.length" class="muted small">승인 대기 중인 갱신 후보가 없습니다.</p>
+
+          <div class="panel pad">
+            <h3>갱신 이력</h3>
+            <table>
+              <thead><tr><th>감지</th><th>목록</th><th>버전</th><th>바뀐 행</th><th>상태</th><th>담당자</th><th>의견</th><th>결정</th></tr></thead>
+              <tbody>
+                <tr v-for="u in pastUpdates" :key="u.id">
+                  <td class="nowrap">{{ localTime(u.detected_at) }}</td><td>{{ u.label }}</td>
+                  <td class="mono nowrap">{{ u.new_version }}</td>
+                  <td class="nowrap">+{{ u.counts?.added ?? 0 }} −{{ u.counts?.removed ?? 0 }} ~{{ u.counts?.changed ?? 0 }}</td>
+                  <td><span class="badge" :class="updateStatus(u.status)[1]">{{ updateStatus(u.status)[0] }}</span></td>
+                  <td>{{ u.decided_by ?? '' }}</td><td>{{ u.comment ?? '' }}</td>
+                  <td class="nowrap">{{ localTime(u.decided_at) }}</td>
+                </tr>
+                <tr v-if="!pastUpdates.length"><td colspan="8" class="muted">아직 이력이 없습니다</td></tr>
               </tbody>
             </table>
           </div>
@@ -277,7 +403,8 @@ function better(key, dir) {
             <span class="spacer"></span>
             <label class="sr-only" for="run-kind">종류</label>
             <select id="run-kind" v-model="runKind" class="narrow" @change="reloadRuns">
-              <option value="">전체</option><option value="question">질문</option><option value="approval">승인·반려</option>
+              <option value="">전체</option><option value="question">질문</option><option value="weekly">정기 브리핑</option>
+              <option value="update">갱신 확인</option><option value="approval">갱신 승인·반려</option>
             </select>
           </div>
           <div class="scroll">
@@ -287,7 +414,7 @@ function better(key, dir) {
               <tbody>
                 <tr v-for="r in runs" :key="r.run_id">
                   <td class="nowrap">{{ localTime(r.created_at) }}</td>
-                  <td class="nowrap">{{ r.kind === 'approval' ? (r.approved ? '승인' : '반려') : '질문' }}</td>
+                  <td class="nowrap">{{ runKind_(r) }}</td>
                   <td class="nowrap">{{ ROUTE_KO[r.route] ?? '—' }}</td>
                   <td class="nowrap"><span class="badge" :class="{ exceeds: r.status === 'failed', review: r.status === 'awaiting_approval' }">
                     {{ RUN_STATUS_KO[r.status] ?? r.status }}</span></td>
@@ -336,5 +463,12 @@ td.good { color: var(--ok); font-weight: 700; }
   display: inline-block; padding: 6px 12px; border-radius: 8px; border: 1px solid var(--accent);
   color: var(--accent); text-decoration: none; white-space: nowrap;
 }
+.candidate { display: flex; flex-direction: column; gap: 6px; border-color: var(--warn); }
+.candidate h4 { margin: 10px 0 4px; font-size: 13px; }
+.candidate p { margin: 0; }
+.explain { padding: 8px 10px; background: var(--accent-soft); border-radius: 8px; white-space: pre-line; }
+.decide { margin-top: 10px; }
+.decide input { flex: 1; min-width: 180px; }
+.decide input.narrow { flex: 0 0 140px; min-width: 120px; }
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 </style>
