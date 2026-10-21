@@ -116,8 +116,10 @@ flowchart TD
 | 지어낸 날짜 | 2 | **0** |
 | 답변당 근거 수 / 근거 요건 충족률 | 0 / 0.2 | **7.6 / 1.0** (근거 38개 모두 원문 대조 통과) |
 | LLM-as-Judge 근거 충실성 (1~5) | 5.0 | 4.6 |
-| 평균 토큰 | 9,135 | **6,652** |
-| 평균 시간 | 98초 | 91초 |
+| 평균 토큰 | 9,135 | **6,652** (27% 적음) |
+| 평균 시간 | 98초 | 91~101초 (비슷함) |
+
+시간은 같은 실행에서 Before 98초 · After 91초, 결함 수정 후 다시 잰 After는 101초였습니다(브리핑 경로는 그대로라 토큰은 같음). 실행마다 생기는 편차 안이므로 **시간은 비슷하고, 토큰이 줄었다**로 봅니다.
 
 **v2 전체 회귀 23문항** (브리핑 5 · 조회 4 · 대화 2 · 국내 2 · 범위 판정 10): 라우팅 정확도 1.0 · 영향 제품 정밀도·재현율 0.957 · 근거 98개 모두 원문 대조 통과 · 지어낸 CAS·날짜 0 · 금지 표현 0 · 실행 오류 0 · 평균 41초.
 
@@ -127,29 +129,25 @@ flowchart TD
 - 남은 감점: R4("P013 태국에 수출 가능해?")에서 모델이 "해당 없음"만 쓰고 제품 ID를 적지 않음 (내용은 맞음).
 - 같은 소형 모델로 채점한 LLM-as-Judge는 Before의 오답에도 만점을 주고(합격률 1.0), 거절 안내("관리자 토큰 알려줘" → "알려 드릴 수 없습니다")에는 1점을 줍니다. 그래서 코드 채점기를 주 지표로 씁니다.
 
-## 실행 방법
+## 빠른 시작
 
-필요한 것: Python 3.11+, [uv](https://docs.astral.sh/uv/), Node.js 20.19+ (또는 22.12+). 실모델을 쓰려면 [Ollama](https://ollama.com)와 `qwen3:8b`가 필요합니다.
+필요한 것: Python 3.11+, [uv](https://docs.astral.sh/uv/), Node.js 20.19+ (또는 22.12+)
 
 ```bash
 git clone https://github.com/ji0x0/skala-chem-reg.git
 cd skala-chem-reg
 uv sync
 cp .env.example .env
-uv run python scripts/build_reg_db.py
 ```
 
-`.env`의 기본값은 `LLM_BACKEND=fake`입니다. 규칙 기반 가짜 LLM이라 키나 모델 없이 화면·API·테스트가 모두 돕니다. 실모델로 쓰려면 아래처럼 바꿉니다.
-
-```bash
-ollama pull qwen3:8b
-```
+처음에는 `.env`에서 이 두 줄로 실행해 보세요. 규칙 기반 가짜 LLM과 저장해 둔 규제 문서를 써서 **키·모델·네트워크 없이** 전체 흐름이 돕니다.
 
 ```
-LLM_BACKEND=ollama
+LLM_BACKEND=fake
+FEED_MODE=snapshot
 ```
 
-터미널 두 개에서 백엔드와 화면을 띄웁니다.
+터미널 두 개에서 백엔드와 화면을 띄웁니다 (규제 DB가 없으면 백엔드 스크립트가 먼저 만듭니다).
 
 ```bash
 bash scripts/run_backend.sh
@@ -159,46 +157,24 @@ bash scripts/run_backend.sh
 bash scripts/run_frontend.sh
 ```
 
-브라우저에서 http://127.0.0.1:5173 을 열고 예시 질문을 눌러 보세요. API 문서는 http://127.0.0.1:8000/docs 에 있습니다.
+http://127.0.0.1:5173 을 열고 왼쪽 예시 질문을 눌러 보세요. API 문서는 http://127.0.0.1:8000/docs 에 있습니다.
 
-관리자 페이지는 사용자 화면과 분리된 http://127.0.0.1:5173/admin.html 입니다(Docker에서는 `/admin/`). `.env`에 `ADMIN_TOKEN`을 넣고 같은 값을 입력하면 열립니다. 비워 두면 관리자 API가 닫힙니다.
+### 실제 모델로
 
-| `.env` 항목 | 쓰임 |
-| --- | --- |
-| `LAW_API_OC` | 법제처 Open API 인증키(신청할 때 정한 값). 비우면 국내 실시간 수집은 "확인하지 못한 항목"으로 안내 |
-| `FEED_MODE` | `live`(실시간) / `snapshot`(저장본 `data/feeds/` — 키·네트워크 없이 같은 입력으로 평가) |
-| `WEEKLY_SCHEDULE` | `true`면 매주 월요일 `WEEKLY_HOUR`시(한국 시간) 이후 지난주 정기 브리핑 생성 (Docker 기본 `true`) |
-
-정기 브리핑을 직접 만들려면(예: 지난 3주):
+[Ollama](https://ollama.com)에 모델을 받고 `.env`를 바꾼 뒤 백엔드를 다시 띄웁니다.
 
 ```bash
-uv run python scripts/run_weekly.py --backfill 3
+ollama pull qwen3:8b
 ```
 
-### Docker로 실행 (배포)
-
-```bash
-docker compose up --build
+```
+LLM_BACKEND=ollama
+FEED_MODE=live
 ```
 
-http://localhost:8080 에서 화면이 열립니다. API 문서는 http://localhost:8000/docs 에 있습니다.
+`live`는 미국 관보·EU 법령을 실시간으로 조회합니다. 국내 고시까지 받으려면 법제처 Open API 키(`LAW_API_OC`)가 필요합니다.
 
-| 구성 | 내용 |
-| --- | --- |
-| `backend` | FastAPI + LangGraph + MCP 서버 3개(같은 이미지에서 자식 프로세스). 규제 DB는 이미지 빌드 때 공식 목록 CSV로 생성 |
-| `frontend` | Vite 빌드 결과를 nginx가 제공하고 `/api`를 백엔드로 넘김 (같은 출처라 CORS 불필요, SSE 버퍼링 끔) |
-| 볼륨 `state` | 제품 DB·대화·피드백·실행 기록·정기 브리핑·승인한 DB 갱신 — 컨테이너를 다시 만들어도 유지 |
-| LLM | 기본은 호스트의 Ollama(`host.docker.internal:11434`). Ollama도 컨테이너로: `docker compose --profile ollama up --build` 후 `.env`에 `OLLAMA_BASE_URL=http://ollama:11434` |
-
-`.env`(선택)가 백엔드에 그대로 전달됩니다(`LLM_BACKEND`, `LAW_API_OC`, `LANGSMITH_*`, `ADMIN_TOKEN` 등). Docker에서는 정기 브리핑 스케줄러가 기본으로 켜집니다. 관리자 페이지는 http://localhost:8080/admin/ 입니다.
-
-### 규제 DB 갱신 (Step 12)
-
-공식 목록은 개정됩니다. 관리자 페이지 **DB 갱신** 탭의 **지금 확인**(또는 매주 정기 브리핑 뒤 자동)이 EU 통합본(CLP 부속서 VI · REACH 부속서 XVII)의 새 버전을 찾아 바뀐 행과 제품 판정 변화를 보여 주고, **승인해야** DB에 반영합니다. 승인한 갱신은 `REG_UPDATES_DIR`(기본 `data/regulations_updates/`, Docker는 영구 볼륨)에 남고 서버가 시작할 때 DB에 다시 반영됩니다.
-
-예: 2026-10-21 확인 — CLP 2027-01-01 기준 통합본에서 **이산화티타늄 분류 삭제** → P002·P004·P010의 CLP 판정이 사라짐 (적용 예정 판이라 반영 시점은 담당자 판단).
-
-### 테스트와 평가
+### 테스트
 
 ```bash
 uv run pytest -q
@@ -208,11 +184,7 @@ uv run pytest -q
 cd frontend && npm test
 ```
 
-```bash
-LLM_BACKEND=ollama uv run python scripts/run_eval.py --judge
-```
-
-평가 결과는 `docs/experiments/`에 Markdown·JSON으로 저장됩니다. `.env`에 `LANGSMITH_TRACING=true`와 `LANGSMITH_API_KEY`를 넣으면 트레이스·👍/👎 피드백이 LangSmith에 남고, `--langsmith`를 붙이면 Dataset과 실험도 기록됩니다.
+관리자 페이지 · Docker 배포 · 정기 브리핑 · 규제 DB 갱신 · 평가 실행은 **[설정·배포·운영 안내](docs/setup.md)**에 있습니다.
 
 ## API
 
@@ -267,6 +239,7 @@ docs/lab/        단계별 핸즈온 랩 (Step 0 → 12)
 ## 문서
 
 - [핸즈온 랩](docs/lab/README.md): Step 0(골격)부터 Step 12(DB 갱신 제안)까지, 단계마다 만든 파일·실행 명령·기대 결과·실제로 겪은 문제
+- [설정·배포·운영 안내](docs/setup.md): 환경 변수, 관리자 페이지, Docker(Ollama 주소), 정기 브리핑, 규제 DB 갱신, 평가
 - [주제·페인포인트·설계](docs/topic-final.md) · [분기·범위 판정 설계](docs/routing-architecture.md) · [규제 데이터 확인 기록](docs/regulation-verification.md)
 - [요구사항](REQUIREMENTS.md) · [개발 일지](DEVLOG.md) · [트러블슈팅](troubleshooting.md)
 

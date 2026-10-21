@@ -304,3 +304,9 @@
 - 상황: Ollama 재평가 L3 "P006을 EU로 수출하는데 문제 있어?" — Step 7 평가에서는 조회로 갔던 질문
 - 원인: Step 9부터 의도를 LLM이 분해 — "문제 있어?"에 변경 브리핑 의도를 붙임
 - 해결: 질문에 변경 표현(변경·개정·최근·브리핑·관보·고시 등)이 없으면 코드가 변경 브리핑 의도를 빼고 제품 확인으로 (정기 브리핑·"더 자세히" 후속 질문은 제외). 30초, 정답 경로
+
+## [2026-10-21] .env.example을 복사한 그대로 Docker를 띄우면 Ollama에 연결되지 않음
+- 상황: 외부 검토 — 새로 clone해 README대로 `cp .env.example .env` 후 `docker compose up`
+- 원인: compose가 `${OLLAMA_BASE_URL:-host.docker.internal}`을 읽는데, `.env.example`에 로컬용 `OLLAMA_BASE_URL=http://127.0.0.1:11434`가 있어 기본값이 쓰이지 않음 → 컨테이너가 자기 자신에서 Ollama를 찾음. 개발 PC의 `.env`에는 이 줄이 없어 드러나지 않았음
+- 해결: Docker는 별도 변수 `DOCKER_OLLAMA_BASE_URL`(기본 `host.docker.internal`)을 읽게 분리. `docker compose --env-file .env.example config`로 확인. Ollama 컨테이너는 모델을 한 번 받아야 한다는 안내 추가 ([docs/setup.md](docs/setup.md))
+
