@@ -22,7 +22,7 @@
 | EU REACH SVHC 후보 목록 | 447 | [ECHA Candidate List](https://echa.europa.eu/candidate-list-table) 253개 항목 | 브라우저로 표 전체 수집 (그룹 항목의 구성 물질 CAS 포함) |
 | EU REACH 부속서 XVII | 1,982 | REACH 통합본 `02006R1907-20260622` | EU 출판국 Cellar API → XHTML 파싱 (51개 항목 + 부록 1~6·8·9·12·13) |
 | EU CLP 부속서 VI | 4,226 | CLP 통합본 `02008R1272-20260701` 표 3 | 같은 방법 (4,419개 색인 항목) |
-| US TSCA 제6조 | 24 | eCFR 40 CFR 751(TCE·PCE·CTC·DCM·백석면·PBT 5종) + 761(PCB) + 749.68(냉각탑 6가크롬) | eCFR API·연방 관보 API |
+| US TSCA 제6조 | 28 | eCFR 40 CFR 751(TCE·PCE·CTC·DCM·백석면·PBT 5종) + 761(PCB) + 749.68(냉각탑 6가크롬) | eCFR API·연방 관보 API — bulk 24행 + listings.csv 4행(TCE·PCE·CTC·DCM 규칙별 금지·준수일 정리) |
 | KR 유해화학물질 (화관법) | 1,488 | 화학물질안전원고시 제2026-5호 (시행 2026-07-01) 첨부 xlsx | 국가법령정보센터 첨부파일 → 물질별 혼합물 함량 기준 |
 | KR 제한물질 / 금지물질 | 106 / 84 | 기후에너지환경부고시 제2025-28호 (시행 2026-01-01) [별표 2~5] | 고시 전문 PDF |
 | KR 관리대상 유해물질 / 특별관리물질 | 184 / 46 | 산업안전보건기준에 관한 규칙 [별표 12] (시행 2026-03-02) | 법령정보센터 별표 뷰어 원문 |
