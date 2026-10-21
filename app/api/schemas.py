@@ -17,6 +17,12 @@ class WeeklyRun(BaseModel):
     start: str | None = Field(default=None, pattern=r"^\d{4}-\d{2}-\d{2}$", description="월요일 (비우면 지난주)")
 
 
+class UpdateDecision(BaseModel):
+    approved: bool = Field(description="true=반영, false=반려")
+    approver: str = Field(default="규제 담당자", min_length=1, max_length=50)
+    comment: str = Field(default="", max_length=500, examples=["2027-01-01 적용 — 고객 SDS 개정 일정 확인 후 반영"])
+
+
 class ThreadRename(BaseModel):
     title: str = Field(min_length=1, max_length=60, examples=["P003 TCE 규제 대응"])
 

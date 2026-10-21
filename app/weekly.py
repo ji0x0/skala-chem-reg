@@ -1,7 +1,8 @@
 """정기 브리핑 (Step 10) — 지난주(월~일) 국내외 규제 변경을 같은 브리핑 그래프로 정리해 주차별로 저장한다.
 
-- 실행: 질문 + 고정 기간(period)을 그래프에 넣는다 → 미국 관보·국내 법제처를 그 기간으로만 검색, 넓히지 않음
+- 실행: 질문 + 고정 기간(period)을 그래프에 넣는다 → 미국 관보·국내 법제처·EU 법령을 그 기간으로만 검색, 넓히지 않음
 - 스케줄러: 매주 월요일 지정 시각(한국 시간) 이후 지난주 브리핑이 없으면 만든다 (WEEKLY_SCHEDULE=true일 때만)
+  같은 때 규제 DB 공식 원본의 새 버전도 확인한다 (Step 12 — 갱신 후보만 올리고, 반영은 관리자 승인 후)
 - 검토: 담당자가 읽고 "검토 완료" — 승인이 아니라 검토 기록 (설계 9절)
 """
 from __future__ import annotations
@@ -86,6 +87,10 @@ class WeeklyScheduler:
             if week:
                 log.info("정기 브리핑 생성", extra={"week_id": week[0]})
                 await run_weekly(self.service, week[1], week[2])
+                try:                                         # Step 12: 같은 주기에 규제 DB 새 버전 확인 (후보만 — 반영은 승인 후)
+                    await self.service.check_updates()
+                except Exception:
+                    log.exception("규제 DB 갱신 확인 실패")
             await asyncio.sleep(self.interval_s)
 
     def start(self) -> None:

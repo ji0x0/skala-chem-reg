@@ -14,22 +14,28 @@ from contextlib import AsyncExitStack
 from datetime import datetime, timezone
 from typing import AsyncIterator
 
+from langgraph.types import Command
+
 from app.agents.baseline import build_baseline_graph
 from app.agents.deps import AgentDeps
 from app.agents.graph import build_graph
+from app.agents.update_graph import UpdateDeps, build_update_graph, initial_state
 from app.core.config import Settings
 from app.core.tracing import send_feedback
 from app.llm.base import AgentLLM
 from app.llm.langchain_llm import build_llm
+from app.regupdate.sources import WATCHED
 from app.repositories.product_db import ProductDB
 from app.repositories.reg_db import RegDB
 from app.repositories.run_log import RunLog
 from app.repositories.thread_db import ThreadDB
+from app.repositories.update_db import UpdateDB
 from app.repositories.weekly_db import WeeklyDB
 from app.streaming.converter import convert
 from app.streaming.events import Done, Error, RunStarted
 from app.streaming.sse import format_sse
 from app.tools.provider import ToolProvider
+from scripts.build_reg_db import build as build_reg_db, bulk_overrides
 
 log = logging.getLogger(__name__)
 
@@ -44,12 +50,16 @@ class AgentService:
         self.products.seed_if_empty(settings.products_path)
         self.regdb = RegDB(settings.reg_db_path, self.products)
         self.threads = ThreadDB(settings.app_db_path)          # 대화 목록 (이름·번호). 내용은 체크포인터
-        self.runs = RunLog(settings.app_db_path)               # 실행 기록 (관리자 화면: 처리량·비용·승인 이력)
+        self.runs = RunLog(settings.app_db_path)               # 실행 기록 (관리자 화면: 처리량·비용·갱신 결정)
         self.weekly = WeeklyDB(settings.app_db_path)           # Step 10: 주차별 정기 브리핑
         self.weekly.seed_if_empty(settings.weekly_dir)
         self.deps = AgentDeps(settings, llm, tools)
         builder = build_baseline_graph if pipeline == "baseline" else build_graph
         self.graph = builder(self.deps, checkpointer=checkpointer)
+        self.updates = UpdateDB(settings.app_db_path)          # Step 12: 규제 DB 갱신 후보
+        self.update_graph = build_update_graph(UpdateDeps(settings, llm, self.products, self.updates),
+                                               checkpointer=checkpointer)
+        self._update_lock = asyncio.Lock()
         self.instance_id = id(self)
         self._locks: dict[str, asyncio.Lock] = {}
 
@@ -57,6 +67,8 @@ class AgentService:
     async def create(cls, settings: Settings, stack: AsyncExitStack, *, llm: AgentLLM | None = None,
                      tools: ToolProvider | None = None, checkpointer=None,
                      pipeline: str = "v2") -> "AgentService":
+        if bulk_overrides(settings.reg_updates_dir):      # 승인해 반영한 갱신을 DB에 (Docker 이미지의 DB는 저장소 원본 기준)
+            await asyncio.to_thread(build_reg_db, settings)
         if tools is None:
             from app.tools.provider import MCPToolProvider
             tools = MCPToolProvider(settings)
@@ -131,6 +143,54 @@ class AgentService:
         return {"thread_id": thread_id, "title": title, "exists": bool(values), "history": values.get("history", []),
                 "last": {k: values.get(k) for k in ("route", "plan", "impacts", "gaps", "judgement")},
                 "citations": values.get("citations", [])}
+
+    # ── 규제 DB 갱신 제안 (Step 12) ─────────────────────────────────────────
+    async def check_updates(self) -> list[dict]:
+        """감시 목록마다 갱신 그래프를 돌린다. 새 버전이면 후보를 만들고 담당자 승인 대기에서 멈춘다."""
+        results = []
+        async with self._update_lock:                       # 확인은 한 번에 하나 (원본 수십 MB를 받는다)
+            for w in WATCHED:
+                thread_id = f"regupdate-{w.reg_id}-{uuid.uuid4().hex[:8]}"
+                config = {"configurable": {"thread_id": thread_id}, "run_name": "chem-reg:regupdate",
+                          "tags": ["regupdate"], "metadata": {"reg_id": w.reg_id}}
+                started = time.perf_counter()
+                try:
+                    values = await self.update_graph.ainvoke(initial_state(w.reg_id, thread_id), config)
+                except Exception as exc:
+                    log.exception("DB 갱신 확인 실패", extra={"thread_id": thread_id})
+                    values = {"outcome": "failed", "message": f"확인 실패 ({type(exc).__name__})"}
+                outcome = values.get("outcome")
+                self.runs.record(run_id=str(uuid.uuid4()), thread_id=thread_id, kind="update", route="regupdate",
+                                 question=f"{w.label} 갱신 확인", latency_ms=int((time.perf_counter() - started) * 1000),
+                                 status={"failed": "failed", "proposed": "awaiting_approval"}.get(outcome, "completed"),
+                                 tokens=sum(u.get("tokens", 0) for u in values.get("usage") or []),
+                                 impacted=",".join(p["product_id"] for p in values.get("products") or []) or None)
+                results.append({"reg_id": w.reg_id, "label": w.label, "outcome": outcome, "message": values.get("message"),
+                                "current": values.get("current"), "latest": values.get("latest"),
+                                "update_id": values.get("update_id")})
+        return results
+
+    async def decide_update(self, update_id: int, approved: bool, approver: str, comment: str) -> dict:
+        """담당자 결정으로 승인 대기 중인 갱신 그래프를 재개한다 (승인 → 반영·재판정 / 반려 → 그대로)."""
+        record = self.updates.get(update_id)
+        if record is None:
+            raise KeyError(update_id)
+        if record["status"] != "pending":
+            raise ValueError(f"승인 대기 중인 갱신이 아닙니다 (상태: {record['status']})")
+        config = {"configurable": {"thread_id": record["thread_id"]}}
+        started = time.perf_counter()
+        async with self._update_lock:
+            values = await self.update_graph.ainvoke(
+                Command(resume={"approved": approved, "approver": approver, "comment": comment}), config)
+        if values.get("outcome") == "applied":
+            await self.refresh_catalog()                    # 이름 매칭용 물질 목록도 새 DB 기준으로
+        self.runs.record(run_id=str(uuid.uuid4()), thread_id=record["thread_id"], kind="approval", route="regupdate",
+                         question=f"{record['label']} {record['new_version']} 반영",
+                         status="failed" if values.get("outcome") == "failed" else "completed",
+                         latency_ms=int((time.perf_counter() - started) * 1000), approved=int(approved),
+                         approver=approver, comment=comment or None,
+                         impacted=",".join(p["product_id"] for p in record.get("products") or []) or None)
+        return self.updates.get(update_id)
 
     # ── 피드백: 로컬 기록 + LangSmith Run feedback (R41) ──────────────────────
     async def feedback(self, run_id: str, score: int, comment: str) -> dict:

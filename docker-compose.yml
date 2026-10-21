@@ -12,7 +12,7 @@ services:
       OLLAMA_BASE_URL: ${OLLAMA_BASE_URL:-http://host.docker.internal:11434}
       CORS_ORIGINS: http://localhost:8080,http://127.0.0.1:8080
       ADMIN_TOKEN: ${ADMIN_TOKEN:-}     # 관리자 페이지 http://localhost:8080/admin/ (비우면 관리자 API 꺼짐)
-      WEEKLY_SCHEDULE: ${WEEKLY_SCHEDULE:-true}   # 정기 브리핑: 매주 월요일 09시(한국 시간) 지난주 브리핑 생성
+      WEEKLY_SCHEDULE: ${WEEKLY_SCHEDULE:-true}   # 정기 브리핑: 매주 월요일 09시(한국 시간) 지난주 브리핑 생성 + 규제 DB 새 버전 확인
     extra_hosts:
       - "host.docker.internal:host-gateway"
     volumes:

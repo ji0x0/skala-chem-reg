@@ -1,4 +1,4 @@
-"""Step 7 — 관리자 API: 토큰 잠금, 실행 기록(질문·승인), 피드백 연결, 평가 결과."""
+"""Step 7 — 관리자 API: 토큰 잠금, 실행 기록, 피드백 연결, 평가 결과. (DB 갱신 승인은 test_regupdate.py)"""
 import httpx
 import pytest
 from fastapi.testclient import TestClient
@@ -60,7 +60,7 @@ def test_runs_and_feedback_are_recorded(client):
     assert runs[1]["route"] == "lookup" and runs[1]["tokens"] > 0 and runs[1]["latency_ms"] >= 0
     assert runs[0]["route"] == "briefing" and runs[0]["tokens"] > 0 and runs[0]["impacted"] == "P003"
     assert runs[1]["quality_passed"] is None and runs[0]["quality_passed"] is not None   # 품질 검토는 브리핑에만
-    assert client.get("/api/v1/admin/approvals", headers=AUTH).json() == {"pending": [], "history": []}
+    assert client.get("/api/v1/admin/updates", headers=AUTH).json() == []                # 갱신 후보 없음
 
     overview = client.get("/api/v1/admin/overview", headers=AUTH).json()
     assert overview["runs"]["totals"]["runs"] == 2 and overview["pending_approvals"] == 0

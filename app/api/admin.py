@@ -1,4 +1,5 @@
-"""관리자 API (Step 7) — 규제대응 팀장용: 처리량·비용, 승인 이력, 담당자 피드백, 품질 평가, 규제 데이터 상태.
+"""관리자 API (Step 7) — 규제대응 팀장용: 처리량·비용, 담당자 피드백, 품질 평가, 규제 데이터 상태,
+규제 DB 갱신 후보의 승인·반려 (Step 12).
 
 사용자 화면과 분리된 관리자 페이지(/admin/)가 쓴다. 모든 경로가 ADMIN_TOKEN을 요구한다.
 - 토큰 설정이 비어 있으면 503 (관리자 API 꺼짐 — 기본 잠금)
@@ -13,6 +14,8 @@ import json
 from fastapi import APIRouter, Depends, Header, HTTPException, Query, Request
 
 from app.core.tracing import langsmith_enabled, project_name
+
+from .schemas import UpdateDecision
 
 
 def service(request: Request):
@@ -31,7 +34,7 @@ def require_admin(request: Request, authorization: str | None = Header(default=N
 router = APIRouter(prefix="/api/v1/admin", tags=["admin"], dependencies=[Depends(require_admin)])
 
 
-@router.get("/overview", summary="운영 요약: 처리량·비용·승인·품질, 규제 데이터, LangSmith")
+@router.get("/overview", summary="운영 요약: 처리량·비용·품질, 규제 데이터·갱신 후보, LangSmith")
 async def overview(request: Request):
     svc = service(request)
     regs = svc.regdb.regulations()
@@ -40,7 +43,7 @@ async def overview(request: Request):
     feedback = svc.feedback_records(limit=1000)
     return {
         "runs": svc.runs.summary(),
-        "pending_approvals": len(_pending(svc)),
+        "pending_approvals": svc.updates.pending_count(),      # 승인 대기 중인 규제 DB 갱신 후보
         "feedback": {"total": len(feedback), "up": sum(f["score"] > 0 for f in feedback),
                      "down": sum(f["score"] <= 0 for f in feedback)},
         "regulations": {"count": len(regs), "listings": len(listings),
@@ -53,35 +56,39 @@ async def overview(request: Request):
     }
 
 
-@router.get("/runs", summary="최근 실행 기록 (질문·승인)")
-async def runs(request: Request, kind: str | None = Query(default=None, pattern="^(question|approval)$"),
+@router.get("/runs", summary="최근 실행 기록 (질문·정기 브리핑·갱신 확인·갱신 결정)")
+async def runs(request: Request, kind: str | None = Query(default=None, pattern="^(question|weekly|update|approval)$"),
                limit: int = Query(default=50, ge=1, le=500)):
     return service(request).runs.recent(limit=limit, kind=kind)
 
 
-def _pending(svc) -> list[dict]:
-    """승인 요청 후 아직 승인·반려가 없는 대화 (같은 대화의 더 최근 승인 기록이 없으면 대기)."""
-    pending, decided = {}, set()
-    for r in svc.runs.recent(limit=1000):              # 최근 순
-        if r["kind"] == "approval":
-            decided.add(r["thread_id"])
-        elif r["status"] == "awaiting_approval" and r["thread_id"] not in decided:
-            pending.setdefault(r["thread_id"], r)
-    return list(pending.values())
+# ── 규제 DB 갱신 후보 (Step 12) ─────────────────────────────────────────────
+@router.get("/updates", summary="규제 DB 갱신 후보 목록 (승인 대기·반영·반려·변화 없음)")
+async def updates(request: Request):
+    return service(request).updates.list()
 
 
-@router.get("/approvals", summary="승인 대기와 승인·반려 이력")
-async def approvals(request: Request, limit: int = Query(default=100, ge=1, le=500)):
-    svc = service(request)
-    titles = {t["thread_id"]: t["title"] for t in svc.threads.list(limit=1000)}
-    history = svc.runs.recent(limit=limit, kind="approval")
-    requests = {r["thread_id"]: r for r in reversed(svc.runs.recent(limit=1000))
-                if r["status"] == "awaiting_approval"}         # 대화별 마지막 승인 요청 (승인 대상 제품·질문)
-    for r in history:
-        req = requests.get(r["thread_id"], {})
-        r.update(title=titles.get(r["thread_id"]), impacted=req.get("impacted"), question=req.get("question"))
-    pending = [{**r, "title": titles.get(r["thread_id"])} for r in _pending(svc)]
-    return {"pending": pending, "history": history}
+@router.post("/updates/check", summary="공식 원본의 새 버전을 지금 확인 (보통은 매주 정기 브리핑 뒤 자동)")
+async def check_updates(request: Request):
+    return await service(request).check_updates()
+
+
+@router.get("/updates/{update_id}", summary="갱신 후보 상세: 바뀐 행 전체·회사 성분·제품 판정 변화")
+async def update_detail(request: Request, update_id: int):
+    record = service(request).updates.get(update_id)
+    if record is None:
+        raise HTTPException(404, "없는 갱신 후보입니다.")
+    return record
+
+
+@router.post("/updates/{update_id}/decision", summary="갱신 후보 승인(DB 반영·재판정) 또는 반려")
+async def decide_update(request: Request, update_id: int, body: UpdateDecision):
+    try:
+        return await service(request).decide_update(update_id, body.approved, body.approver, body.comment)
+    except KeyError:
+        raise HTTPException(404, "없는 갱신 후보입니다.")
+    except ValueError as exc:
+        raise HTTPException(409, str(exc))
 
 
 @router.get("/feedback", summary="담당자 피드백 (👍/👎·코멘트, 질문과 연결)")
