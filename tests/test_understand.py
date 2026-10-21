@@ -90,3 +90,41 @@ async def test_r10_followups_use_previous_turn():
     v = snap.values
     assert v["route"] == "lookup" and v["slots"]["products"] == ["P004"] and "P004" in v["final"]
     await tools.stop()
+
+
+class _RealModelHabits(__import__("app.llm.fake", fromlist=["FakeLLM"]).FakeLLM):
+    """재평가(Ollama qwen3:8b)에서 실제로 나온 행동을 흉내 낸다."""
+
+    async def understand(self, question, history):
+        from app.llm.schemas import Intent, IntentPlan
+        plan, usage = await super().understand(question, history)
+        if "수출하는데 문제" in question:                   # L3: 판정 질문에 "변경 브리핑" 의도를 붙임
+            plan = IntentPlan(intents=[Intent(type="change_briefing", topic="EU"), *plan.intents][:3])
+        return plan, usage
+
+    async def answer(self, question, context, citations, history, on_token=None):
+        text, usage = await super().answer(question, context, citations, history, on_token)
+        if "RoHS" in question:                              # R5: 확인할 수 없다고 안내한 제도를 단정
+            text += "\n\n납은 RoHS 대상 물질입니다. 납은 EU 부속서 XVII 제한 물질입니다."
+        return text, usage
+
+
+async def test_change_intent_without_change_words_is_dropped():
+    """재평가 L3: 변경을 묻지 않은 판정 질문이 변경 브리핑으로 가 81초 걸렸다."""
+    graph, tools = await make_graph(llm=_RealModelHabits())
+    _, _, snap = await run(graph, "P006을 EU로 수출하는데 문제 있어?", thread="l3")
+    v = snap.values
+    assert v["route"] == "lookup" and "P006" in v["final"]
+    _, _, snap = await run(graph, "P006 관련 EU 최근 변경 있어?", thread="l3b")
+    assert snap.values["route"] == "briefing"                                  # 변경을 물으면 그대로 브리핑
+    await tools.stop()
+
+
+async def test_llm_claims_about_out_of_scope_regime_are_removed():
+    """재평가 R5: "RoHS는 확인할 수 없습니다" 안내 뒤에 "납은 RoHS 대상 물질입니다"를 단정했다."""
+    graph, tools = await make_graph(llm=_RealModelHabits())
+    _, _, snap = await run(graph, "납이 RoHS 대상이야?", thread="r5")
+    final = snap.values["final"]
+    assert final.startswith("> ⚠️ **RoHS**는") and "RoHS 대상 물질입니다" not in final
+    assert "EU 부속서 XVII 제한 물질입니다" in final                            # 다루는 목록 정보는 그대로
+    await tools.stop()

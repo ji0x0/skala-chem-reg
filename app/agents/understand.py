@@ -14,7 +14,7 @@ from datetime import date
 from langgraph.config import get_stream_writer
 
 from app.domain.cas import is_valid_cas
-from app.domain.coverage import (DOMAIN_WORDS, FEED_REGIONS, GENERAL_KNOWLEDGE, LEGAL_ADVICE, SECURITY,
+from app.domain.coverage import (CHANGE_WORDS, DOMAIN_WORDS, FEED_REGIONS, GENERAL_KNOWLEDGE, LEGAL_ADVICE, SECURITY,
                                  SUPPORTED, regimes_in, regions_in, unsupported_notice, years_in)
 from app.domain import responses
 from app.llm.fake import FakeLLM
@@ -81,6 +81,7 @@ async def understand_node(state: AgentState, deps: AgentDeps) -> dict:
 
     # ③ 후속 질문: 대상이 없으면 앞 턴을 이어받는다
     inform: dict = {}
+    inherited = False                                                 # 앞 턴 의도를 그대로 이어받았나 ("더 자세히")
     if "followup" in types:
         types.remove("followup")
         if re.search(EVIDENCE_WORDS, question) and not (products or cas_list or regs):
@@ -92,6 +93,14 @@ async def understand_node(state: AgentState, deps: AgentDeps) -> dict:
             products, cas_list = prev.get("products", []), prev.get("cas", [])
             regions, regs = regions or prev.get("regions", []), regs or prev.get("regs", [])
             types += [t for t in prev.get("intents", []) if t != "followup"]
+            inherited = True
+    if ("change_briefing" in types and not state.get("period") and not inherited
+            and not re.search(CHANGE_WORDS, question, re.IGNORECASE)):
+        types.remove("change_briefing")                               # 변경을 묻지 않았다 (재평가 L3에서 발견)
+        if products and "product_check" not in types:
+            types.append("product_check")
+        elif cas_list and not set(types) & {"substance_lookup", "explain_regulation", "list_query"}:
+            types.append("substance_lookup")
     types = list(dict.fromkeys(types))[:3]
 
     # ④ 범위 판정

@@ -98,6 +98,11 @@ FEED_REGIONS = {"US", "KR", "EU"}                 # 변경 자동 수집 (미국
 FEED_WINDOW = {"US": 30, "KR": 365, "EU": 365}   # 변경 수집이 볼 수 있는 최대 기간 (일)
 
 
+# 변경을 묻는 표현 — 없으면 LLM이 "변경 브리핑" 의도를 붙여도 코드가 뺀다 ("P006을 EU로 수출하는데 문제 있어?"는 판정 질문)
+CHANGE_WORDS = (r"변경|개정|바뀌|바뀐|바꾼|최근|동향|브리핑|새로|신규|추가된|추가됐|이번\s*주|지난\s*주|금주|올해|관보|"
+                r"고시|공고|소식|업데이트|update|amend|news")
+
+
 def regimes_in(text: str) -> tuple[list[str], list[str]]:
     """(다루는 규제 ID, 다루지 않는 제도 이름). 국내 '제한물질'은 EU 문맥('REACH 제한 물질')과 구분한다."""
     ids: list[str] = []

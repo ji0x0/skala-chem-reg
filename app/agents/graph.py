@@ -25,7 +25,7 @@ from langgraph.graph import END, START, StateGraph
 from langgraph.types import Send
 
 from app.domain import integrity
-from app.domain.coverage import FEED_REGIONS, SUPPORTED, SUPPORTED_TEXT, regions_in
+from app.domain.coverage import FEED_REGIONS, OUT_REGIMES, SUPPORTED, SUPPORTED_TEXT, regions_in
 from app.domain.citations import (citations_text, from_document, from_finding, from_listing, from_regulation,
                                   quote_in_source)
 from app.domain.judge import OUTCOME_KO
@@ -148,6 +148,7 @@ async def lookup_node(state: AgentState, deps: AgentDeps) -> dict:
                                           citations=citations_text(citations),
                                           history=history_text(state), on_token=token_writer())
     answer = drop_unknown_refs(normalize_refs(answer), {c["id"] for c in state.get("citations", []) + citations})
+    answer = drop_out_of_scope(answer, slots.get("out_regs", []))
     # 8B 모델이 근거 목록만 옮겨 적고 함유 제품을 빠뜨리는 경우가 있어(재측정에서 발견) 코드가 보장한다
     missing = [f"- **{name} 함유 제품**: {held}" for name, (held, ids) in holder_lines.items()
                if not any(pid in answer for pid in ids)]
@@ -510,6 +511,20 @@ def drop_unknown_refs(text: str, valid_ids: set[int]) -> str:
     return re.sub(r"\s?\[(\d+)\]", lambda m: m.group(0) if int(m.group(1)) in valid_ids else "", text)
 
 
+def drop_out_of_scope(text: str, out_regimes: list[str]) -> str:
+    """다루지 않는 제도(예: RoHS)를 언급한 LLM 문장을 지운다 — "확인할 수 없음" 안내 뒤에 "납은 RoHS 대상입니다"처럼
+    확인할 수 없는 사실을 단정하던 문제 (재평가 R5에서 발견). 안내 문구는 코드가 따로 붙인다."""
+    if not out_regimes:
+        return text
+    pattern = "|".join(OUT_REGIMES[name] for name in out_regimes if name in OUT_REGIMES)
+    lines = []
+    for line in text.split("\n"):
+        kept = [s for s in re.split(r"(?<=[.다요])\s+", line) if not re.search(pattern, s, re.IGNORECASE)]
+        if kept or not line.strip():
+            lines.append(" ".join(kept))
+    return "\n".join(lines).strip()
+
+
 def normalize_refs(text: str) -> str:
     """모델이 '[근거 1]', '[근거 1, 2]'처럼 쓰면 '[1]', '[1][2]'로 — 화면 링크·가드·채점이 같은 형식을 쓴다."""
     return re.sub(r"\[근거\s*([\d,\s]+)\]",
@@ -656,6 +671,7 @@ async def inform_node(state: AgentState, deps: AgentDeps) -> dict:
                                           citations=citations_text(citations), history="", on_token=token_writer())
         usage.append(u)
         answer = drop_unknown_refs(normalize_refs(answer), {c["id"] for c in citations})
+        answer = drop_out_of_scope(answer, (state.get("slots") or {}).get("out_regs", []))
         # 설명 절은 변경을 다루지 않는다 (변경은 수집·목록 절이 근거로 답한다) — 지시를 어긴 문장은 코드가 뺀다
         kept = [x for x in re.split(r"(?<=[.다])\s+", answer) if not re.search(r"최근 변경|변경 사항|개정 사항", x)]
         sections.insert(0, "## 규제 설명\n" + (" ".join(kept) or answer))
