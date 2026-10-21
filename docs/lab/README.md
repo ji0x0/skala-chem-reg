@@ -20,4 +20,4 @@
 | 9 | [step09-routing.md](step09-routing.md) | 질문 이해·범위 판정: 의도 분해, 범위 밖·확인 불가 안내, 규제 설명·목록 조회, 후속 질문, 대화 승인 제거 | ✅ |
 | 10 | [step10-weekly.md](step10-weekly.md) | 정기 브리핑: 기간 고정 수집, 주차별 저장, 매주 월요일 스케줄러, 정기 브리핑 탭·검토 완료, 지난 3주 예시 | ✅ |
 | 11 | [step11-eu-feed.md](step11-eu-feed.md) | EU 수집: REACH·CLP 개정 법령(Cellar SPARQL·본문), 채택일·관보 게재일, SVHC 한계 안내 | ✅ |
-| 12 | (작성 예정) | 규제 DB 갱신 제안: 공식 통합본 새 버전 감지 → 바뀐 행 비교 → 담당자 승인 후 반영·재판정 | ⏳ |
+| 12 | [step12-db-update.md](step12-db-update.md) | 규제 DB 갱신 제안: 공식 통합본 새 버전 감지 → 바뀐 행·제품 판정 변화 → 담당자 승인(`interrupt`) 후 반영 | ✅ |
