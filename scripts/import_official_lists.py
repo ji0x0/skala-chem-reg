@@ -8,6 +8,7 @@
 - 원본 파일(수십 MB)은 data/regulations/raw/ 에 캐시하고 Git에 올리지 않는다. 결과 CSV만 커밋한다
 - 결과 행은 모두 status=official, verified_on=가져온 날, evidence=통합본 버전·위치
 - 사람이 조건·기준을 정리한 행(listings.csv)이 같은 (규제, CAS)의 bulk 행보다 우선한다 (build_reg_db.py)
+- Step 12: 통합본 버전(CELEX)을 인자로 받는다 → DB 갱신 제안 에이전트가 새 버전을 같은 방법으로 읽는다 (app/regupdate)
 
 ECHA SVHC 후보 목록 등 웹 화면으로만 제공되는 목록은 브라우저로 확인해 bulk CSV로 저장했다 (docs/regulation-verification.md).
 """
@@ -32,7 +33,7 @@ HEADER = ["reg_id", "cas", "name_en", "name_ko", "entry_ref", "threshold_wt_pct"
           "source_url", "verified_on", "evidence"]
 CAS_RE = re.compile(r"(?<![\d-])\d{2,7}-\d{2}-\d(?![\d-])")
 
-# 현재(2026-10-20) 시행 중인 최신 통합본
+# 2026-10-20에 가져온 통합본 (이후 버전은 DB 갱신 제안으로 — Step 12)
 CLP_CELEX = "02008R1272-20260701"
 REACH_CELEX = "02006R1907-20260622"
 EURLEX = "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:{}"
@@ -75,15 +76,21 @@ def classification(raw: str) -> str:
     return ", ".join(p.strip() for p in HAZARD_START.split(raw) if p.strip())
 
 
-def write(name: str, rows: list[dict]) -> Path:
-    BULK_DIR.mkdir(parents=True, exist_ok=True)
-    path = BULK_DIR / f"{name}.csv"
+def unique_rows(rows: list[dict]) -> list[dict]:
+    """같은 규제·CAS·항목은 한 행 (한 물질이 여러 항목에 걸릴 수 있음)."""
     seen, unique = set(), []
-    for r in rows:                                      # 같은 규제·CAS·항목은 한 행 (한 물질이 여러 항목에 걸릴 수 있음)
+    for r in rows:
         key = (r["reg_id"], r["cas"], r["entry_ref"])
         if key not in seen:
             seen.add(key)
             unique.append(r)
+    return unique
+
+
+def write(name: str, rows: list[dict], folder: Path = BULK_DIR) -> Path:
+    folder.mkdir(parents=True, exist_ok=True)
+    path = folder / f"{name}.csv"
+    unique = unique_rows(rows)
     with open(path, "w", encoding="utf-8", newline="") as f:
         w = csv.DictWriter(f, fieldnames=HEADER)
         w.writeheader()
@@ -92,8 +99,8 @@ def write(name: str, rows: list[dict]) -> Path:
 
 
 # ── EU CLP 부속서 VI 표 3 ────────────────────────────────────────────────────
-def import_clp(today: str) -> list[dict]:
-    t = fetch_cellar(CLP_CELEX)
+def import_clp(today: str, celex: str = CLP_CELEX) -> list[dict]:
+    t = fetch_cellar(celex)
     tables = re.findall(r"<table\b.*?</table>", t, flags=re.S)
     table3 = max(tables, key=lambda x: len(re.findall(r">\s*\d{3}-\d{3}-\d{2}-[\dX]\s*<", x)))
     rows = []
@@ -109,8 +116,8 @@ def import_clp(today: str) -> list[dict]:
         for cas in cas_numbers(cas_field):
             rows.append({"reg_id": "EU_CLP_ANNEX_VI", "cas": cas, "name_en": name[:200], "name_ko": "",
                          "entry_ref": index_no, "threshold_wt_pct": "", "condition_ko": cond[:400],
-                         "status": "official", "source_url": EURLEX.format(CLP_CELEX), "verified_on": today,
-                         "evidence": f"CLP 통합본 {CLP_CELEX} 부속서 VI 표 3, 색인번호 {index_no}"})
+                         "status": "official", "source_url": EURLEX.format(celex), "verified_on": today,
+                         "evidence": f"CLP 통합본 {celex} 부속서 VI 표 3, 색인번호 {index_no}"})
     return rows
 
 
@@ -128,8 +135,8 @@ APPENDIX_NOTE = {"Entry 28": "일반 소비자 대상 물질·혼합물에 분�
                  "Entry 75": "문신·영구 화장용 혼합물에서 물질별 농도 제한 — 원문 확인"}
 
 
-def import_xvii(today: str) -> list[dict]:
-    t = fetch_cellar(REACH_CELEX)
+def import_xvii(today: str, celex: str = REACH_CELEX) -> list[dict]:
+    t = fetch_cellar(celex)
     start = [m.start() for m in re.finditer(r"ANNEX XVII", t)][-1]
     app1 = start + re.search(r"Appendix 1\s*</p>", t[start:]).start()   # 본문의 "listed in Appendix 1"이 아니라 부록 제목
     rows = []
@@ -145,7 +152,7 @@ def import_xvii(today: str) -> list[dict]:
         name = re.sub(r"\s*CAS No.*$", "", c[0][len(m.group(0)):])[:200]
         for cas in cas_numbers(c[0]):
             rows.append(_xvii_row(cas, name, entry, f"부속서 XVII {entry} 제한 대상 — 제한 조건(용도·농도)은 원문 확인",
-                                  today, f"REACH 통합본 {REACH_CELEX} 부속서 XVII {entry}"))
+                                  today, f"REACH 통합본 {celex} 부속서 XVII {entry}", celex))
     # 부록: 각 부록 제목 뒤의 표에서 CAS 열
     marks = [(m.group(1), m.start()) for m in re.finditer(r"Appendix (\d{1,2})\s*</p>", t[app1 - 50:])]
     marks = [(n, app1 - 50 + p) for n, p in marks]
@@ -163,14 +170,14 @@ def import_xvii(today: str) -> list[dict]:
             name = next((x for x in c if len(re.findall(r"[A-Za-z]", x)) >= 2 and not cas_numbers(x)), "")
             for cas in found:
                 rows.append(_xvii_row(cas, name[:200], entry, f"{label} — {APPENDIX_NOTE[entry]}", today,
-                                      f"REACH 통합본 {REACH_CELEX} 부속서 XVII 부록 {num} ({entry})"))
+                                      f"REACH 통합본 {celex} 부속서 XVII 부록 {num} ({entry})", celex))
     return rows
 
 
-def _xvii_row(cas, name, entry, cond, today, evidence) -> dict:
+def _xvii_row(cas, name, entry, cond, today, evidence, celex) -> dict:
     return {"reg_id": "EU_REACH_XVII", "cas": cas, "name_en": name, "name_ko": "", "entry_ref": entry,
             "threshold_wt_pct": "", "condition_ko": cond, "status": "official",
-            "source_url": EURLEX.format(REACH_CELEX), "verified_on": today, "evidence": evidence}
+            "source_url": EURLEX.format(celex), "verified_on": today, "evidence": evidence}
 
 
 # ── 국내 인체급성·인체만성·생태유해성물질 (화관법 유해화학물질) ─────────────────

@@ -21,8 +21,13 @@ CSV는 사람이 고치기 쉽고 Git에서 변경 이력을 보기 좋다. 서�
 - listings.csv: 사람이 조건·기준 함량·한글 설명을 정리한 행 (판정에 직접 쓰는 핵심 행)
 - bulk/*.csv: 공식 원본의 전체 목록 (scripts/import_official_lists.py 또는 브라우저 확인으로 만든 행)
 같은 (규제, CAS, 항목)이면 listings.csv 행이 우선한다. 한글 이름은 names_ko.csv로 CAS마다 채운다.
+
+Step 12: 담당자가 승인한 DB 갱신은 저장소의 bulk 파일을 고치지 않고 갱신 폴더(REG_UPDATES_DIR/bulk/)에
+같은 이름으로 둔다 → 그 파일이 bulk 파일을 대신한다. DB는 임시 파일로 만든 뒤 한 번에 바꿔 끼운다
+(만드는 도중에 조회하는 서버·MCP 서버가 반쯤 만든 DB를 보지 않게).
 """
 import csv
+import os
 import re
 import sqlite3
 import sys
@@ -45,17 +50,26 @@ def to_float(value: str) -> float | None:
     return float(value) if value.strip() else None
 
 
-def load_listings(regs_dir: Path) -> list[dict]:
-    """listings.csv(정리한 행) + bulk/*.csv(공식 전체 목록)를 합친다. 정리한 행이 같은 규제·CAS·항목의 bulk 행보다 우선."""
+def bulk_overrides(updates_dir: Path | None) -> dict[str, Path]:
+    """승인해 반영한 갱신 파일 {bulk 파일 이름: 경로}."""
+    folder = Path(updates_dir) / "bulk" if updates_dir else None
+    return {p.name: p for p in sorted(folder.glob("*.csv"))} if folder and folder.is_dir() else {}
+
+
+def load_listings(regs_dir: Path, overrides: dict[str, Path] | None = None) -> list[dict]:
+    """listings.csv(정리한 행) + bulk/*.csv(공식 전체 목록)를 합친다. 정리한 행이 같은 규제·CAS·항목의 bulk 행보다 우선.
+    overrides에 같은 이름의 파일이 있으면 그 파일을 bulk 대신 쓴다 (승인한 갱신 · 갱신 후보 미리보기)."""
+    overrides = overrides or {}
     curated = [{**r, "origin": "listings.csv"} for r in read_csv(regs_dir / "listings.csv")]
     keys = {(r["reg_id"], r["cas"], r["entry_ref"]) for r in curated}
     keys_any_entry = {(r["reg_id"], r["cas"]) for r in curated if not r["entry_ref"]}
     bulk = []
     for path in sorted((regs_dir / "bulk").glob("*.csv")):
-        for r in read_csv(path):
+        source, origin = (overrides[path.name], f"갱신/{path.name}") if path.name in overrides else (path, f"bulk/{path.name}")
+        for r in read_csv(source):
             if (r["reg_id"], r["cas"], r["entry_ref"]) in keys or (r["reg_id"], r["cas"]) in keys_any_entry:
                 continue
-            bulk.append({**r, "origin": f"bulk/{path.name}"})
+            bulk.append({**r, "origin": origin})
     names = {r["cas"]: r["name_ko"] for r in read_csv(regs_dir / "names_ko.csv")}
     for r in curated + bulk:
         r["name_ko"] = r["name_ko"] or names.get(r["cas"], "")
@@ -100,9 +114,11 @@ def validate(sources: list[dict], listings: list[dict], products: list[dict]) ->
     return errors
 
 
-def build(settings: Settings) -> dict:
+def build(settings: Settings, out_path: Path | None = None, extra: dict[str, Path] | None = None) -> dict:
+    """검증 → DB 생성. out_path를 주면 그 경로에(갱신 후보 미리보기), 아니면 settings.reg_db_path를 바꿔 끼운다.
+    extra: 반영한 갱신 위에 더 얹을 bulk 파일 (갱신 후보)."""
     sources = read_csv(settings.regulations_dir / "sources.csv")
-    listings = load_listings(settings.regulations_dir)
+    listings = load_listings(settings.regulations_dir, bulk_overrides(settings.reg_updates_dir) | (extra or {}))
     products = read_csv(settings.products_path)
     glossary = read_csv(settings.glossary_path)
 
@@ -110,11 +126,11 @@ def build(settings: Settings) -> dict:
     if errors:
         raise ValueError("데이터 검증 실패:\n  " + "\n  ".join(errors))
 
-    db = settings.reg_db_path
+    db = Path(out_path or settings.reg_db_path)
     db.parent.mkdir(parents=True, exist_ok=True)
-    if db.exists():
-        db.unlink()
-    conn = sqlite3.connect(db)
+    tmp = db.with_name(f".{db.name}.{os.getpid()}.tmp")
+    tmp.unlink(missing_ok=True)
+    conn = sqlite3.connect(tmp)
     conn.executescript("""
         CREATE TABLE regulations (reg_id TEXT PRIMARY KEY, region TEXT, law TEXT, list_name TEXT,
             authority TEXT, rule_type TEXT, applies_when TEXT, default_threshold_wt_pct REAL,
@@ -146,6 +162,8 @@ def build(settings: Settings) -> dict:
     counts["to_verify"] = conn.execute(
         "SELECT COUNT(*) FROM listings WHERE status='to_verify'").fetchone()[0]
     conn.close()
+    os.replace(tmp, db)                                 # 한 번에 바꿔 끼움 (조회는 쿼리마다 파일을 새로 연다)
+    counts["updates"] = sorted(bulk_overrides(settings.reg_updates_dir))
     return counts
 
 
@@ -162,6 +180,8 @@ def main() -> None:
     print(f"  제품 초기 데이터 검증 통과: {counts['products']}개(성분 {counts['ingredients']}행) "
           f"→ app.db가 비어 있으면 서버 시작 시 채워짐")
     print(f"  공식 원본 확인(official): {counts['listings'] - counts['to_verify']}행 · 확인 전(to_verify): {counts['to_verify']}행")
+    if counts["updates"]:
+        print(f"  승인해 반영한 갱신: {', '.join(counts['updates'])} ({settings.reg_updates_dir})")
 
 
 if __name__ == "__main__":
