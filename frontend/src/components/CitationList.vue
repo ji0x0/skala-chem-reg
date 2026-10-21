@@ -1,22 +1,39 @@
 <script setup>
 // 답변 근거 (R56) — 원문 문장(코드가 추출) · 한국어 번역(무결성 통과분만) · 출처 · 기준일 · 검증 상태
 // 원문은 LLM이 쓰지 않는다. 번역이 없으면 무결성 검사에서 버려진 것 → 원문만 보여 준다
-import { ref } from 'vue'
+// 근거 목록은 기본으로 접어 둔다 (답변을 먼저 읽게). 본문의 [n]을 누르면 펼치고 그 근거로 이동
+import { nextTick, ref, watch } from 'vue'
 import { STATUS_KO as STATUS, outcomeKo } from '../lib/labels.js'
 
-defineProps({
+const props = defineProps({
   citations: { type: Array, required: true },
   prefix: { type: String, default: 'cite' },      // 답변이 여러 개여도 id가 겹치지 않게
   highlight: { type: Number, default: null },     // 본문에서 [n]을 누르면 해당 근거 강조
 })
 const showOriginal = ref({})                      // 번역이 있는 근거도 원문 펼쳐 보기
+const open = ref(false)
+
+watch(() => props.highlight, async (n) => {
+  if (n === null || n === undefined) return
+  open.value = true
+  await nextTick()                                // 접혀 있으면 아직 없는 요소 → 펼친 뒤 이동
+  document.getElementById(`${props.prefix}-${n}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+})
 
 const host = url => { try { return new URL(url).host } catch { return url } }
 </script>
 
 <template>
   <section class="citations" v-if="citations.length">
-    <h3 class="small muted">근거 {{ citations.length }}개 — 문서 근거는 출처 본문의 문장 그대로, 목록 근거는 규제 DB 등재 내용</h3>
+    <h3 class="small">
+      <button class="ghost toggle" type="button" :aria-expanded="open" :aria-controls="`${prefix}-list`"
+              @click="open = !open">
+        <span class="caret" :class="{ on: open }" aria-hidden="true">▸</span>
+        근거 {{ citations.length }}개 {{ open ? '접기' : '펼치기' }}
+      </button>
+      <span class="muted hint">문서 근거는 출처 본문의 문장 그대로, 목록 근거는 규제 DB 등재 내용</span>
+    </h3>
+    <div v-if="open" :id="`${prefix}-list`">
     <article v-for="c in citations" :key="c.id" :id="`${prefix}-${c.id}`" class="cite"
              :class="{ hl: highlight === c.id }">
       <header class="row">
@@ -44,12 +61,17 @@ const host = url => { try { return new URL(url).host } catch { return url } }
         <span class="badge" :class="c.status">{{ STATUS[c.status] ?? c.status }}</span>
       </footer>
     </article>
+    </div>
   </section>
 </template>
 
 <style scoped>
 .citations { margin-top: 14px; border-top: 1px dashed var(--border); padding-top: 10px; }
-h3 { margin: 0 0 8px; font-weight: 600; }
+h3 { margin: 0 0 8px; font-weight: 600; display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; }
+.toggle { padding: 2px 6px; font-weight: 600; color: var(--accent); }
+.caret { display: inline-block; transition: transform .15s; }
+.caret.on { transform: rotate(90deg); }
+.hint { font-weight: 400; }
 .cite {
   padding: 10px 12px; margin-bottom: 8px;
   background: var(--panel-2); border-radius: 8px; border: 1px solid transparent;
