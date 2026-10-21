@@ -15,15 +15,15 @@
 | 우리 제품이 해당되는지 원료 목록과 일일이 대조한다 | 제품 CAS × 규제 DB를 **코드로 판정** (수출 지역, 성형품/혼합물, 함량 기준, 그룹 합산, 불순물) |
 | 번역·요약 중 숫자·CAS·날짜가 틀리면 대응이 틀어진다 | 원문과 번역의 CAS·날짜·숫자를 코드로 대조, 지어낸 사실은 가드가 차단 |
 | 판단 근거를 나중에 다시 찾기 어렵다 | 답변의 `[n]`마다 원문 문장·번역·출처 URL·기준일·검증 상태 |
-| 영향 제품을 확인 없이 다른 부서에 공유하면 위험하다 | 공유 전 담당자 승인(Human-in-the-loop), 서버를 재시작해도 승인 대기 유지 |
+| 서비스가 모르는 것을 그럴듯하게 지어낸다 | 질문을 먼저 이해하고 범위를 판정 — 다루지 않는 국가·제도·기간, 수집기 없는 지역의 변경은 "확인할 수 없음"을 코드가 안내 (다른 질문으로 대신 답하지 않음) |
 
 ## 화면
 
 | 브리핑 (요약 → 지역별 변경 → 제품 영향 → 할 일·기한) | 근거: 번역 + 원문 + 출처 + 기준일 |
 | --- | --- |
 | ![브리핑](docs/images/briefing.jpg) | ![근거](docs/images/citations.jpg) |
-| **승인: 근거를 본 뒤 영향 제품 공유 승인·반려** | **제품 관리: 배합 + 저장 즉시 규제 판정** |
-| ![승인](docs/images/approval.jpg) | ![제품 관리](docs/images/products.jpg) |
+| **범위 판정: 설명 + "확인할 수 없음" + 목록 기준 최근 등재** | **제품 관리: 배합 + 저장 즉시 규제 판정** |
+| ![범위 판정](docs/images/routing.jpg) | ![제품 관리](docs/images/products.jpg) |
 | **규제 목록: 물질 검색 → 등재 규제·함유 제품** | **관리자 페이지(`/admin/`): 처리량·승인·피드백·품질 평가** |
 | ![규제 목록](docs/images/regulations.jpg) | ![관리자](docs/images/admin.jpg) |
 
@@ -58,10 +58,12 @@ flowchart LR
 
 ```mermaid
 flowchart TD
-    Q([질문]) --> route{route<br/>질문 분류}
-    route -- chat --> chat[서비스 안내] --> fin
-    route -- lookup --> lookup["물질·제품 조회<br/>코드 판정 + 함유 제품"] --> fin
-    route -- briefing --> plan[계획] --> gate["계획 검증 (코드)"]
+    Q([질문 + 앞 턴]) --> und["질문 이해·범위 판정<br/>코드: 지역·제도·물질·제품·기간<br/>LLM: 의도 분해 (최대 3개)"]
+    und --> inform["안내 (코드 문구)<br/>범위 밖·확인 불가 · 규제 설명 · 목록 조회 · 앞 근거"]
+    inform -- chat --> chat[서비스 안내] --> fin
+    inform -- inform --> fin
+    inform -- lookup --> lookup["물질·제품 조회<br/>코드 판정 + 함유 제품"] --> fin
+    inform -- briefing --> plan[계획] --> gate["계획 검증 (코드)"]
     gate -- Send 병렬 --> us["해외 수집<br/>연방 관보"] & kr["국내 수집 (ReAct)<br/>법제처 고시"] & db["규제 DB 대조"]
     us & kr & db --> review{"수집 충분?"}
     review -- "관련 문서 0건: 기간 30일로 넓혀 재조사" --> us
@@ -69,7 +71,7 @@ flowchart TD
     impact --> write["브리핑 작성 (토큰 스트리밍)"] --> guard["사실·근거 가드 (코드)"]
     guard --> validate{"품질 검토<br/>LLM-as-Judge"}
     validate -- "불합격 (상한 내)" --> write
-    validate --> approval["담당자 승인<br/>interrupt (영향 제품이 있을 때)"] --> fin([최종 정리])
+    validate --> fin([최종 정리<br/>안내 → 설명·목록 → 본 답변])
 ```
 
 ## 다루는 규제 (공식 원본 전체 목록)
@@ -156,7 +158,7 @@ http://localhost:8080 에서 화면이 열립니다. API 문서는 http://localh
 | --- | --- |
 | `backend` | FastAPI + LangGraph + MCP 서버 3개(같은 이미지에서 자식 프로세스). 규제 DB는 이미지 빌드 때 공식 목록 CSV로 생성 |
 | `frontend` | Vite 빌드 결과를 nginx가 제공하고 `/api`를 백엔드로 넘김 (같은 출처라 CORS 불필요, SSE 버퍼링 끔) |
-| 볼륨 `state` | 제품 DB·대화·승인 대기·피드백·실행 기록 — 컨테이너를 다시 만들어도 유지 |
+| 볼륨 `state` | 제품 DB·대화·피드백·실행 기록 — 컨테이너를 다시 만들어도 유지 |
 | LLM | 기본은 호스트의 Ollama(`host.docker.internal:11434`). Ollama도 컨테이너로: `docker compose --profile ollama up --build` 후 `.env`에 `OLLAMA_BASE_URL=http://ollama:11434` |
 
 `.env`(선택)의 `LLM_BACKEND`, `OPENAI_API_KEY`, `LANGSMITH_*`, `ADMIN_TOKEN`이 백엔드에 전달됩니다. 관리자 페이지는 http://localhost:8080/admin/ 입니다.
@@ -181,9 +183,8 @@ LLM_BACKEND=ollama uv run python scripts/run_eval.py --judge
 
 | 메서드 | 경로 | 설명 |
 | --- | --- | --- |
-| POST | `/api/v1/chat/stream` | 질문 → SSE (진행·도구 호출·토큰·근거·승인 요청) |
-| GET | `/api/v1/threads/{id}` | 대화 상태, 승인 대기, 근거 |
-| POST | `/api/v1/threads/{id}/approval` | 승인·반려 → SSE로 이어서 실행 |
+| POST | `/api/v1/chat/stream` | 질문 → SSE (진행·도구 호출·토큰·근거) |
+| GET | `/api/v1/threads/{id}` | 대화 상태, 근거 |
 | POST | `/api/v1/feedback` | 👍/👎 → 로컬 기록 + LangSmith Run 피드백 |
 | GET·POST·PUT | `/api/v1/products` | 제품 목록·추가·수정 (검증 실패 시 422 + 오류 목록, 저장 즉시 판정) |
 | GET | `/api/v1/regulations`, `/api/v1/substances?q=` | 규제 목록·등재 물질, 물질 검색 |
@@ -195,7 +196,7 @@ LLM_BACKEND=ollama uv run python scripts/run_eval.py --judge
 | 영역 | 사용 |
 | --- | --- |
 | LLM | LangChain `init_chat_model` (Ollama qwen3:8b / OpenAI), 구조화 출력, 스트리밍 |
-| 에이전트 | LangGraph — 조건 분기, `Send` 병렬 서브에이전트, 재조사 루프, `interrupt` 승인, SQLite 체크포인터 |
+| 에이전트 | LangGraph — 질문 이해·범위 판정 분기, `Send` 병렬 서브에이전트, ReAct 국내 수집, 재조사 루프, SQLite 체크포인터 |
 | 도구 | MCP 서버 3개 (FastMCP, Tool·Resource·Prompt), `langchain-mcp-adapters` |
 | API | FastAPI, SSE, Pydantic, lifespan 싱글턴, CORS 허용 출처 명시 |
 | 화면 | Vue 3 + Vite, `fetch` + `ReadableStream` SSE 파서, marked + DOMPurify |
@@ -220,13 +221,13 @@ frontend/        Vue 화면 (사용자 index.html · 관리자 admin.html)
 data/            규제 목록·가상 제품·용어집 CSV, 관보·국내 고시 스냅샷, 평가 질문
 scripts/         DB 빌드, 공식 목록 가져오기, 실행, 평가 스크립트
 Dockerfile, docker-compose.yml   배포 (frontend/Dockerfile·nginx.conf)
-tests/           pytest (백엔드 105개 · 화면 23개)
-docs/lab/        단계별 핸즈온 랩 (Step 0 → 8)
+tests/           pytest (백엔드 115개 · 화면 23개)
+docs/lab/        단계별 핸즈온 랩 (Step 0 → 9)
 ```
 
 ## 문서
 
-- [핸즈온 랩](docs/lab/README.md): Step 0(골격)부터 Step 8(국내 변경 수집)까지, 단계마다 만든 파일·실행 명령·기대 결과·실제로 겪은 문제
+- [핸즈온 랩](docs/lab/README.md): Step 0(골격)부터 Step 9(질문 이해·범위 판정)까지, 단계마다 만든 파일·실행 명령·기대 결과·실제로 겪은 문제
 - [주제·페인포인트·설계](docs/topic-final.md) · [요구사항](REQUIREMENTS.md) · [개발 일지](DEVLOG.md) · [트러블슈팅](troubleshooting.md)
 
 ## 한계

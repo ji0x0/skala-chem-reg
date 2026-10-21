@@ -15,3 +15,4 @@
 | 6 | [step06-eval.md](step06-eval.md) | 평가: 회귀 질문 11개·코드 채점기·LLM-as-Judge, Before/After 실측, LangSmith 트레이스·피드백·Dataset | ✅ |
 | 7 | [step07-admin.md](step07-admin.md) | 관리자 페이지: 실행 기록·승인 이력·피드백·품질 평가·규제 데이터 상태 (토큰 잠금, 사용자 화면과 분리) | ✅ |
 | 8 | [step08-kr-feed.md](step08-kr-feed.md) | 국내 변경 수집: 법제처 행정규칙 ReAct 에이전트 + 안전장치, 개정 내용으로 영향 판단, 1년 재검색 | ✅ |
+| 9 | [step09-routing.md](step09-routing.md) | 질문 이해·범위 판정: 의도 분해, 범위 밖·확인 불가 안내, 규제 설명·목록 조회, 후속 질문, 대화 승인 제거 | ✅ |
