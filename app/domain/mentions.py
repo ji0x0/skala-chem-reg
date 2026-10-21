@@ -19,7 +19,8 @@ def name_variants(name_en: str) -> list[str]:
     if base:
         variants.append(base)
     variants.extend(abbrevs)
-    return variants
+    # 글자가 없는 조각("1", "2.")은 물질 이름이 아니다 — 질문 속 숫자·날짜가 물질로 잡히지 않게 (원본 파싱 오류 방어)
+    return [v for v in variants if re.search(r"[A-Za-z]", v)]
 
 
 ABBREVIATIONS = {"79-01-6": ["TCE"], "127-18-4": ["PCE", "Perchloroethylene"],

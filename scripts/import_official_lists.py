@@ -159,8 +159,10 @@ def import_xvii(today: str) -> list[dict]:
             found = [cas for cell in c[1:] for cas in cas_numbers(cell)]
             if not c or not found:
                 continue
+            # 부록 표는 첫 칸이 일련번호("1.")인 경우가 있다 → 영문 글자가 든 첫 칸을 물질명으로
+            name = next((x for x in c if len(re.findall(r"[A-Za-z]", x)) >= 2 and not cas_numbers(x)), "")
             for cas in found:
-                rows.append(_xvii_row(cas, c[0][:200], entry, f"{label} — {APPENDIX_NOTE[entry]}", today,
+                rows.append(_xvii_row(cas, name[:200], entry, f"{label} — {APPENDIX_NOTE[entry]}", today,
                                       f"REACH 통합본 {REACH_CELEX} 부속서 XVII 부록 {num} ({entry})"))
     return rows
 
@@ -227,8 +229,10 @@ def import_kr_cca(today: str) -> list[dict]:
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("source", choices=["eu", "kr-cca"])
+    parser.add_argument("--verified-on", default=date.today().isoformat(),
+                        help="확인일 (원본을 받아 확인한 날). 저장해 둔 원본으로 다시 만들 때는 그 원본을 받은 날")
     args = parser.parse_args()
-    today = date.today().isoformat()
+    today = args.verified_on
     if args.source == "kr-cca":
         path = write("kr_cca_hazardous", import_kr_cca(today))
         print(f"{path.relative_to(ROOT)}: {sum(1 for _ in open(path)) - 1}행")

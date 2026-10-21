@@ -74,3 +74,14 @@ def test_minor_components_are_modelled(tmp_path):
     assert min(n for pid, n in per_product.items() if pid <= "P012") >= 5   # 규제 문제가 있는 제품: 상세 배합
     assert min(per_product.values()) >= 3                                    # 규정 준수 제품(P013~P020) 포함
     assert len(minor_hits) >= 8        # 미량 성분이 규제 목록에 걸리는 제품이 여러 개
+
+
+def test_truncated_names_are_rejected_and_ignored():
+    """원본 파싱 오류로 영문명이 "1", "2."가 된 행 (화관법 금지물질 쉼표 잘림, XVII 부록 번호 칸) —
+    질문 속 날짜 "2026-10-12"의 "1"이 1,2-디브로모에탄으로 잡혀 정기 브리핑의 범위를 바꿨다."""
+    from app.domain.mentions import find_substance_mentions, name_variants
+    from scripts.build_reg_db import validate
+    row = {"reg_id": "EU_REACH_SVHC", "cas": "71-43-2", "name_en": "1.", "threshold_wt_pct": "", "status": "to_verify"}
+    assert any("글자가 없음" in e for e in validate([], [row], []))
+    assert name_variants("1") == [] and name_variants("2,4-D") == ["2,4-D"]
+    assert find_substance_mentions("2026-10-12~2026-10-18", [{"cas": "106-93-4", "name_en": "1", "name_ko": ""}]) == []

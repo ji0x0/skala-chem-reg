@@ -23,6 +23,7 @@ CSV는 사람이 고치기 쉽고 Git에서 변경 이력을 보기 좋다. 서�
 같은 (규제, CAS, 항목)이면 listings.csv 행이 우선한다. 한글 이름은 names_ko.csv로 CAS마다 채운다.
 """
 import csv
+import re
 import sqlite3
 import sys
 from collections import defaultdict
@@ -80,6 +81,9 @@ def validate(sources: list[dict], listings: list[dict], products: list[dict]) ->
             errors.append(f"{where}: 상태 값 오류 '{row['status']}'")
         if row["status"] == "official" and not (row.get("verified_on") and row.get("evidence")):
             errors.append(f"{where}: official인데 확인일·근거 없음")
+        name = (row.get("name_en") or "").strip()
+        if name and not re.search(r"[A-Za-z]", name):                # 규칙 8: "1", "2." 같은 잘린 이름 (번호 칸·쉼표 잘림)
+            errors.append(f"{where}: 영문명 '{name}'에 글자가 없음 (원본 파싱 오류)")
     totals: dict[str, float] = defaultdict(float)
     for i, row in enumerate(products, start=2):
         if not row.get("role", "").strip():
