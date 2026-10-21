@@ -244,3 +244,41 @@ async def test_citation_numbers_are_not_counted_as_invented_numbers():
     assert len(v["citations"]) >= 6 and "[6]" in v["draft"]
     assert not v["guard"]["invented"] and v["writing_attempts"] == 1
     await tools.stop()
+
+
+class ExportClaimLLM(FakeLLM):
+    """판정 0건을 "수출 가능"으로 읽고 없는 근거 번호를 붙이는 LLM (2026-10-21 화면)."""
+
+    async def answer(self, question, context, citations, history, on_token=None):
+        _, usage = await super().answer(question, context, citations, history)
+        return "제품 P013은 규제 문제 없이 판정되었습니다. 태국에 수출 가능합니다. [1]", usage
+
+
+async def test_lookup_on_unsupported_country_says_cannot_confirm():
+    graph, tools = await make_graph(llm=ExportClaimLLM())
+    _, _, snap = await run(graph, "P013 태국에 수출 가능해?")
+    v = snap.values
+    assert v["route"] == "lookup" and not v["citations"]
+    assert v["final"].startswith("> ⚠️ **태국** 규제는 이 서비스의 규제 DB에 없어 **확인할 수 없습니다**")
+    assert "[1]" not in v["final"]                                    # 근거가 없는데 붙인 번호는 지운다
+    await tools.stop()
+
+
+async def test_lookup_context_explains_zero_findings_and_unsupported_country():
+    graph, tools = await make_graph()                                 # Fake는 조회 결과를 그대로 답에 싣는다
+    _, _, snap = await run(graph, "P013 태국에 수출 가능해?", thread="c2")
+    final = snap.values["final"]
+    assert "태국: 이 서비스의 규제 DB에 없는 지역" in final and "등록 목록" not in final
+    assert "등재 목록 기준 해당 항목 없음" in final and "수출 허가·적합 판정이 아니므로" in final
+    await tools.stop()
+
+
+async def test_briefing_on_unsupported_country_reports_gap_and_notice():
+    graph, tools = await make_graph()
+    _, _, snap = await run(graph, "태국 화학물질 규제 변경 브리핑해줘", thread="c3")
+    v = snap.values
+    assert v["plan"]["unsupported"] == ["태국"]
+    assert any(g.startswith("태국: 이 서비스의 규제 DB에 없는 지역") for g in v["gaps"])
+    text = v.get("draft") or v["final"]
+    assert text.startswith("> ⚠️ **태국** 규제는")
+    await tools.stop()

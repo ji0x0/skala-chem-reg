@@ -32,7 +32,12 @@ def load_corpus(settings: Settings) -> dict:
     """채점 기준 자료. documents: 문서 번호 → 본문, listings: {(규제 ID, CAS)}."""
     fulltext_dir = settings.feeds_dir / "fulltext"
     documents = {p.stem: p.read_text(encoding="utf-8") for p in sorted(fulltext_dir.glob("*.txt"))}
-    snapshot = _csv_text(settings.feeds_dir / "federal_register_tsca.json")     # 제목·요약·게시일·마감일
+    for p in sorted((settings.feeds_dir / "kr_fulltext").glob("*.json")):        # 국내 고시 (Step 8)
+        doc = json.loads(p.read_text(encoding="utf-8"))
+        documents[p.stem] = "\n\n".join(doc["amendment"] + doc["addenda"] + doc.get("changes", [])
+                                         + doc["articles"] + doc["annexes"])
+    snapshot = (_csv_text(settings.feeds_dir / "federal_register_tsca.json")    # 제목·요약·게시일·마감일
+                + "\n" + _csv_text(settings.feeds_dir / "kr_admin_rules.json"))  # 국내: 제목·발령일·시행일
     regs = settings.regulations_dir
     sources = [regs / "listings.csv", *sorted((regs / "bulk").glob("*.csv"))]   # 정리한 행 + 공식 전체 목록
     listings = set()

@@ -51,8 +51,10 @@ def _traced(agent: str, name: str):
 
 
 async def call_tool(deps: AgentDeps, agent: str, name: str, args: dict,
-                    errors: list[dict] | None = None) -> Any:
-    writer = get_stream_writer()
+                    errors: list[dict] | None = None, writer=None) -> Any:
+    """writer: 진행 이벤트를 보낼 통로. ReAct 에이전트(노드 안의 작은 그래프) 안에서 부를 때는 바깥 그래프의
+    통로를 넘긴다 — 안에서 get_stream_writer()를 부르면 화면까지 가지 않는 안쪽 통로가 잡힌다."""
+    writer = writer or get_stream_writer()
     writer({"type": "tool_call_start", "agent": agent, "tool": name, "args": args})
     started = time.perf_counter()
     try:

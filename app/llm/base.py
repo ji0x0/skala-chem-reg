@@ -8,7 +8,7 @@
 """
 from __future__ import annotations
 
-from typing import Callable, Protocol
+from typing import Any, Callable, Protocol
 
 from .schemas import BriefingPlan, DocumentSummary, Judgement, RouteDecision
 
@@ -19,6 +19,10 @@ Usage = dict
 class AgentLLM(Protocol):
     fast_name: str
     quality_name: str
+    # 도구를 직접 부르는 ReAct 에이전트용 LangChain 모델 (Step 8 국내 수집). 없으면(None) 코드 안전장치로 대신
+    agent_model: Any
+
+    def usage_for(self, stage: str, tokens: int) -> Usage: ...
 
     async def route(self, question: str) -> tuple[RouteDecision, Usage]: ...
 

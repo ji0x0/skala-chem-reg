@@ -60,9 +60,10 @@ def test_cite_ok_requires_answer_to_use_citations():
 
 def test_questions_and_corpus_are_consistent():
     items = load_questions()
-    assert {q["category"] for q in items} == {"briefing", "lookup", "chat"}
+    assert {q["category"] for q in items} == {"briefing", "briefing_kr", "lookup", "chat"}   # briefing_kr: v2 회귀만
     corpus = load_corpus(get_settings())
-    assert set(corpus["documents"]) == {"2026-20964", "2026-21051", "2026-21052", "2026-20436"}
+    us = {"2026-20964", "2026-21051", "2026-21052", "2026-20436"}
+    assert us <= set(corpus["documents"]) and "2100000275070" in corpus["documents"]   # 미국 관보 + 국내 고시
     for q in items:                                                  # 정답 날짜는 실제 자료에 있어야 한다
         for d in q["expect"].get("required_dates", []):
             assert not invented_facts(d, corpus["text"])["dates"], (q["id"], d)

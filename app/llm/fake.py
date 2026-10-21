@@ -22,6 +22,11 @@ class FakeLLM:
     def __init__(self, fast_usd_per_1k: float = 0.00015, quality_usd_per_1k: float = 0.005):
         self.fast_name, self.quality_name = "fake-fast", "fake-quality"
         self._price = {"fast": fast_usd_per_1k, "quality": quality_usd_per_1k}
+        self.agent_model = None           # 도구 호출 모델 없음 → 국내 수집은 코드 안전장치(기본 검색어)로
+
+    def usage_for(self, stage: str, tokens: int) -> Usage:
+        return {"stage": stage, "model": self.fast_name, "tokens": tokens,
+                "usd": round(tokens / 1000 * self._price["fast"], 6)}
 
     def _usage(self, stage: str, tier: str, *texts: str) -> Usage:
         tokens = sum(len(t) for t in texts) // 3 + 1

@@ -26,10 +26,11 @@ from langgraph.types import Send, interrupt
 
 from app.domain import integrity
 from app.domain.cas import find_cas_numbers
+from app.domain.coverage import SUPPORTED, SUPPORTED_TEXT, regions_in, unsupported_notice
 from app.domain.citations import (citations_text, from_document, from_finding, from_listing,
                                   quote_in_source)
 from app.domain.judge import OUTCOME_KO
-from app.domain.mentions import find_substance_mentions
+from app.domain.mentions import KO_AMBIGUOUS, find_substance_mentions
 from app.llm.fake import FakeLLM
 from app.llm.schemas import DocumentSummary
 
@@ -46,11 +47,10 @@ NODE_LABELS = {"route": "질문 분류", "chat_answer": "답변", "lookup": "규
                "summarize": "문서 요약·근거 번역", "impact": "제품 영향 판정", "write": "브리핑 작성",
                "guard": "사실·근거 검사", "validate": "품질 검토", "approval": "담당자 승인",
                "finalize": "최종 정리"}
-FEED_REGIONS = {"US"}                 # 변경 문서를 자동 수집하는 지역 (국내 KR은 키 설정 시)
+FEED_REGIONS = {"US", "KR"}           # 변경 문서를 자동 수집하는 지역 (미국 연방 관보, 국내 법제처 행정규칙)
+KR_MIN_DAYS, KR_WIDE_DAYS = 90, 365   # 국내 고시는 개정이 드물다 → 최소 90일, 없으면 1년으로 넓혀 다시
 REQUIRED_SECTIONS = ["요약", "규제 변경", "제품 영향", "할 일", "확인이 필요한"]
 
-# 한글 물질명 중 일상어와 겹치는 것 (예: 납 ↔ 납품·납기) → 한글 이름 매칭에서 제외 (CAS·영문으로만 인정)
-KO_AMBIGUOUS = {"7439-92-1"}
 
 
 def node(name: str):
@@ -166,19 +166,28 @@ async def lookup_node(state: AgentState, deps: AgentDeps) -> dict:
                            f"{f['substance']} {f['wt_pct']:g}% · {f['reason']}")
         for s in judged["skipped"][:5]:
             context.append(f"  (적용 제외) {s['substance']} · {s['reason']}")
+        if not any(f["outcome"] != "below" for f in judged["findings"]):
+            context.append(f"  → 다루는 지역({SUPPORTED_TEXT})의 등재 목록 기준 해당 항목 없음. "
+                           "수출 허가·적합 판정이 아니므로 '수출 가능'이라고 쓰지 말 것")
 
-    if not cas_list and not product_ids and not unknown:
+    _, unsupported = regions_in(question)
+    if unsupported:       # 규제 DB에 없는 국가 → "확인 불가" (판정 0건을 "수출 가능"으로 읽지 않게)
+        context.insert(0, f"- {', '.join(unsupported)}: 이 서비스의 규제 DB에 없는 지역 — 규제 해당 여부를 확인할 수 "
+                          f"없음 (다루는 지역: {SUPPORTED_TEXT}). 이 국가에 대해 '수출 가능'·'문제 없음'이라고 쓰지 말 것")
+    if not cas_list and not product_ids and not unknown and not unsupported:
         context.append("질문에서 물질(이름·CAS)이나 제품 ID(P001 형식)를 찾지 못함. 사용자에게 물질 이름·CAS 또는 "
                        "제품 ID를 알려 달라고 요청할 것")
     answer, usage = await deps.llm.answer(question, context="\n".join(context),
                                           citations=citations_text(citations),
                                           history=history_text(state), on_token=token_writer())
-    answer = normalize_refs(answer)
+    answer = drop_unknown_refs(normalize_refs(answer), {c["id"] for c in citations})
     # 8B 모델이 근거 목록만 옮겨 적고 함유 제품을 빠뜨리는 경우가 있어(재측정에서 발견) 코드가 보장한다
     missing = [f"- **{name} 함유 제품**: {held}" for name, (held, ids) in holder_lines.items()
                if not any(pid in answer for pid in ids)]
     if missing:
         answer = "\n".join(missing) + "\n\n" + answer
+    if unsupported:
+        answer = unsupported_notice(unsupported) + "\n\n" + answer
     return {"final": answer, "citations": citations, "judgements": judgements, "errors": errors,
             "usage": [usage]}
 
@@ -213,12 +222,23 @@ async def gate_node(state: AgentState, deps: AgentDeps) -> dict:
     focus_cas = sorted(focus) if (cas_list or products) else []
 
     regions = plan.get("regions") or ["KR", "US"]
+    asked, unsupported = regions_in(question)
+    if asked and set(asked) != set(regions):      # 질문에 지역이 명시돼 있으면 LLM 계획보다 질문을 따른다
+        corrections.append(f"질문의 지역으로 바로잡음: {regions} → {asked}")
+        regions = asked
+    unsupported += [r for r in regions if r not in SUPPORTED and r not in unsupported]   # LLM 계획의 미지원 코드
+    regions = [r for r in regions if r in SUPPORTED] or ["KR", "US"]
+    if unsupported:
+        gaps.append(f"{', '.join(unsupported)}: 이 서비스의 규제 DB에 없는 지역 — 규제 변경·해당 여부를 확인할 수 없음")
     tasks = []
     if "US" in regions:
         tasks.append({"agent": "us_feed", "days": plan.get("days", 7), "focus_cas": focus_cas,
                       "purpose": "미국 관보 TSCA 문서 수집" + (" (요청 범위 우선)" if focus_cas else "")})
     if "KR" in regions:
-        tasks.append({"agent": "kr_feed", "purpose": "국내 행정규칙 개정 수집"})
+        names = {s["cas"]: s for s in deps.substances}
+        tasks.append({"agent": "kr_feed", "days": max(plan.get("days", 7), KR_MIN_DAYS), "focus_cas": focus_cas,
+                      "substances": [names[c] for c in focus_cas if c in names], "question": question,
+                      "purpose": "국내 행정규칙(고시) 개정 수집" + (" (요청 범위 우선)" if focus_cas else "")})
     no_feed = [r for r in regions if r not in FEED_REGIONS | {"KR"}]
     if no_feed:
         gaps.append(f"{', '.join(no_feed)} 변경 문서 자동 수집은 아직 지원하지 않음 — 등재 목록 대조로만 확인")
@@ -226,7 +246,7 @@ async def gate_node(state: AgentState, deps: AgentDeps) -> dict:
         # 언급 제품이 있으면 그 제품만, 수집이 안 되는 지역만 요청했으면 전체 제품을 목록 대조
         tasks.append({"agent": "regdb", "product_ids": products or deps.product_ids,
                       "purpose": "제품 규제 판정"})
-    plan.update(product_ids=products, cas=cas_list, regions=regions, focus_cas=focus_cas)
+    plan.update(product_ids=products, cas=cas_list, regions=regions, focus_cas=focus_cas, unsupported=unsupported)
     get_stream_writer()({"type": "plan", "days": plan.get("days"), "regions": regions, "products": products,
                          "substances": cas_list, "tasks": [t["agent"] for t in tasks],
                          "corrections": corrections})
@@ -245,19 +265,31 @@ def dispatch(state: AgentState) -> list[Send] | str:
 async def review_node(state: AgentState, deps: AgentDeps) -> dict:
     rnd = state.get("research_round", 0) + 1
     plan, tasks, reasons = state["plan"], [], []
-    ran_us = any(t["agent"] == "us_feed" for t in state.get("tasks", []))
+    ran = {t["agent"]: t for t in state.get("tasks", [])}
+    ran_feeds = ({"US"} if "us_feed" in ran else set()) | ({"KR"} if "kr_feed" in ran else set())
+    if any(e["agent"] == "kr_feed" and e.get("kind") == "disabled" for e in state.get("errors", [])):
+        ran_feeds.discard("KR")                     # 키가 없어 꺼진 수집은 "검색했지만 없음"이 아니다
+    feeds = set(plan.get("feeds_ran") or []) | ran_feeds
     focus = plan.get("focus_cas") or []
-    scoped = [d for d in state.get("documents", []) if d.get("in_scope", True)]
+    scoped = {d["region"] for d in state.get("documents", []) if d.get("in_scope", True)}
     what = "요청 범위 관련" if focus else "회사 관련"
-    if ran_us and not scoped and rnd < 2 and plan.get("days", 7) < 30:
+    if "US" in ran_feeds and "US" not in scoped and rnd < 2 and plan.get("days", 7) < 30:
         tasks.append({"agent": "us_feed", "days": 30, "focus_cas": focus,
                       "purpose": f"{what} 문서가 없어 기간을 30일로 넓혀 재검색"})
-        reasons.append(f"최근 {plan.get('days')}일에 {what} 문서가 없어 30일로 확대")
+        reasons.append(f"최근 {plan.get('days')}일에 {what} 미국 문서가 없어 30일로 확대")
         plan = {**plan, "days": 30}
+    if "KR" in ran_feeds and "KR" not in scoped and rnd < 2:
+        tasks.append({**ran["kr_feed"], "days": KR_WIDE_DAYS,
+                      "purpose": f"{what} 국내 고시가 없어 기간을 1년으로 넓혀 재검색"})
+        reasons.append(f"최근 {ran['kr_feed'].get('days')}일에 {what} 국내 고시가 없어 1년으로 확대")
+        plan = {**plan, "kr_days": KR_WIDE_DAYS}
+    plan = {**plan, "feeds_ran": sorted(feeds)}
     scope_note = ""
-    if ran_us and focus and not scoped and not tasks:
-        scope_note = (f"요청한 범위({_scope_names(plan, deps)})와 관련된 미국 규제 변경 문서를 찾지 못했습니다 "
-                      f"(미국 연방 관보 EPA TSCA 최근 {plan.get('days', 7)}일 검색 기준).")
+    if feeds and focus and not (scoped & feeds) and not tasks:
+        basis = " · ".join(([f"미국 연방 관보 EPA TSCA 최근 {plan.get('days', 7)}일"] if "US" in feeds else [])
+                           + ([f"국내 법제처 행정규칙 최근 {plan.get('kr_days', KR_MIN_DAYS)}일"] if "KR" in feeds else []))
+        scope_note = (f"요청한 범위({_scope_names(plan, deps)})와 관련된 규제 변경 문서를 찾지 못했습니다 "
+                      f"({basis} 검색 기준).")
     gaps = list(state.get("gaps", []))
     for e in state.get("errors", []):
         gaps.append(e["error"] if e.get("kind") in ("disabled", "degraded") else f"{e['agent']}의 {e['tool']} 조회 실패")
@@ -319,7 +351,7 @@ async def summarize_node(state: AgentState, deps: AgentDeps) -> dict:
         check = integrity.check(" ".join(quotes), produced, reference=_doc_meta(doc))
         cite_ids = []
         for i, quote in enumerate(quotes):
-            ko = summary.quote_ko[i] if i < len(summary.quote_ko) else ""
+            ko = summary.quote_ko[i] if i < len(summary.quote_ko) and doc["region"] != "KR" else ""   # 국내는 원문이 한국어
             # 근거 문장 번역도 같은 검사: 지어낸 숫자·날짜가 있으면 번역을 버리고 원문만 보여 준다
             if ko and not integrity.check(quote, ko).ok:
                 ko = ""
@@ -419,6 +451,9 @@ def _summaries_text(state: AgentState) -> str:
 def _add_scope(draft: str, state: AgentState) -> str:
     """범위 안내(요약 첫 문장)와 범위 밖 참고 목록(규제 변경 끝)을 코드가 넣는다.
     LLM에 옮겨 쓰게 했더니 실모델이 안내 문구를 범위 안 문서에 붙이고, 핵심 변경을 "범위 밖"으로 표시했다."""
+    unsupported = (state.get("plan") or {}).get("unsupported") or []
+    if unsupported:
+        draft = unsupported_notice(unsupported) + "\n\n" + draft
     if state.get("scope_note"):
         line = f"**요청 범위 확인 결과**: {state['scope_note']}\n\n"
         draft = draft.replace("## 요약\n", "## 요약\n" + line, 1) if "## 요약\n" in draft else line + draft
@@ -427,17 +462,24 @@ def _add_scope(draft: str, state: AgentState) -> str:
         label = ("참고: 요청 범위 밖의 변경" if (state.get("plan") or {}).get("focus_cas")
                  else "참고: 회사 제품 성분과 관련 없는 변경")
         block = (f"\n**{label}** (영향 분석 제외)\n"
-                 + "\n".join(f"- {d['title']} (관보 {d['document_number']}, 게시 {d.get('publication_date')})"
-                             for d in others) + "\n\n")
+                 + "\n".join(f"- {d['title']} ({d.get('ref_label') or '관보 ' + d['document_number']}, "
+                             f"{'발령' if d.get('region') == 'KR' else '게시'} {d.get('publication_date')})"
+                             + (f" — {d['note']}" if d.get("note") else "") for d in others) + "\n\n")
         marker = "## 우리 제품 영향"
         draft = draft.replace(marker, block + marker, 1) if marker in draft else draft + "\n" + block
     return draft
 
 
+def _doc_label(state: AgentState, number: str) -> str:
+    """문서 표기: 미국은 '관보 2026-20964', 국내는 '화학물질안전원고시 제2026-2호'."""
+    doc = next((d for d in state.get("documents", []) if d["document_number"] == number), {})
+    return doc.get("ref_label") or f"관보 {number}"
+
+
 def _impacts_text(state: AgentState) -> str:
     lines = []
     for i in state.get("impacts", []):
-        src = f"관보 {i['document_number']}" if i["document_number"] else "질문 언급 제품"
+        src = _doc_label(state, i["document_number"]) if i["document_number"] else "질문 언급 제품"
         if i.get("unresolved"):
             lines.append(f"- {i['product_id']} {i['product_name']} ({src}): 판정 확인 불가 (도구 오류) — 영향 여부 미확인")
             continue
@@ -461,6 +503,11 @@ async def write_node(state: AgentState, deps: AgentDeps) -> dict:
         on_token=token_writer(attempt))
     return {"draft": _add_scope(normalize_refs(strip_code_fence(draft)), state), "writing_attempts": attempt,
             "usage": [usage]}
+
+
+def drop_unknown_refs(text: str, valid_ids: set[int]) -> str:
+    """근거 목록에 없는 번호 [n]을 지운다 (근거가 없는 답변에 모델이 [1]을 붙이던 문제)."""
+    return re.sub(r"\s?\[(\d+)\]", lambda m: m.group(0) if int(m.group(1)) in valid_ids else "", text)
 
 
 def normalize_refs(text: str) -> str:

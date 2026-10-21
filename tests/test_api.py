@@ -45,7 +45,7 @@ def sse(text: str) -> list[tuple[str, dict]]:
 
 def test_health_and_cors(client):
     h = client.get("/api/v1/health").json()
-    assert h["status"] == "ok" and h["products"] == 20 and len(h["tools"]) == 11
+    assert h["status"] == "ok" and h["products"] == 20 and len(h["tools"]) == 12
     ok = client.options("/api/v1/chat/stream", headers={"Origin": "http://localhost:5173",
                                                        "Access-Control-Request-Method": "POST"})
     assert ok.headers["access-control-allow-origin"] == "http://localhost:5173"

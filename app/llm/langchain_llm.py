@@ -54,6 +54,10 @@ class LangChainLLM:
         self.fast_name = f"{backend}:{getattr(fast, 'model', getattr(fast, 'model_name', 'fast'))}"
         self.quality_name = f"{backend}:{getattr(quality, 'model', getattr(quality, 'model_name', 'quality'))}"
         self._price = {"fast": settings.fast_usd_per_1k, "quality": settings.quality_usd_per_1k}
+        self.agent_model = fast           # ReAct 에이전트(도구 호출)는 빠른 모델로
+
+    def usage_for(self, stage: str, tokens: int) -> Usage:
+        return self._usage(stage, "fast", tokens)
 
     def _usage(self, stage: str, tier: str, tokens: int) -> Usage:
         return {"stage": stage, "model": getattr(self, f"{tier}_name"), "tokens": tokens,

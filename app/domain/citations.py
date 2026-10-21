@@ -47,8 +47,8 @@ def extract_quotes(text: str, terms: list[str], max_quotes: int = 6, max_len: in
     patterns = [re.compile(rf"(?<![A-Za-z0-9]){re.escape(t)}(?![A-Za-z0-9])", re.IGNORECASE)
                 for t in terms if t]
     has_date = re.compile(r"\b(19|20)\d{2}\b")
-    has_duty = re.compile(r"deadline|compliance date|comment|effective|prohibit|restrict|ban|until",
-                          re.IGNORECASE)
+    has_duty = re.compile(r"deadline|compliance date|comment|effective|prohibit|restrict|ban|until"
+                          r"|시행|기한|이내|까지|금지|제한|경과조치|표시", re.IGNORECASE)    # 국내 고시 표현
     picked = []
     for sentence in split_sentences(text):
         if any(p.search(sentence) for p in patterns):
