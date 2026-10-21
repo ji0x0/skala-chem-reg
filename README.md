@@ -24,7 +24,7 @@
 | ![브리핑](docs/images/briefing.jpg) | ![근거](docs/images/citations.jpg) |
 | **범위 판정: 설명 + "확인할 수 없음" + 목록 기준 최근 등재** | **제품 관리: 배합 + 저장 즉시 규제 판정** |
 | ![범위 판정](docs/images/routing.jpg) | ![제품 관리](docs/images/products.jpg) |
-| **규제 목록: 물질 검색 → 등재 규제·함유 제품** | **관리자 페이지(`/admin/`): 처리량·승인·피드백·품질 평가** |
+| **규제 목록: 물질 검색 → 등재 규제·함유 제품** | **관리자 페이지(`/admin/`): 처리량·비용·피드백·품질 평가** |
 | ![규제 목록](docs/images/regulations.jpg) | ![관리자](docs/images/admin.jpg) |
 | **정기 브리핑: 매주 지난주 변경을 주차별로, 검토 완료 표시** | |
 | ![정기 브리핑](docs/images/weekly.jpg) | |
@@ -34,25 +34,30 @@
 ```mermaid
 flowchart LR
     subgraph FE["사용자 화면 (Vue 3 + Vite :5173)"]
-        UI["질의응답·브리핑 / 제품 관리 / 규제 목록"]
+        UI["질의응답·브리핑 / 정기 브리핑 / 제품 관리 / 규제 목록"]
+        ADM["관리자 페이지 /admin/"]
     end
     subgraph BE["백엔드 API (FastAPI :8000)"]
         API["REST + SSE 스트리밍"]
+        SCH["정기 브리핑 스케줄러<br/>매주 월요일"]
         G["LangGraph 멀티에이전트"]
         CK[("체크포인터<br/>checkpoints.db")]
     end
     subgraph MCP["MCP 서버 (stdio)"]
         P["product<br/>제품·배합"]
         R["reg-db<br/>규제 DB·판정"]
-        F["reg-feed<br/>관보·법제처"]
+        F["reg-feed<br/>관보·법제처·EU"]
     end
     UI -- "fetch / SSE (CORS)" --> API --> G
+    ADM -- "Bearer ADMIN_TOKEN" --> API
+    SCH --> G
     G <--> CK
     G -- "MCP 도구 호출" --> P & R & F
     P --> ADB[("app.db<br/>제품 원본")]
     R --> RDB[("regulations.db<br/>규제 11종")]
     F --> FR["미국 연방 관보 API"]
     F --> LAW["법제처 Open API<br/>(행정규칙·신구 조문 대비)"]
+    F --> EUC["EU 출판국 Cellar<br/>(REACH·CLP 개정 법령)"]
     G -. "트레이스·피드백·평가" .-> LS["LangSmith<br/>(관리자 대시보드)"]
 ```
 
@@ -60,7 +65,7 @@ flowchart LR
 
 ```mermaid
 flowchart TD
-    Q([질문 + 앞 턴]) --> und["질문 이해·범위 판정<br/>코드: 지역·제도·물질·제품·기간<br/>LLM: 의도 분해 (최대 3개)"]
+    Q([질문 + 앞 턴<br/>또는 정기 브리핑 기간]) --> und["질문 이해·범위 판정<br/>코드: 지역·제도·물질·제품·기간<br/>LLM: 의도 분해 (최대 3개)"]
     und --> inform["안내 (코드 문구)<br/>범위 밖·확인 불가 · 규제 설명 · 목록 조회 · 앞 근거"]
     inform -- chat --> chat[서비스 안내] --> fin
     inform -- inform --> fin
@@ -68,7 +73,7 @@ flowchart TD
     inform -- briefing --> plan[계획] --> gate["계획 검증 (코드)"]
     gate -- Send 병렬 --> us["해외 수집<br/>연방 관보"] & kr["국내 수집 (ReAct)<br/>법제처 고시"] & eu["EU 수집<br/>REACH·CLP 개정 법령"] & db["규제 DB 대조"]
     us & kr & eu & db --> review{"수집 충분?"}
-    review -- "관련 문서 0건: 기간 30일로 넓혀 재조사" --> us
+    review -- "관련 문서 0건" --> wide["기간 넓혀 재조사<br/>미국 30일 · 국내·EU 1년<br/>(정기 브리핑은 기간 고정)"] --> us & kr & eu
     review --> sum["요약·근거 번역<br/>+ 무결성 검사"] --> impact["제품 영향 판정 (코드)"]
     impact --> write["브리핑 작성 (토큰 스트리밍)"] --> guard["사실·근거 가드 (코드)"]
     guard --> validate{"품질 검토<br/>LLM-as-Judge"}
@@ -96,6 +101,8 @@ flowchart TD
 ## Before / After
 
 같은 질문·같은 입력(관보 스냅샷 고정)으로 **LLM 단독(Before)**과 **에이전트(After)**를 비교했습니다. Ollama qwen3:8b, 브리핑 5문항 ([전체 결과](docs/experiments/2026-10-21-1007-ollama-qwen3-8b.md)).
+
+> 아래 수치는 Step 7까지의 측정(2026-10-21 10:07)입니다. 이후 추가한 질문 이해·범위 판정(Step 9), 국내·EU 수집(Step 8·11)을 포함한 23문항 재평가는 진행 예정입니다.
 
 | 지표 | Before (LLM 단독) | After (v2) |
 | --- | --- | --- |
@@ -148,6 +155,18 @@ bash scripts/run_frontend.sh
 
 관리자 페이지는 사용자 화면과 분리된 http://127.0.0.1:5173/admin.html 입니다(Docker에서는 `/admin/`). `.env`에 `ADMIN_TOKEN`을 넣고 같은 값을 입력하면 열립니다. 비워 두면 관리자 API가 닫힙니다.
 
+| `.env` 항목 | 쓰임 |
+| --- | --- |
+| `LAW_API_OC` | 법제처 Open API 인증키(신청할 때 정한 값). 비우면 국내 실시간 수집은 "확인하지 못한 항목"으로 안내 |
+| `FEED_MODE` | `live`(실시간) / `snapshot`(저장본 `data/feeds/` — 키·네트워크 없이 같은 입력으로 평가) |
+| `WEEKLY_SCHEDULE` | `true`면 매주 월요일 `WEEKLY_HOUR`시(한국 시간) 이후 지난주 정기 브리핑 생성 (Docker 기본 `true`) |
+
+정기 브리핑을 직접 만들려면(예: 지난 3주):
+
+```bash
+uv run python scripts/run_weekly.py --backfill 3
+```
+
 ### Docker로 실행 (배포)
 
 ```bash
@@ -160,10 +179,10 @@ http://localhost:8080 에서 화면이 열립니다. API 문서는 http://localh
 | --- | --- |
 | `backend` | FastAPI + LangGraph + MCP 서버 3개(같은 이미지에서 자식 프로세스). 규제 DB는 이미지 빌드 때 공식 목록 CSV로 생성 |
 | `frontend` | Vite 빌드 결과를 nginx가 제공하고 `/api`를 백엔드로 넘김 (같은 출처라 CORS 불필요, SSE 버퍼링 끔) |
-| 볼륨 `state` | 제품 DB·대화·피드백·실행 기록 — 컨테이너를 다시 만들어도 유지 |
+| 볼륨 `state` | 제품 DB·대화·피드백·실행 기록·정기 브리핑 — 컨테이너를 다시 만들어도 유지 |
 | LLM | 기본은 호스트의 Ollama(`host.docker.internal:11434`). Ollama도 컨테이너로: `docker compose --profile ollama up --build` 후 `.env`에 `OLLAMA_BASE_URL=http://ollama:11434` |
 
-`.env`(선택)의 `LLM_BACKEND`, `OPENAI_API_KEY`, `LANGSMITH_*`, `ADMIN_TOKEN`이 백엔드에 전달됩니다. 관리자 페이지는 http://localhost:8080/admin/ 입니다.
+`.env`(선택)가 백엔드에 그대로 전달됩니다(`LLM_BACKEND`, `LAW_API_OC`, `LANGSMITH_*`, `ADMIN_TOKEN` 등). Docker에서는 정기 브리핑 스케줄러가 기본으로 켜집니다. 관리자 페이지는 http://localhost:8080/admin/ 입니다.
 
 ### 테스트와 평가
 
@@ -192,19 +211,19 @@ LLM_BACKEND=ollama uv run python scripts/run_eval.py --judge
 | GET·POST·PUT | `/api/v1/products` | 제품 목록·추가·수정 (검증 실패 시 422 + 오류 목록, 저장 즉시 판정) |
 | GET | `/api/v1/regulations`, `/api/v1/substances?q=` | 규제 목록·등재 물질, 물질 검색 |
 | GET | `/api/v1/health` | 파이프라인·모델·도구 상태 |
-| GET | `/api/v1/admin/overview`, `runs`, `approvals`, `feedback`, `evaluations` | 관리자: 처리량·비용·승인 이력·피드백·Before/After (Bearer `ADMIN_TOKEN` 필요) |
+| GET | `/api/v1/admin/overview`, `runs`, `feedback`, `evaluations` | 관리자: 처리량·비용·실행 기록·피드백·Before/After (Bearer `ADMIN_TOKEN` 필요) |
 
 ## 기술 스택
 
 | 영역 | 사용 |
 | --- | --- |
 | LLM | LangChain `init_chat_model` (Ollama qwen3:8b / OpenAI), 구조화 출력, 스트리밍 |
-| 에이전트 | LangGraph — 질문 이해·범위 판정 분기, `Send` 병렬 서브에이전트, ReAct 국내 수집, 재조사 루프, SQLite 체크포인터 |
+| 에이전트 | LangGraph — 질문 이해·범위 판정 분기, `Send` 병렬 서브에이전트(국내·미국·EU 수집, 규제 DB 대조), ReAct 국내 수집, 재조사 루프, SQLite 체크포인터 |
 | 도구 | MCP 서버 3개 (FastMCP, Tool·Resource·Prompt), `langchain-mcp-adapters` |
 | API | FastAPI, SSE, Pydantic, lifespan 싱글턴, CORS 허용 출처 명시 |
 | 화면 | Vue 3 + Vite, `fetch` + `ReadableStream` SSE 파서, marked + DOMPurify |
-| 관측·평가 | LangSmith (트레이스·피드백·Dataset·Experiment), 코드 채점기 + LLM-as-Judge, 관리자 페이지(실행 기록·승인 이력) |
-| 데이터 | SQLite (규제 DB, 제품 DB), 미국 연방 관보 API, 법제처 국가법령정보 Open API, EU 출판국 Cellar(SPARQL) |
+| 관측·평가 | LangSmith (트레이스·피드백·Dataset·Experiment), 코드 채점기 + LLM-as-Judge, 관리자 페이지(실행 기록·피드백·평가) |
+| 데이터 | SQLite (규제 DB, 제품·대화 목록·실행 기록·정기 브리핑), 미국 연방 관보 API, 법제처 국가법령정보 Open API, EU 출판국 Cellar(SPARQL) |
 | 배포 | Docker Compose (백엔드 이미지 + nginx 화면 이미지 + 영구 볼륨, 선택: Ollama 컨테이너) |
 
 ## 프로젝트 구조
@@ -212,17 +231,18 @@ LLM_BACKEND=ollama uv run python scripts/run_eval.py --judge
 ```
 app/
   agents/        LangGraph 그래프 (v2, Before), 서브에이전트, 도구 호출 공통
-  api/           FastAPI 라우터 (대화·제품·규제·관리자)
-  domain/        코드 판정·CAS 검증·무결성 검사·근거 추출·물질명 매칭
+  api/           FastAPI 라우터 (대화·정기 브리핑·제품·규제·관리자)
+  domain/        코드 판정·CAS 검증·무결성 검사·근거 추출·물질명 매칭·범위 판정·안내 문구
   eval/          평가 채점기·실행기
   llm/           LangChain LLM 계층, 프롬프트, 구조화 출력 스키마, Fake LLM
-  repositories/  규제 DB·제품 DB·대화 목록·실행 기록
+  repositories/  규제 DB·제품 DB·대화 목록·실행 기록·정기 브리핑
+  weekly.py      정기 브리핑 주차 계산·생성·스케줄러
   streaming/     SSE 이벤트 스키마·변환
   tools/         MCP 도구 제공자 (stdio / 메모리)
 mcp_servers/     product · reg_db · reg_feed MCP 서버
 frontend/        Vue 화면 (사용자 index.html · 관리자 admin.html)
-data/            규제 목록·가상 제품·용어집 CSV, 관보·국내 고시 스냅샷, 평가 질문
-scripts/         DB 빌드, 공식 목록 가져오기, 실행, 평가 스크립트
+data/            규제 목록·가상 제품·용어집 CSV, 관보·국내 고시·EU 법령 스냅샷, 정기 브리핑 예시 3주, 평가 질문
+scripts/         DB 빌드, 공식 목록 가져오기, 스냅샷 받기, 정기 브리핑·평가 실행
 Dockerfile, docker-compose.yml   배포 (frontend/Dockerfile·nginx.conf)
 tests/           pytest (백엔드 126개 · 화면 23개)
 docs/lab/        단계별 핸즈온 랩 (Step 0 → 11)
@@ -231,7 +251,8 @@ docs/lab/        단계별 핸즈온 랩 (Step 0 → 11)
 ## 문서
 
 - [핸즈온 랩](docs/lab/README.md): Step 0(골격)부터 Step 11(EU 수집)까지, 단계마다 만든 파일·실행 명령·기대 결과·실제로 겪은 문제
-- [주제·페인포인트·설계](docs/topic-final.md) · [요구사항](REQUIREMENTS.md) · [개발 일지](DEVLOG.md) · [트러블슈팅](troubleshooting.md)
+- [주제·페인포인트·설계](docs/topic-final.md) · [분기·범위 판정 설계](docs/routing-architecture.md) · [규제 데이터 확인 기록](docs/regulation-verification.md)
+- [요구사항](REQUIREMENTS.md) · [개발 일지](DEVLOG.md) · [트러블슈팅](troubleshooting.md)
 
 ## 한계
 
@@ -241,4 +262,4 @@ docs/lab/        단계별 핸즈온 랩 (Step 0 → 11)
 - "○○ 및 그 화합물"처럼 총칭으로 지정된 항목은 CAS로 모든 화합물을 대조할 수 없습니다(대표 화합물만 명시).
 - 공식 목록은 개정됩니다. 확인일(2026-10-20) 이후 개정은 `scripts/import_official_lists.py`로 다시 가져와야 합니다.
 - 제품 배합은 가상 데이터입니다(20개: 규제 문제가 있는 12개 + 규정 준수 8개).
-- 평가는 소형 로컬 모델(qwen3:8b), 회귀 질문 13개(국내 2개 포함) 기준입니다. 근거가 주장을 실제로 뒷받침하는지는 코드로 판단하지 못해 대표 문항을 사람이 검토합니다.
+- 평가는 소형 로컬 모델(qwen3:8b) 기준입니다. 회귀 질문은 23개(브리핑 5 · 조회 4 · 대화 2 · 국내 2 · 범위 판정 10)이고, Before/After 수치는 그중 Step 7까지의 문항으로 측정했습니다. 근거가 주장을 실제로 뒷받침하는지는 코드로 판단하지 못해 대표 문항을 사람이 검토합니다.

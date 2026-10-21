@@ -1,5 +1,7 @@
 # Step 4 — FastAPI REST + SSE
 
+> **이후 변경**: 승인 API(`POST /threads/{id}/approval`)와 `approval_required` 이벤트는 Step 9에서 제거했다. 브리핑은 승인 대기 없이 `final → done(completed)`로 끝난다. 정기 브리핑 API(`/weekly`)는 Step 10, 관리자 API는 Step 7에서 추가했다.
+
 ## 목표
 Step 3b 그래프를 HTTP로 노출한다. 질문은 SSE로 진행 상황·토큰을 흘려보내고, 승인은 별도 API로 이어서 실행한다.
 제품 관리(R54)·규제 목록(R55) API를 함께 만들고, 제품은 이번 단계부터 **앱 DB(`data/app.db`)가 원본**이다.

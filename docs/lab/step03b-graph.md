@@ -1,5 +1,7 @@
 # Step 3b — LangGraph 멀티에이전트
 
+> **이후 변경**: Step 9에서 그래프 앞부분이 바뀌었다. 질문 분류(`route`)는 **질문 이해·범위 판정**(`understand → inform`)으로, 대화 답변의 `approval` 노드(영향 제품 공유 승인)는 **제거**했다 — 승인해도 실제로 일어나는 일이 없었다 ([설계 9절](../routing-architecture.md)). 아래 `run_graph.py --approve`도 함께 없앴다. 수집 에이전트는 Step 8(국내 ReAct)·Step 11(EU)에서 늘었다.
+
 ## 목표
 Step 3a의 부품(LLM·근거 추출·MCP 도구)을 LangGraph로 묶는다. 경로를 한 갈래씩 붙여 가며 실행해 본다.
 

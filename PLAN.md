@@ -91,15 +91,17 @@
 - [x] 4단계: 주제 확정 → **국내외 화학물질 규제 브리핑·영향 분석 에이전트** ([docs/topic-final.md](docs/topic-final.md)). 과정 기록: [1차](docs/topic-selection.md), [2차](docs/topic-domain.md)
 - [x] **17:00까지 Google Spread에 선택 과제 + 진행계획(초안) 등록**
 
-- [ ] **Day1 오후~저녁: 코드 완성** — 핸즈온 랩 단계(`docs/lab/`)로 한 단계씩 쌓고, 단계마다 설명·실행 확인·커밋
+- [x] **Day1 오후~저녁: 코드 완성** — 핸즈온 랩 단계(`docs/lab/`)로 한 단계씩 쌓고, 단계마다 설명·실행 확인·커밋
   - 1차 초안은 한 번에 작성돼 단계별 확인이 어려워 `_backup/full-draft-20261020/`에 백업 후 Step 0부터 다시 진행
-  - Step 0 프로젝트 골격 → Step 1 가상 공정 데이터 → Step 2 분석 코어·MCP 서버 → Step 3 LLM·멀티에이전트 그래프 → Step 4 FastAPI REST·SSE → Step 5 Vue 프론트 → Step 6 평가·테스트
+  - Step 0 프로젝트 골격 → Step 1 규제·가상 제품 데이터 → Step 2 판정 코어·MCP 서버 → Step 3 LLM·멀티에이전트 그래프 → Step 4 FastAPI REST·SSE → Step 5 Vue 화면 → Step 6 평가·LangSmith
+  - 저녁: 규제 데이터 공식 원본 대조(11종 9,351행), Docker Compose 배포
 
 ### Day2 — 10/21(수) · 트러블슈팅·디벨롭
-- [ ] Ollama 실모델로 전체 시나리오 실행, 발견한 문제 수정 (`troubleshooting.md` 기록)
-- [ ] Before(baseline) vs After(v2) 측정, 비교표 작성
-- [ ] 디벨롭: 우선 2·3 규제(XVII, CLP, 중국 우선관리, 화심법) 확장, 외부 MCP 서버, Prompt Hub (topic-final.md)
-- [ ] ADR, README 정리, **코드 프리즈 + GitHub push**
+- [x] Ollama 실모델로 전체 시나리오 실행, 발견한 문제 수정 (`troubleshooting.md` 기록)
+- [x] Before(baseline) vs After(v2) 측정, 비교표 작성 (Step 7까지 문항 — 늘어난 23문항 재평가는 Step 12 뒤)
+- [x] 디벨롭: 우선 2·3 규제 확장, Step 7 관리자 페이지, Step 8 국내 수집(ReAct), Step 9 질문 이해·범위 판정, Step 10 정기 브리핑, Step 11 EU 수집. 외부 MCP 서버·Prompt Hub는 하지 않음 ([계획 대비 실제](docs/topic-final.md))
+- [ ] Step 12 규제 DB 갱신 제안 에이전트 → Ollama 전체 재평가
+- [ ] README 정리, **코드 프리즈 + GitHub push**
 
 ### Day3 — 10/22(목) · PPT·보고서만
 - [ ] 오전: 발표 PPT 작성 (문제 → 개선 포인트 → Before/After 수치 → 한계 및 추가 개선)
