@@ -86,6 +86,21 @@ def test_run_eval_script_fake_mode(tmp_path):
     assert "Before(LLM 단독) vs After(v2)" in next(tmp_path.glob("*.md")).read_text(encoding="utf-8")
 
 
+def test_scorer_for_scope_answers():
+    """Step 9 이후 문항 (재평가 전 가짜 LLM 점검에서 발견): 예시 질문 줄은 지목이 아니고,
+    EU 법령 날짜는 지어낸 것이 아니며, 규제 설명 근거(카탈로그)는 의무 문구로 검증한다."""
+    assert flagged_products('예를 들어 이렇게 물어보세요:\n- P002 규제 문제 있어?\n예: "P003 미국 수출 문제 있어?", "…"') == set()
+    corpus = load_corpus(get_settings())
+    assert invented_facts("EU 2026/1168 (채택 2026-06-01, 게재 2026-06-02)", corpus["text"])["dates"] == []
+    svhc = corpus["regulations"]["EU_REACH_SVHC"]
+    good = {"kind": "listing", "source_id": "EU_REACH_SVHC", "extra": {"catalog": True},
+            "quote": f"REACH SVHC · 의무: {svhc['obligation_ko']} · 적용: -"}
+    bad = {**good, "quote": "REACH SVHC · 의무: 연간 1톤 이상 등록 · 적용: -"}
+    checked = citation_check("[1] [2]", [{**good, "id": 1}, {**bad, "id": 2}], corpus["documents"], corpus["listings"],
+                             corpus["regulations"])
+    assert checked["verified"] == 1
+
+
 def test_corpus_includes_bulk_official_lists():
     """재측정에서 발견: 공식 전체 목록(bulk)에서 온 근거를 '확인 안 됨'으로 세던 채점 누락."""
     corpus = load_corpus(get_settings())

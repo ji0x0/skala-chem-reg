@@ -14,6 +14,7 @@ from pathlib import Path
 
 
 from app.core.config import DATA_DIR, Settings
+from mcp_servers.reg_feed_server import OJ_DATE
 
 QUESTIONS_PATH = DATA_DIR / "eval" / "questions.json"
 
@@ -35,8 +36,13 @@ def load_corpus(settings: Settings) -> dict:
         doc = json.loads(p.read_text(encoding="utf-8"))
         documents[p.stem] = "\n\n".join(doc["amendment"] + doc["addenda"] + doc.get("changes", [])
                                          + doc["articles"] + doc["annexes"])
+    for p in sorted((settings.feeds_dir / "eu_fulltext").glob("*.txt")):         # EU 개정 법령 본문 (Step 11)
+        body = p.read_text(encoding="utf-8")
+        oj = OJ_DATE.search(body)                                                  # 관보 게재일 "2.6.2026" → ISO로도
+        documents[p.stem] = body + (f"\n게재일 {oj.group(3)}-{int(oj.group(2)):02d}-{int(oj.group(1)):02d}" if oj else "")
     snapshot = (_csv_text(settings.feeds_dir / "federal_register_tsca.json")    # 제목·요약·게시일·마감일
-                + "\n" + _csv_text(settings.feeds_dir / "kr_admin_rules.json"))  # 국내: 제목·발령일·시행일
+                + "\n" + _csv_text(settings.feeds_dir / "kr_admin_rules.json")   # 국내: 제목·발령일·시행일
+                + "\n" + _csv_text(settings.feeds_dir / "eu_acts.json"))         # EU: 법령 번호·채택일·게재일
     regs = settings.regulations_dir
     sources = [regs / "listings.csv", *sorted((regs / "bulk").glob("*.csv"))]   # 정리한 행 + 공식 전체 목록
     listings = set()
@@ -45,7 +51,9 @@ def load_corpus(settings: Settings) -> dict:
             listings |= {(r["reg_id"], r["cas"]) for r in csv.DictReader(f)}
     text = "\n".join([*documents.values(), snapshot, _csv_text(regs / "sources.csv"), *map(_csv_text, sources),
                       _csv_text(settings.products_path), _csv_text(settings.glossary_path)])
-    return {"documents": documents, "listings": listings, "text": text,
+    with (regs / "sources.csv").open(encoding="utf-8") as f:
+        regulations = {r["reg_id"]: r for r in csv.DictReader(f)}           # 규제 설명 근거(카탈로그) 대조용
+    return {"documents": documents, "listings": listings, "text": text, "regulations": regulations,
             "reference": date.today().isoformat()}        # 답변에 오늘 날짜(기준일)를 쓰는 것은 허용
 
 
