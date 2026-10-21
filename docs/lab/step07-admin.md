@@ -71,7 +71,7 @@ http://localhost:8080/admin/
 ## 결과 (Docker, Ollama qwen3:8b)
 - 조회 1건(12.4초) + 브리핑 1건(80.7초) → 승인 → 👍 1건: 처리 요청 3 · 대화 2 · 승인 1 · 품질 검토 통과율 100% · 토큰 7,498
 - 토큰 없이 `/api/v1/admin/overview` → 401, 토큰 설정이 비어 있으면 503
-- 품질 평가 탭: `docs/experiments/` 3회 측정 중 선택해 Before/After 비교 (After가 나은 지표는 초록)
+- 품질 평가 탭: `docs/experiments/`의 측정 결과 중 하나를 골라 Before/After 비교 (After가 나은 지표는 초록)
 
 ![관리자 페이지](../images/admin.jpg)
 
