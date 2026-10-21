@@ -14,3 +14,4 @@
 | 5b | [step05b-frontend-manage.md](step05b-frontend-manage.md) | Vue 화면: 제품 관리(추가·수정·검증·판정), 규제 목록(등재 물질·검색) | ✅ |
 | 6 | [step06-eval.md](step06-eval.md) | 평가: 회귀 질문 11개·코드 채점기·LLM-as-Judge, Before/After 실측, LangSmith 트레이스·피드백·Dataset | ✅ |
 | 7 | [step07-admin.md](step07-admin.md) | 관리자 페이지: 실행 기록·승인 이력·피드백·품질 평가·규제 데이터 상태 (토큰 잠금, 사용자 화면과 분리) | ✅ |
+| 8 | [step08-kr-feed.md](step08-kr-feed.md) | 국내 변경 수집: 법제처 행정규칙 ReAct 에이전트 + 안전장치, 개정 내용으로 영향 판단, 1년 재검색 | ✅ |
