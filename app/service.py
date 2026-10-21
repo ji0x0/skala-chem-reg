@@ -25,6 +25,7 @@ from app.repositories.product_db import ProductDB
 from app.repositories.reg_db import RegDB
 from app.repositories.run_log import RunLog
 from app.repositories.thread_db import ThreadDB
+from app.repositories.weekly_db import WeeklyDB
 from app.streaming.converter import convert
 from app.streaming.events import Done, Error, RunStarted
 from app.streaming.sse import format_sse
@@ -44,6 +45,8 @@ class AgentService:
         self.regdb = RegDB(settings.reg_db_path, self.products)
         self.threads = ThreadDB(settings.app_db_path)          # 대화 목록 (이름·번호). 내용은 체크포인터
         self.runs = RunLog(settings.app_db_path)               # 실행 기록 (관리자 화면: 처리량·비용·승인 이력)
+        self.weekly = WeeklyDB(settings.app_db_path)           # Step 10: 주차별 정기 브리핑
+        self.weekly.seed_if_empty(settings.weekly_dir)
         self.deps = AgentDeps(settings, llm, tools)
         builder = build_baseline_graph if pipeline == "baseline" else build_graph
         self.graph = builder(self.deps, checkpointer=checkpointer)

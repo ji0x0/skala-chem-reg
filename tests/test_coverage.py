@@ -9,6 +9,7 @@ def test_regions_in_separates_supported_and_unsupported():
     assert regions_in("인도네시아와 베트남") == ([], ["베트남", "인도네시아"])
     assert regions_in("제품을 인도하기 전에 확인") == ([], [])               # 국가가 아닌 "인도"
     assert regions_in("이번 주 미국 EPA 규제 변경") == (["US"], [])
+    assert regions_in("최근 국내외 규제 변경") == ([], [])                  # "국내외"는 모두 — 특정 지역 아님
 
 
 def test_notice_says_cannot_confirm_and_not_exportable():

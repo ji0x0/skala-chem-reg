@@ -188,6 +188,9 @@ async def gate_node(state: AgentState, deps: AgentDeps) -> dict:
     focus_cas = sorted(focus) if (cas_list or products) else []
 
     slots = state.get("slots") or {}
+    # Step 10 정기 브리핑: 고정 기간 (since·until) — 이 기간만 수집하고 넓히지 않는다
+    period = {"since": state["period"]["start"], "until": state["period"]["end"]} if state.get("period") else {}
+    period_label = f"{period['since']}~{period['until']}" if period else ""
     regions = slots.get("change_regions") or plan.get("regions") or ["KR", "US"]
     asked, unsupported = regions_in(question)
     if slots.get("change_regions"):             # Step 9: 수집 가능한 지역만 (안내·불가는 이해 노드가 처리)
@@ -201,13 +204,15 @@ async def gate_node(state: AgentState, deps: AgentDeps) -> dict:
         gaps.append(f"{', '.join(unsupported)}: 이 서비스의 규제 DB에 없는 지역 — 규제 변경·해당 여부를 확인할 수 없음")
     tasks = []
     if "US" in regions:
-        tasks.append({"agent": "us_feed", "days": plan.get("days", 7), "focus_cas": focus_cas,
-                      "purpose": "미국 관보 TSCA 문서 수집" + (" (요청 범위 우선)" if focus_cas else "")})
+        tasks.append({"agent": "us_feed", "days": plan.get("days", 7), "focus_cas": focus_cas, **period,
+                      "purpose": "미국 관보 TSCA 문서 수집" + (f" ({period_label})" if period else "")
+                                 + (" (요청 범위 우선)" if focus_cas else "")})
     if "KR" in regions:
         names = {s["cas"]: s for s in deps.substances}
         tasks.append({"agent": "kr_feed", "days": max(plan.get("days", 7), KR_MIN_DAYS), "focus_cas": focus_cas,
-                      "substances": [names[c] for c in focus_cas if c in names], "question": question,
-                      "purpose": "국내 행정규칙(고시) 개정 수집" + (" (요청 범위 우선)" if focus_cas else "")})
+                      "substances": [names[c] for c in focus_cas if c in names], "question": question, **period,
+                      "purpose": "국내 행정규칙(고시) 개정 수집" + (f" ({period_label})" if period else "")
+                                 + (" (요청 범위 우선)" if focus_cas else "")})
     no_feed = [r for r in regions if r not in FEED_REGIONS | {"KR"}]
     if no_feed:
         gaps.append(f"{', '.join(no_feed)} 변경 문서 자동 수집은 아직 지원하지 않음 — 등재 목록 대조로만 확인")
@@ -240,19 +245,24 @@ async def review_node(state: AgentState, deps: AgentDeps) -> dict:
     focus = plan.get("focus_cas") or []
     scoped = {d["region"] for d in state.get("documents", []) if d.get("in_scope", True)}
     what = "요청 범위 관련" if focus else "회사 관련"
-    if "US" in ran_feeds and "US" not in scoped and rnd < 2 and plan.get("days", 7) < 30:
+    fixed = state.get("period")                     # 정기 브리핑: 기간을 넓히지 않는다 ("이번 주 변경 없음"도 답이다)
+    if "US" in ran_feeds and "US" not in scoped and rnd < 2 and plan.get("days", 7) < 30 and not fixed:
         tasks.append({"agent": "us_feed", "days": 30, "focus_cas": focus,
                       "purpose": f"{what} 문서가 없어 기간을 30일로 넓혀 재검색"})
         reasons.append(f"최근 {plan.get('days')}일에 {what} 미국 문서가 없어 30일로 확대")
         plan = {**plan, "days": 30}
-    if "KR" in ran_feeds and "KR" not in scoped and rnd < 2:
+    if "KR" in ran_feeds and "KR" not in scoped and rnd < 2 and not fixed:
         tasks.append({**ran["kr_feed"], "days": KR_WIDE_DAYS,
                       "purpose": f"{what} 국내 고시가 없어 기간을 1년으로 넓혀 재검색"})
         reasons.append(f"최근 {ran['kr_feed'].get('days')}일에 {what} 국내 고시가 없어 1년으로 확대")
         plan = {**plan, "kr_days": KR_WIDE_DAYS}
     plan = {**plan, "feeds_ran": sorted(feeds)}
     scope_note = ""
-    if feeds and focus and not (scoped & feeds) and not tasks:
+    if fixed and feeds and not (scoped & feeds):
+        basis = " · ".join((["미국 연방 관보 EPA TSCA"] if "US" in feeds else []) + (["국내 법제처 고시"] if "KR" in feeds else []))
+        scope_note = (f"이 기간({fixed['start']}~{fixed['end']})에 회사 제품 성분과 관련된 규제 변경 문서가 없습니다 "
+                      f"({basis} 검색 기준).")
+    elif feeds and focus and not (scoped & feeds) and not tasks:
         basis = " · ".join(([f"미국 연방 관보 EPA TSCA 최근 {plan.get('days', 7)}일"] if "US" in feeds else [])
                            + ([f"국내 법제처 행정규칙 최근 {plan.get('kr_days', KR_MIN_DAYS)}일"] if "KR" in feeds else []))
         scope_note = (f"요청한 범위({_scope_names(plan, deps)})와 관련된 규제 변경 문서를 찾지 못했습니다 "
@@ -419,7 +429,8 @@ def _add_scope(draft: str, state: AgentState) -> str:
     """범위 안내(요약 첫 문장)와 범위 밖 참고 목록(규제 변경 끝)을 코드가 넣는다.
     LLM에 옮겨 쓰게 했더니 실모델이 안내 문구를 범위 안 문서에 붙이고, 핵심 변경을 "범위 밖"으로 표시했다."""
     if state.get("scope_note"):
-        line = f"**요청 범위 확인 결과**: {state['scope_note']}\n\n"
+        head = "이번 주 확인 결과" if state.get("period") else "요청 범위 확인 결과"      # 정기 브리핑엔 "요청 범위"가 없다
+        line = f"**{head}**: {state['scope_note']}\n\n"
         draft = draft.replace("## 요약\n", "## 요약\n" + line, 1) if "## 요약\n" in draft else line + draft
     others = _unique_documents(state, in_scope=False)
     if others:

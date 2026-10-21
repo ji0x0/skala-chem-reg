@@ -66,6 +66,9 @@ async def understand_node(state: AgentState, deps: AgentDeps) -> dict:
 
     # ② 의도 분해 + 코드 보정
     types, topics, usage, how = await _intents(question, state, deps)
+    if state.get("period"):                                  # Step 10 정기 브리핑: 기간이 정해진 국내외 변경 브리핑
+        types, how = ["change_briefing"], "정기 브리핑"
+        regions = sorted(FEED_REGIONS)                       # 변경을 수집할 수 있는 모든 지역 (국내·미국)
     asked_types = list(dict.fromkeys(types))                 # 사용자가 요청한 것 (진행 표시용 — 처리 못 해도 그대로 보인다)
     glossary = await call_tool(deps, "understand", "glossary_lookup", {"text": question}) or []
     if "explain_regulation" in types and not (regs or out_regs or glossary):

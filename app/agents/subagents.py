@@ -32,8 +32,9 @@ AGENT_LABELS = {"us_feed": "해외 수집 에이전트 (미국 관보)",
 
 async def _us_feed(task: dict, deps: AgentDeps, errors: list[dict]) -> dict:
     agent = "us_feed"
+    period = {k: task[k] for k in ("since", "until") if task.get(k)}         # 정기 브리핑: 고정 기간
     found = await call_tool(deps, agent, "search_federal_register",
-                            {"days": task["days"], "limit": task.get("limit", 15)}, errors)
+                            {"days": task["days"], "limit": task.get("limit", 15), **period}, errors)
     candidates = (found or {}).get("documents", [])[: task.get("max_docs", 8)]
     focus = set(task.get("focus_cas") or [])
     sem = asyncio.Semaphore(3)                       # 동시 3건 (본문 다운로드는 서버 쪽에서 1건씩 + 캐시)
@@ -87,6 +88,7 @@ async def _kr_react(task: dict, deps: AgentDeps, errors: list[dict], seen: dict)
     if model is None:
         return None, None
     days = task.get("days", 90)
+    period = {k: task[k] for k in ("since", "until") if task.get(k)}
     outer = get_stream_writer()                       # 도구 호출이 화면 진행 패널에 보이도록 바깥 통로를 잡아 둔다
 
     @tool
@@ -94,7 +96,8 @@ async def _kr_react(task: dict, deps: AgentDeps, errors: list[dict], seen: dict)
         """법제처 국내 행정규칙(고시)을 최신 발령순으로 검색한다. body=true면 본문에서도 찾는다.
         결과 한 줄: 일련번호 | 발령일 | 소관부처 | 제목 (제개정 구분)"""
         found = await call_tool(deps, "kr_feed", "search_kr_admin_rules",
-                                {"query": query, "days": days, "body": body, "limit": 10}, errors, writer=outer) or {}
+                                {"query": query, "days": days, "body": body, "limit": 10, **period}, errors,
+                                writer=outer) or {}
         docs = found.get("documents", [])
         for d in docs:
             seen.setdefault(d["serial"], d)
@@ -102,7 +105,9 @@ async def _kr_react(task: dict, deps: AgentDeps, errors: list[dict], seen: dict)
 
     names = sorted({(s.get("name_ko") or s["name_en"]).split(";")[0] for s in task.get("substances", [])})[:25]
     agent = create_agent(model, [search_kr_admin_rules],
-                         system_prompt=prompts.KR_FEED_AGENT.format(days=days, substances=", ".join(names) or "(없음)"))
+                         system_prompt=prompts.KR_FEED_AGENT.format(
+                             period_text=(f"{period['since']}~{period.get('until', '오늘')}" if period.get("since")
+                                          else f"최근 {days}일"), substances=", ".join(names) or "(없음)"))
     try:
         out = await asyncio.wait_for(agent.ainvoke(
             {"messages": [{"role": "user", "content": task.get("question") or "최근 국내 화학물질 규제 변경을 찾아줘"}]},
@@ -122,12 +127,13 @@ async def _kr_react(task: dict, deps: AgentDeps, errors: list[dict], seen: dict)
 async def _kr_feed(task: dict, deps: AgentDeps, errors: list[dict]) -> dict:
     agent = "kr_feed"
     days = task.get("days", 90)
+    period = {k: task[k] for k in ("since", "until") if task.get(k)}
     seen: dict[str, dict] = {}
     # ② 안전장치: 물질 지정 고시는 항상 찾는다 (키가 없으면 여기서 비활성을 알린다)
     core: list[str] = []
     for query in KR_CORE_QUERIES:
         found = await call_tool(deps, agent, "search_kr_admin_rules",
-                                {"query": query, "days": days, "limit": 10}, errors) or {}
+                                {"query": query, "days": days, "limit": 10, **period}, errors) or {}
         if found.get("source") == "disabled":
             errors.append({"agent": agent, "tool": "search_kr_admin_rules", "kind": "disabled",
                            "error": "국내 실시간 조회 비활성 (법제처 Open API 키 LAW_API_OC 미설정)"})

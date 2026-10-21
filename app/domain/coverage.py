@@ -40,6 +40,7 @@ def _found(name: str, text: str) -> bool:
 def regions_in(text: str) -> tuple[list[str], list[str]]:
     """(다루는 지역 코드, 다루지 않는 국가 이름) — 질문에 나온 순서는 무시하고 정렬."""
     own = re.sub(r"K-REACH", "화평법", re.sub(r"UK[ -]?REACH", " ", text))   # 영국·한국 REACH는 EU REACH가 아니다
+    own = re.sub(r"국내외|국내·외|국내\s*및\s*해외", " ", own)             # "국내외"는 특정 지역이 아니다 (모두)
     supported = sorted({code for code, names in _NAMES.items() if any(_found(n, own) for n in names)})
     unsupported = [n for n in UNSUPPORTED if _found(n, text)]
     return supported, list(dict.fromkeys(unsupported))

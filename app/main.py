@@ -30,6 +30,11 @@ def create_app(settings: Settings | None = None, **service_overrides) -> FastAPI
         async with AsyncExitStack() as stack:
             app.state.service = await AgentService.create(
                 settings, stack, pipeline=settings.pipeline_version, **service_overrides)
+            if settings.weekly_schedule:                 # Step 10: 매주 월요일 정기 브리핑
+                from app.weekly import WeeklyScheduler
+                scheduler = WeeklyScheduler(app.state.service, hour=settings.weekly_hour)
+                scheduler.start()
+                stack.push_async_callback(scheduler.stop)
             yield                                    # 여기서 요청을 받는다. 종료 시 stack이 MCP·DB를 정리
 
     app = FastAPI(title="국내외 화학물질 규제 브리핑·영향 분석 에이전트", version="0.1.0", lifespan=lifespan,
@@ -37,8 +42,8 @@ def create_app(settings: Settings | None = None, **service_overrides) -> FastAPI
     app.add_middleware(CORSMiddleware, allow_origins=settings.cors_origin_list,
                        allow_methods=["GET", "POST", "PUT", "PATCH"], allow_headers=["Content-Type", "Authorization"])   # Authorization: 관리자 토큰
 
-    from app.api import admin, chat, products, regulations
-    for module in (chat, products, regulations, admin):
+    from app.api import admin, chat, products, regulations, weekly
+    for module in (chat, products, regulations, weekly, admin):
         app.include_router(module.router)
     return app
 

@@ -50,6 +50,10 @@ export const api = {
   product: id => request(`/products/${encodeURIComponent(id)}`),
   createProduct: p => request('/products', { method: 'POST', body: p }),
   updateProduct: (id, p) => request(`/products/${encodeURIComponent(id)}`, { method: 'PUT', body: p }),
+  weekly: () => request('/weekly'),
+  weeklyOne: id => request(`/weekly/${encodeURIComponent(id)}`),
+  reviewWeekly: (id, reviewer, comment) =>
+    request(`/weekly/${encodeURIComponent(id)}/review`, { method: 'POST', body: { reviewer, comment } }),
   regulations: () => request('/regulations'),
   regulation: id => request(`/regulations/${encodeURIComponent(id)}`),
   substances: q => request(`/substances?q=${encodeURIComponent(q)}`),

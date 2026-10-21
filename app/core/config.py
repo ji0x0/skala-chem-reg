@@ -61,6 +61,11 @@ class Settings(BaseSettings):
     admin_token: str | None = None
     experiments_dir: Path = ROOT_DIR / "docs" / "experiments"    # Before/After 평가 결과 (scripts/run_eval.py)
 
+    # ── Step 10: 정기 브리핑 ──
+    weekly_schedule: bool = False          # true면 매주 월요일 weekly_hour시(한국 시간) 이후 지난주 브리핑 생성 (Docker에서 켬)
+    weekly_hour: int = 9
+    weekly_dir: Path = DATA_DIR / "weekly"    # 지난 주차 예시 (처음 실행할 때 채움)
+
     @property
     def cors_origin_list(self) -> list[str]:
         return [o.strip() for o in self.cors_origins.split(",") if o.strip()]

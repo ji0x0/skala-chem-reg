@@ -77,17 +77,25 @@ def _snapshot_documents() -> list[dict]:
     return json.loads(SNAPSHOT.read_text(encoding="utf-8"))["documents"]
 
 
+def _in_period(day: str | None, since: str | None, until: str | None) -> bool:
+    return (not since or (day or "") >= since) and (not until or (day or "") <= until)
+
+
 @mcp.tool()
 def search_federal_register(term: str = "TSCA", days: int = 30, agency: str = "environmental-protection-agency",
-                            limit: int = 20) -> dict:
+                            limit: int = 20, since: str | None = None, until: str | None = None) -> dict:
     """미국 연방 관보에서 최근 문서를 검색합니다 (기본: 최근 30일 EPA TSCA).
+    since·until(YYYY-MM-DD)을 주면 그 게시 기간으로 찾습니다 (정기 브리핑: 지난주 월~일).
     결과마다 문서 번호·제목·종류(Rule/Proposed Rule/Notice)·게시일·요약·원문 링크·의견 마감일을 줍니다."""
     params = [("conditions[agencies][]", agency), ("conditions[term]", term),
-              ("conditions[publication_date][gte]", (date.today() - timedelta(days=days)).isoformat()),
+              ("conditions[publication_date][gte]", since or (date.today() - timedelta(days=days)).isoformat()),
               ("order", "newest"), ("per_page", str(limit))] + [("fields[]", f) for f in FIELDS]
+    if until:
+        params.append(("conditions[publication_date][lte]", until))
     if settings.feed_mode == "snapshot":
-        return {"source": "snapshot", "warning": "스냅샷 모드 — 저장된 관보 목록 사용 (기간 조건 무시)",
-                "documents": _snapshot_documents()[:limit]}
+        docs = [d for d in _snapshot_documents() if _in_period(d.get("publication_date"), since, until)]
+        return {"source": "snapshot", "warning": "스냅샷 모드 — 저장된 관보 목록 사용"
+                + (" (기간으로 거름)" if since or until else " (최근 N일 조건 무시)"), "documents": docs[:limit]}
     try:
         resp = httpx.get(f"{settings.federal_register_api}/documents.json", params=params,
                          timeout=settings.http_timeout_s)
@@ -95,8 +103,9 @@ def search_federal_register(term: str = "TSCA", days: int = 30, agency: str = "e
         return {"source": "live", "query": {"term": term, "days": days, "agency": agency},
                 "documents": resp.json().get("results", [])}
     except httpx.HTTPError as exc:
+        docs = [d for d in _snapshot_documents() if _in_period(d.get("publication_date"), since, until)]
         return {"source": "snapshot", "warning": f"실시간 조회 실패({type(exc).__name__}) — 저장된 스냅샷 사용",
-                "documents": _snapshot_documents()[:limit]}
+                "documents": docs[:limit]}
 
 
 @mcp.tool()
@@ -162,12 +171,14 @@ def _lines(value) -> list[str]:
     return []
 
 
-def kr_search_live(query: str, days: int, body: bool, limit: int) -> list[dict]:
+def kr_search_live(query: str, days: int, body: bool, limit: int,
+                   since: str | None = None, until: str | None = None) -> list[dict]:
     """법제처 행정규칙 목록 — 발령일 기간(prmlYd)·최신순(ddes). body=True면 본문 검색(search=2)."""
-    since = date.today() - timedelta(days=days)
+    start = date.fromisoformat(since) if since else date.today() - timedelta(days=days)
+    end = date.fromisoformat(until) if until else date.today()
     resp = httpx.get(f"{LAW_API}/lawSearch.do", timeout=settings.http_timeout_s, params={
         "OC": settings.law_api_oc, "target": "admrul", "type": "JSON", "query": query, "display": limit,
-        "sort": "ddes", "search": 2 if body else 1, "prmlYd": f"{since:%Y%m%d}~{date.today():%Y%m%d}"})
+        "sort": "ddes", "search": 2 if body else 1, "prmlYd": f"{start:%Y%m%d}~{end:%Y%m%d}"})
     resp.raise_for_status()
     rows = resp.json().get("AdmRulSearch", {}).get("admrul") or []
     return [_kr_meta(r) for r in (rows if isinstance(rows, list) else [rows])]
@@ -244,13 +255,16 @@ def _kr_mentions(text: str, substances: list[dict], unique_ids: dict[str, dict])
     return sorted(found.values(), key=lambda m: -m["mentions"])
 
 
-def _kr_from_snapshot(query: str, days: int, body: bool, limit: int, warning: str) -> dict:
-    """스냅샷에서 검색. 기간은 스냅샷을 받은 날 기준 (90일 → 1년 재검색도 실시간과 같게 재현)."""
+def _kr_from_snapshot(query: str, days: int, body: bool, limit: int, warning: str,
+                      since: str | None = None, until: str | None = None) -> dict:
+    """스냅샷에서 검색. 기간은 since·until이 있으면 그대로, 없으면 스냅샷을 받은 날 기준 최근 N일
+    (90일 → 1년 재검색도 실시간과 같게 재현)."""
     snap = _kr_snapshot()
-    since = (date.fromisoformat(snap["captured_on"]) - timedelta(days=days)).isoformat() if snap.get("captured_on") else ""
+    if not since and snap.get("captured_on"):
+        since = (date.fromisoformat(snap["captured_on"]) - timedelta(days=days)).isoformat()
     hits = []
     for d in snap["documents"]:
-        if (d["issued_on"] or "") < since:
+        if not _in_period(d["issued_on"], since, until):
             continue
         saved = _kr_saved(d["serial"]) if body else None
         if query in d["title"] or (saved and query in _kr_text(saved)):
@@ -260,22 +274,24 @@ def _kr_from_snapshot(query: str, days: int, body: bool, limit: int, warning: st
 
 
 @mcp.tool()
-def search_kr_admin_rules(query: str, days: int = 90, body: bool = False, limit: int = 10) -> dict:
+def search_kr_admin_rules(query: str, days: int = 90, body: bool = False, limit: int = 10,
+                          since: str | None = None, until: str | None = None) -> dict:
     """국내 행정규칙(고시·훈령·예규)을 법제처에서 최신 발령순으로 검색합니다.
     - query: 검색어 (예: '유해화학물질', '화학물질의 분류', '산업안전보건')
-    - days: 최근 며칠 안에 발령된 것만 (기본 90일)
+    - days: 최근 며칠 안에 발령된 것만 (기본 90일). since·until(YYYY-MM-DD)을 주면 그 발령 기간으로
     - body: True면 제목뿐 아니라 본문에서도 찾습니다 (물질 이름으로 찾을 때)
     결과마다 일련번호(serial)·제목·소관부처·제개정 구분·발령일·시행일을 줍니다."""
     if settings.feed_mode == "snapshot":
-        return _kr_from_snapshot(query, days, body, limit, "스냅샷 모드 — 저장된 국내 목록 사용 (기간은 저장일 기준)")
+        return _kr_from_snapshot(query, days, body, limit, "스냅샷 모드 — 저장된 국내 목록 사용", since, until)
     if not settings.law_api_oc:
         return {"source": "disabled", "documents": [],
                 "message": "LAW_API_OC 미설정 — open.law.go.kr에서 Open API를 신청한 뒤 .env에 넣으세요."}
     try:
-        return {"source": "live", "query": query, "days": days, "body": body,
-                "documents": kr_search_live(query, days, body, limit)}
+        return {"source": "live", "query": query, "days": days, "body": body, "since": since, "until": until,
+                "documents": kr_search_live(query, days, body, limit, since, until)}
     except (httpx.HTTPError, ValueError, KeyError) as exc:
-        return _kr_from_snapshot(query, days, body, limit, f"실시간 조회 실패({type(exc).__name__}) — 저장된 스냅샷 사용")
+        return _kr_from_snapshot(query, days, body, limit, f"실시간 조회 실패({type(exc).__name__}) — 저장된 스냅샷 사용",
+                                 since, until)
 
 
 def _kr_unique_ids() -> dict[str, dict]:

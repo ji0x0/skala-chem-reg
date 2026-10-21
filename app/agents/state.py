@@ -36,6 +36,7 @@ class AgentState(TypedDict, total=False):
     question: str
     history: Annotated[list[dict], operator.add]
     last_targets: dict                                      # Step 9: 앞 턴의 대상(제품·물질·지역·제도·의도·근거) — 후속 질문용
+    period: dict                                            # Step 10: 정기 브리핑의 고정 기간 {"start", "end"} (입력)
 
     # 질문마다 새로 채우는 값
     route: str

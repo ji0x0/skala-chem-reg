@@ -8,6 +8,15 @@ class ChatRequest(BaseModel):
     thread_id: str | None = Field(default=None, max_length=64, description="비우면 새 대화")
 
 
+class WeeklyReview(BaseModel):
+    reviewer: str = Field(default="규제 담당자", min_length=1, max_length=50)
+    comment: str = Field(default="", max_length=500, examples=["P003 고객사 공지 준비"])
+
+
+class WeeklyRun(BaseModel):
+    start: str | None = Field(default=None, pattern=r"^\d{4}-\d{2}-\d{2}$", description="월요일 (비우면 지난주)")
+
+
 class ThreadRename(BaseModel):
     title: str = Field(min_length=1, max_length=60, examples=["P003 TCE 규제 대응"])
 

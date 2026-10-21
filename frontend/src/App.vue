@@ -6,9 +6,11 @@ import { api } from './api/client.js'
 import ChatView from './views/ChatView.vue'
 import ProductsView from './views/ProductsView.vue'
 import RegulationsView from './views/RegulationsView.vue'
+import WeeklyView from './views/WeeklyView.vue'
 
 const tabs = [
   { id: 'chat', label: '질의응답·브리핑', component: ChatView },
+  { id: 'weekly', label: '정기 브리핑', component: WeeklyView },
   { id: 'products', label: '제품 관리', component: ProductsView },
   { id: 'regulations', label: '규제 목록', component: RegulationsView },
 ]

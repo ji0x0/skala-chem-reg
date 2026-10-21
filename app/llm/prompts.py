@@ -106,7 +106,7 @@ BASELINE_BRIEFING = ChatPromptTemplate.from_messages([
 # ── Step 8: 국내 수집 에이전트 (ReAct — LLM이 검색어를 정해 도구를 직접 부른다) ──
 KR_FEED_AGENT = (
     "당신은 국내 화학물질 규제 변경을 찾는 수집 에이전트다. search_kr_admin_rules 도구로 "
-    "최근 {days}일에 발령된 법제처 행정규칙(고시)을 검색한다.\n"
+    "{period_text}에 발령된 법제처 행정규칙(고시)을 검색한다.\n"
     "회사 제품 성분: {substances}\n"
     "할 일:\n"
     "1) 화학물질 규제(유해화학물질·사고대비물질·제한물질·금지물질 지정, 분류·표시, 취급기준, 산업안전보건 관리대상물질 등)와 "
