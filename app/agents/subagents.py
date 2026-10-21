@@ -29,6 +29,7 @@ async def _us_feed(task: dict, deps: AgentDeps, errors: list[dict]) -> dict:
     found = await call_tool(deps, agent, "search_federal_register",
                             {"days": task["days"], "limit": task.get("limit", 15)}, errors)
     candidates = (found or {}).get("documents", [])[: task.get("max_docs", 8)]
+    focus = set(task.get("focus_cas") or [])
     sem = asyncio.Semaphore(3)                       # 동시 3건 (본문 다운로드는 서버 쪽에서 1건씩 + 캐시)
 
     async def fetch(doc: dict) -> dict | None:
@@ -43,17 +44,22 @@ async def _us_feed(task: dict, deps: AgentDeps, errors: list[dict]) -> dict:
         if full.get("text_warning"):                   # 본문 대신 요약본을 쓴 사실을 숨기지 않는다
             errors.append({"agent": agent, "tool": "get_federal_register_document", "kind": "degraded",
                            "error": f"{full['document_number']}: {full['text_warning']}"})
-        mentions = full["substance_mentions"][:6]
+        in_scope = not focus or any(m["cas"] in focus for m in full["substance_mentions"])
+        # 요청 범위가 있으면 그 물질의 문장을 근거로 뽑는다
+        mentions = ([m for m in full["substance_mentions"] if m["cas"] in focus] if focus and in_scope
+                    else full["substance_mentions"])[:6]
         terms = [t for m in mentions for t in name_variants(m["name_en"]) + ABBREVIATIONS.get(m["cas"], [])]
         documents.append({
             "region": "US", "agency": "EPA", "source": full["source"], "text_source": full["text_source"],
             **{k: full.get(k) for k in ("document_number", "title", "type", "publication_date",
                                         "comments_close_on", "effective_on", "html_url")},
             "mentions": mentions, "quotes": extract_quotes(full["text"], terms),
-            "official_dates": official_dates(full),
+            "official_dates": official_dates(full), "in_scope": in_scope,
         })
+    scoped = sum(d["in_scope"] for d in documents)
     return {"documents": documents,
-            "summary": f"문서 {len(candidates)}건 중 회사 관련 물질 언급 {len(documents)}건"}
+            "summary": f"문서 {len(candidates)}건 중 회사 관련 물질 언급 {len(documents)}건"
+                       + (f" · 요청 범위 {scoped}건" if focus else "")}
 
 
 async def _kr_feed(task: dict, deps: AgentDeps, errors: list[dict]) -> dict:
@@ -63,8 +69,10 @@ async def _kr_feed(task: dict, deps: AgentDeps, errors: list[dict]) -> dict:
         errors.append({"agent": "kr_feed", "tool": "search_kr_admin_rules", "kind": "disabled",
                        "error": "국내 실시간 조회 비활성 (법제처 Open API 키 LAW_API_OC 미설정)"})
         return {"summary": "비활성 — 키 미설정"}
-    # 키 발급 후 실제 응답 형식을 확인해 문서로 바꾼다 (Day2). 지금은 건수만 기록
-    return {"summary": "조회 완료 (응답 형식 확인 전 — 문서 변환 미지원)"}
+    if result:      # 키가 있어 조회는 돼도 응답 → 문서 변환은 미구현 → 브리핑에 반영되지 않는다는 사실을 남긴다
+        errors.append({"agent": "kr_feed", "tool": "search_kr_admin_rules", "kind": "degraded",
+                       "error": "국내 행정규칙 조회 결과를 문서로 변환하는 기능은 아직 없음 — 국내는 등재 목록 대조로만 확인"})
+    return {"summary": "조회 완료 — 문서 변환 미지원"}
 
 
 async def _regdb(task: dict, deps: AgentDeps, errors: list[dict]) -> dict:

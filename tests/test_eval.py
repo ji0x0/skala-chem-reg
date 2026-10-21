@@ -43,6 +43,19 @@ def test_citation_check_verifies_quotes_and_listings():
              {"id": 3, "kind": "listing", "source_id": "US_TSCA_S6", "quote": "제6조 · 트리클로로에틸렌 (CAS 79-01-6)"}]
     r = citation_check("근거 [1][3][9]", cites, docs, {("US_TSCA_S6", "79-01-6")})
     assert r["verified"] == 2 and r["unknown_refs"] == ["9"]     # 지어낸 인용 1개, 없는 근거 번호 1개
+    assert r["used"] == 2
+
+
+def test_cite_ok_requires_answer_to_use_citations():
+    """외부 검토 ⑥: 근거 목록만 있고 본문에 근거 번호가 하나도 없어도 통과하던 문제."""
+    corpus = load_corpus(get_settings())
+    b1 = next(q for q in load_questions() if q["id"] == "B1")
+    quote = corpus["documents"]["2026-20964"][:200].strip()
+    cites = [{"id": 1, "kind": "document", "source_id": "2026-20964", "quote": quote}]
+    without = score_answer(b1, "P003 영향. 마감 2026-11-13, 기한 2027-12-31", cites, "briefing", corpus)
+    with_ref = score_answer(b1, "P003 영향 [1]. 마감 2026-11-13, 기한 2027-12-31", cites, "briefing", corpus)
+    assert without.citations["verified"] == 1 and not without.cite_ok
+    assert with_ref.cite_ok
 
 
 def test_questions_and_corpus_are_consistent():
@@ -70,3 +83,14 @@ def test_run_eval_script_fake_mode(tmp_path):
     v2_b1 = data["results"]["v2"][0]
     assert v2_b1["products"]["recall"] == 1.0 and v2_b1["citations"]["verified"] == v2_b1["citations"]["count"] > 0
     assert "Before(LLM 단독) vs After(v2)" in next(tmp_path.glob("*.md")).read_text(encoding="utf-8")
+
+
+def test_corpus_includes_bulk_official_lists():
+    """재측정에서 발견: 공식 전체 목록(bulk)에서 온 근거를 '확인 안 됨'으로 세던 채점 누락."""
+    corpus = load_corpus(get_settings())
+    assert ("KR_CCA_HAZ", "71-43-2") in corpus["listings"] and ("EU_CLP_ANNEX_VI", "108-88-3") in corpus["listings"]
+
+
+def test_citation_refs_are_normalized():
+    from app.agents.graph import normalize_refs
+    assert normalize_refs("기준 초과 [근거 1], 확인 필요 [근거 2, 3]") == "기준 초과 [1], 확인 필요 [2][3]"

@@ -58,6 +58,7 @@ class AgentState(TypedDict, total=False):
     judgement: dict
     approval: dict
     final: str
+    scope_note: str                                         # 요청 물질·제품 관련 변경이 없을 때 브리핑 첫머리에 밝힐 문장
     usage: Annotated[list[dict], add_or_reset]
 
 
@@ -67,4 +68,4 @@ def per_turn_reset(question: str) -> dict:
             "tasks": [], "research_round": 0, "documents": RESET, "judgements": RESET,
             "summaries": [], "impacts": [], "citations": RESET, "errors": RESET, "gaps": [],
             "draft": "", "writing_attempts": 0, "validation_attempts": 0, "validation_feedback": None,
-            "guard": {}, "judgement": {}, "approval": {}, "final": ""}
+            "guard": {}, "judgement": {}, "approval": {}, "final": "", "scope_note": ""}

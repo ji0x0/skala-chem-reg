@@ -34,7 +34,7 @@
     {
       "id": "L1", "category": "lookup", "question": "P002 규제 문제 있어?",
       "expect": {"route": "lookup", "impacted_products": ["P002"],
-                 "keywords": ["DEHP|프탈산 비스", "DBP|디부틸", "0.11|합계", "exceeds|초과"], "must_cite": true},
+                 "keywords": ["DEHP|프탈산 비스", "DBP|디부틸", "0.11|합계", "초과|exceeds"], "must_cite": true},
       "note": "Entry 51 그룹 합산: DEHP 0.08 + DBP 0.03 = 0.11 wt% > 0.1 wt% (각각은 기준 이하)"
     },
     {
@@ -50,7 +50,7 @@
     {
       "id": "L4", "category": "lookup", "question": "P099 규제 문제 있어?",
       "expect": {"route": "lookup", "impacted_products": [],
-                 "keywords": ["등록되지 않|없는 제품|찾을 수 없|확인되지 않|존재하지 않"], "forbidden": ["exceeds", "listed"],
+                 "keywords": ["등록되지 않|없는 제품|찾을 수 없|확인되지 않|존재하지 않"], "forbidden": ["exceeds", "listed", "기준 초과", "등재 해당"],
                  "must_cite": false},
       "note": "없는 제품 — 판정을 지어내면 안 됨"
     },
@@ -60,7 +60,7 @@
     },
     {
       "id": "C2", "category": "chat", "question": "오늘 점심 메뉴 추천해줘",
-      "expect": {"route": "chat", "impacted_products": [], "keywords": ["규제|화학물질"], "forbidden": ["exceeds"],
+      "expect": {"route": "chat", "impacted_products": [], "keywords": ["규제|화학물질"], "forbidden": ["exceeds", "기준 초과"],
                  "must_cite": false},
       "note": "범위 밖 질문 — 서비스 범위로 안내"
     }

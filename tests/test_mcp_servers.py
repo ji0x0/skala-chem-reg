@@ -32,7 +32,7 @@ async def test_product_server_tools():
 async def test_reg_db_server_tool_resource_prompt():
     async with Client(reg_db_server.mcp) as client:
         judged = data(await client.call_tool("judge_product_compliance", {"product_id": "P002"}))
-        assert judged["summary"]["exceeds"] == 2 and judged["unverified_data"] is True
+        assert judged["summary"]["exceeds"] == 3 and judged["unverified_data"] is False    # Entry 51 ×2 + 국내 이산화티타늄
 
         terms = data(await client.call_tool("glossary_lookup",
                                             {"text": "SVHC on the Candidate List; 优先控制化学品"}))
@@ -71,6 +71,36 @@ async def test_feed_falls_back_to_snapshot_when_offline(monkeypatch, tmp_path):
         cached = data(await client.call_tool("get_federal_register_document",
                                              {"document_number": "2026-20964"}))
         assert cached["text_source"] == "full_text" and cached["text_warning"] is None
+
+
+async def test_new_document_full_text_is_downloaded_and_cached(monkeypatch, tmp_path):
+    """외부 검토 ①: 저장본이 없는 새 문서의 본문을 받으면 저장 단계에서 NameError가 나던 문제."""
+    meta = {"document_number": "2099-00001", "title": "Trichloroethylene (TCE) test rule", "type": "Rule",
+            "abstract": "", "publication_date": "2099-01-01", "html_url": "https://example.gov/d",
+            "raw_text_url": "https://example.gov/raw.txt", "effective_on": None, "comments_close_on": None}
+
+    class Resp:
+        def __init__(self, status, body=None, text=""):
+            self.status_code, self._body, self.text, self.headers = status, body, text, {}
+        def json(self):
+            return self._body
+        def raise_for_status(self):
+            pass
+
+    calls = []
+    def fake_get(url, **kwargs):
+        calls.append(url)
+        return Resp(200, meta) if url.endswith(".json") else Resp(200, text="<pre>Trichloroethylene (TCE) full text</pre>")
+    monkeypatch.setattr(reg_feed_server.httpx, "get", fake_get)
+    monkeypatch.setattr(reg_feed_server, "CACHE_DIR", tmp_path)
+    monkeypatch.setattr(reg_feed_server, "FULLTEXT_DIR", tmp_path / "none")
+    async with Client(reg_feed_server.mcp) as client:
+        doc = data(await client.call_tool("get_federal_register_document", {"document_number": "2099-00001"}))
+        assert doc["text_source"] == "full_text" and "full text" in doc["text"] and doc["text_warning"] is None
+        assert (tmp_path / "2099-00001.txt").exists()                      # 저장됨
+        downloads = sum(not u.endswith(".json") for u in calls)
+        await client.call_tool("get_federal_register_document", {"document_number": "2099-00001"})
+        assert sum(not u.endswith(".json") for u in calls) == downloads    # 두 번째는 저장본 사용
 
 
 async def test_snapshot_mode_uses_frozen_inputs_without_network(monkeypatch):

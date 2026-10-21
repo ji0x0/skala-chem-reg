@@ -135,6 +135,7 @@ def summarize(rows: list[dict]) -> dict:
         "citations_verified": sum(r["citations"]["verified"] for r in rows),
         "citations_total": sum(r["citations"]["count"] for r in rows),
         "cite_ok_rate": avg([float(r["cite_ok"]) for r in rows]),
+        "citations_used_avg": avg([r["citations"].get("used", 0) for r in rows]),
         "judge_faithfulness": avg([j["faithfulness"] for j in judged]),
         "judge_completeness": avg([j["completeness"] for j in judged]),
         "judge_acceptable": avg([float(j["acceptable"]) for j in judged]),
@@ -150,6 +151,7 @@ METRICS = [("product_precision", "영향 제품 정밀도 (↑)"), ("product_rec
            ("false_positive_products", "무관한 제품 지목 수 (↓)"), ("date_recall", "핵심 날짜 재현율 (↑)"),
            ("invented_cas", "지어낸 CAS (↓)"), ("invented_dates", "지어낸 날짜 (↓)"),
            ("keyword", "키워드 점수 (↑)"), ("citations_avg", "답변당 근거 수"),
+           ("citations_used_avg", "본문에서 쓴 근거 번호 수"),
            ("cite_ok_rate", "근거 요건 충족률 (↑)"), ("judge_faithfulness", "Judge 근거 충실성 1~5 (↑)"),
            ("judge_completeness", "Judge 완전성 1~5 (↑)"), ("judge_acceptable", "Judge 합격률 (↑)"),
            ("latency_s", "평균 시간 (초)"), ("tokens", "평균 토큰"), ("errors", "실행 오류")]
@@ -193,6 +195,8 @@ def write_report(meta: dict, results: dict[str, list[dict]], out_dir: Path = OUT
               "- 영향 제품 = 제품 ID가 나온 줄 중 '영향 없음·해당 없음' 같은 부정 표현이 없는 줄. 문장 구조에 따라 틀릴 수 있음",
               "- 지어낸 사실 = 답변의 CAS·날짜 중 관보 본문·규제 DB·제품 배합 어디에도 없는 것 (오늘 날짜는 허용)",
               "- 키워드 점수는 표현만 본다 → 맞는 단어를 틀린 맥락에 써도 점수를 받는다. LLM-as-Judge와 함께 본다",
+              "- 근거 요건 = 근거 원문이 실제 출처에 있음 + 본문이 유효한 근거 번호를 씀. '그 근거가 주장을 뒷받침하는가'는 코드로 판단하지 못해 사람 검토 대상",
+              "- 영향 제품 정밀도는 이 질문 세트·채점 방식의 값이며 규제 판정 전체의 정확도가 아니다. 토큰 감소는 요금 절감과 같지 않다(로컬 모델)",
               "- LLM-as-Judge는 Before·After에 같은 참조 자료(라벨 근거·정답표)를 준다. 같은 모델이 쓰고 채점하면 관대할 수 있다"]
     md = out_dir / f"{stem}.md"
     md.write_text("\n".join(lines) + "\n", encoding="utf-8")

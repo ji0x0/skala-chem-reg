@@ -66,7 +66,7 @@ def _fetch_full_text(document_number: str, url: str) -> tuple[str | None, str | 
                 return None, f"본문 조회 실패(HTTP {resp.status_code}) — 제목·요약만 사용"
             text = _plain_text(resp.text)
             CACHE_DIR.mkdir(parents=True, exist_ok=True)
-            cache.write_text(text, encoding="utf-8")
+            (CACHE_DIR / f"{document_number}.txt").write_text(text, encoding="utf-8")
             return text, None
     return None, "본문 조회 실패 — 제목·요약만 사용"
 
@@ -124,7 +124,7 @@ def get_federal_register_document(document_number: str, max_chars: int = 12000) 
         full, warning = _fetch_full_text(document_number, doc["raw_text_url"])
         if full:
             text, text_source = full, "full_text"
-    substances = db.search_substance("")       # 규제 DB의 전체 물질
+    substances = db.company_substances()       # 회사 제품에 든 규제 물질만 (전체 수천 종으로 찾으면 무관한 물질이 잡힘)
     return {"source": source, "text_source": text_source, "text_warning": warning,
             **{k: doc.get(k) for k in FIELDS},
             "text": text[:max_chars], "text_truncated": len(text) > max_chars,

@@ -67,7 +67,7 @@ def quote_in_source(quote: str, source: str) -> bool:
 def from_listing(cid: int, listing: dict) -> Citation:
     """규제 DB 등재 행 → 근거. 원문은 등재 정보 자체이고, 출처는 그 목록의 공식 URL이다."""
     parts = [f"{listing.get('law', '')} {listing.get('list_name', '')}".strip(),
-             f"{listing['name_en']} (CAS {listing['cas']})"]
+             f"{listing.get('name_en') or listing.get('name_ko') or ''} (CAS {listing['cas']})".strip()]  # 산안법 원본은 한글명만
     if listing.get("entry_ref"):
         parts.append(listing["entry_ref"])
     if listing.get("condition_ko"):
@@ -75,7 +75,7 @@ def from_listing(cid: int, listing: dict) -> Citation:
     return Citation(id=cid, kind="listing", source_id=listing["reg_id"],
                     title=f"{listing.get('region', '')} {listing.get('list_name', listing['reg_id'])}",
                     quote=" · ".join(parts), url=listing.get("source_url", ""),
-                    as_of="규제 DB", status=listing.get("status", "to_verify"))
+                    as_of=listing.get("verified_on") or "규제 DB", status=listing.get("status", "to_verify"))
 
 
 def from_document(cid: int, doc: dict, quote: str) -> Citation:
@@ -101,7 +101,7 @@ def from_finding(cid: int, finding: dict) -> Citation:
         quote += f" · {finding['entry_ref']}"
     return Citation(id=cid, kind="listing", source_id=finding["reg_id"],
                     title=f"{finding['region']} {finding['list_name']}", quote=quote,
-                    url=finding.get("source_url", ""), as_of="규제 DB",
+                    url=finding.get("source_url", ""), as_of=finding.get("verified_on") or "규제 DB",
                     status=finding.get("data_status", "to_verify"),
                     extra={"outcome": finding["outcome"], "reason": finding["reason"],
                            "wt_pct": finding.get("wt_pct"), "threshold_wt_pct": finding.get("threshold_wt_pct")})

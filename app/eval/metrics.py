@@ -71,7 +71,10 @@ def invented_facts(text: str, corpus: str, reference: str = "") -> dict:
 
 def citation_check(answer: str, citations: list[dict], documents: dict[str, str],
                    listings: set[tuple[str, str]]) -> dict:
-    """근거 검증: 문서 근거 원문이 실제 본문에 있는지, 목록 근거가 실제 등재 행인지, 본문 [n]이 있는 근거인지."""
+    """근거 검증을 세 가지로 나눈다.
+    ① verified: 근거 원문이 실제 출처에 있는가 (문서 근거는 본문 문자열, 목록 근거는 실제 등재 행)
+    ② used: 답변 본문이 유효한 근거 번호 [n]을 실제로 쓰는가 (근거 목록만 붙이고 본문에서 안 쓰면 0)
+    ③ 그 근거가 연결된 주장을 뒷받침하는가 — 코드로 판단할 수 없어 대표 문항을 사람이 검토한다"""
     verified = 0
     for c in citations:
         if c.get("kind") == "document":
@@ -83,7 +86,7 @@ def citation_check(answer: str, citations: list[dict], documents: dict[str, str]
     refs = set(CITE_REF.findall(answer))
     return {"count": len(citations), "verified": verified,
             "verified_rate": round(verified / len(citations), 3) if citations else None,
-            "unknown_refs": sorted(refs - ids, key=int)}
+            "used": len(refs & ids), "unknown_refs": sorted(refs - ids, key=int)}
 
 
 @dataclass
@@ -119,5 +122,7 @@ def score_answer(item: dict, answer: str, citations: list[dict], route: str | No
         invented=invented_facts(answer, corpus["text"], corpus["reference"]),
         forbidden=forbidden_hits(answer, exp.get("forbidden", [])),
         citations=cites,
-        cite_ok=(not must or (cites["count"] > 0 and cites["verified"] == cites["count"])) and not cites["unknown_refs"],
+        # 근거 필수 문항: 근거가 있고 전부 원문 대조 통과 + 본문이 그 근거 번호를 실제로 씀 + 없는 번호를 쓰지 않음
+        cite_ok=(not must or (cites["count"] > 0 and cites["verified"] == cites["count"] and cites["used"] > 0))
+                and not cites["unknown_refs"],
     )

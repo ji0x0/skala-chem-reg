@@ -34,9 +34,12 @@ def load_corpus(settings: Settings) -> dict:
     documents = {p.stem: p.read_text(encoding="utf-8") for p in sorted(fulltext_dir.glob("*.txt"))}
     snapshot = _csv_text(settings.feeds_dir / "federal_register_tsca.json")     # 제목·요약·게시일·마감일
     regs = settings.regulations_dir
-    with (regs / "listings.csv").open(encoding="utf-8") as f:
-        listings = {(r["reg_id"], r["cas"]) for r in csv.DictReader(f)}
-    text = "\n".join([*documents.values(), snapshot, _csv_text(regs / "sources.csv"), _csv_text(regs / "listings.csv"),
+    sources = [regs / "listings.csv", *sorted((regs / "bulk").glob("*.csv"))]   # 정리한 행 + 공식 전체 목록
+    listings = set()
+    for path in sources:
+        with path.open(encoding="utf-8") as f:
+            listings |= {(r["reg_id"], r["cas"]) for r in csv.DictReader(f)}
+    text = "\n".join([*documents.values(), snapshot, _csv_text(regs / "sources.csv"), *map(_csv_text, sources),
                       _csv_text(settings.products_path), _csv_text(settings.glossary_path)])
     return {"documents": documents, "listings": listings, "text": text,
             "reference": date.today().isoformat()}        # 답변에 오늘 날짜(기준일)를 쓰는 것은 허용

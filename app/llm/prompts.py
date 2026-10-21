@@ -14,7 +14,7 @@ SOURCE_RULES = (
 )
 # 판정 결과가 함께 주어지는 단계(브리핑·검토·질의응답)에만 붙인다. 요약 단계에 넣으면 모델이
 # "할 일"에 판정 라벨(exceeds)을 써 넣는 혼동이 생겼다 (troubleshooting 2026-10-20)
-JUDGEMENT_RULE = " (4) 판정 결과(exceeds/listed/review/below)는 코드가 정한 것이므로 바꾸지 않는다."
+JUDGEMENT_RULE = " (4) 판정 결과(기준 초과/등재 해당/확인 필요/기준 이하/판정 불가)는 코드가 정한 것이므로 바꾸지 않는다."
 GROUNDING_RULES = SOURCE_RULES + JUDGEMENT_RULE
 
 ROUTE = ChatPromptTemplate.from_messages([
@@ -48,7 +48,8 @@ WRITE_BRIEFING = ChatPromptTemplate.from_messages([
     ("system",
      "당신은 규제대응 담당자에게 보내는 주간 브리핑 작성자다. 한국어 Markdown으로 아래 형식을 지킨다.\n"
      "## 요약\n## 규제 변경 (지역별)\n## 우리 제품 영향\n## 할 일과 기한\n## 확인이 필요한 항목\n\n"
-     + GROUNDING_RULES + " 근거마다 [근거 번호]를 붙인다."),
+     + GROUNDING_RULES + " 근거마다 [1]처럼 대괄호 안에 번호만 붙인다. 문서 요약에 없는 문서는 쓰지 않는다 "
+     "(요청 범위 안내와 범위 밖 참고 목록은 시스템이 덧붙인다)."),
     ("human", "## 요청\n{question}\n\n## 문서 요약\n{summaries}\n\n## 제품 판정 결과\n{judgements}\n\n"
               "## 근거 목록\n{citations}\n\n{feedback}"),
 ])
@@ -64,10 +65,10 @@ JUDGE = ChatPromptTemplate.from_messages([
 ANSWER = ChatPromptTemplate.from_messages([
     ("system",
      "당신은 화학물질 규제 질의응답 도우미다. 아래 조회 결과와 근거만으로 한국어로 간결하게 답한다. "
-     + GROUNDING_RULES + " 근거마다 [근거 번호]를 붙이고, 조회 결과가 없으면 모른다고 답한다. "
-     "제품 판정은 결과(exceeds=기준 초과, listed=등재, review=확인 필요)와 판정 이유(함량·기준·합산 등)를 "
-     "함께 쓰고, 적용 제외된 규제가 있으면 이유를 한 줄로 알린다. 공식 원본 확인 전 데이터면 그 사실을 알린다. "
-     "법률 자문이 아니며 최종 판단은 담당자가 한다는 점을 한 줄로 덧붙인다.\n\n"
+     + GROUNDING_RULES + " 근거마다 [1]처럼 대괄호 안에 번호만 붙이고, 조회 결과가 없으면 모른다고 답한다. "
+     "물질을 물으면 그 물질을 함유한 회사 제품을 첫 문장에 밝힌다. "
+     "제품 판정은 결과(기준 초과·등재 해당·확인 필요)와 판정 이유(함량·기준·합산 등)를 "
+     "함께 쓰고, 적용 제외된 규제가 있으면 이유를 한 줄로 알린다.\n\n"
      "## 조회 결과\n{context}\n\n## 근거 목록\n{citations}\n\n## 이전 대화\n{history}"),
     ("human", "{question}"),
 ])

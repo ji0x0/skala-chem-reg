@@ -100,6 +100,22 @@ async def test_tool_failure_is_isolated():
     await tools.stop()
 
 
+class ListOnlyLLM(FakeLLM):
+    """근거 목록만 옮겨 적고 함유 제품을 빠뜨리는 LLM (재측정에서 qwen3:8b가 보인 답)."""
+
+    async def answer(self, question, context, citations, history, on_token=None):
+        _, usage = await super().answer(question, context, citations, history)
+        return "[근거 1] EU 고위험 우려물질(SVHC) 후보 목록", usage
+
+
+async def test_lookup_answer_always_names_holder_products():
+    graph, tools = await make_graph(llm=ListOnlyLLM())
+    _, _, snap = await run(graph, "트리클로로에틸렌 해당 규제 알려줘")
+    final = snap.values["final"]
+    assert final.startswith("- **") and "P003" in final and "[1] EU" in final
+    await tools.stop()
+
+
 class InventingLLM(FakeLLM):
     """브리핑에 원문에 없는 날짜를 지어 넣는 LLM."""
 
@@ -121,6 +137,64 @@ async def test_guard_catches_invented_fact_and_retries_with_limit():
     await tools.stop()
 
 
+class SummaryInventingLLM(FakeLLM):
+    """요약 단계에서 원문에 없는 날짜를 만들고, 브리핑이 그 날짜를 옮겨 쓰는 LLM."""
+
+    async def summarize_document(self, meta, quotes, glossary):
+        summary, usage = await super().summarize_document(meta, quotes, glossary)
+        return summary.model_copy(update={"summary_ko": summary.summary_ko + " 시행일 2028-01-01"}), usage
+
+    async def write_briefing(self, question, summaries, judgements, citations, feedback, on_token=None):
+        text, usage = await super().write_briefing(question, summaries, judgements, citations, feedback, on_token)
+        return text + "\n- 시행일 2028-01-01 [1]", usage
+
+
+async def test_summary_invention_is_dropped_and_caught_by_guard():
+    """외부 검토 ③: 요약이 지어낸 사실이 '요약에 있으니까' 가드를 통과하던 문제."""
+    graph, tools = await make_graph(llm=SummaryInventingLLM())
+    cfg, _, snap = await run(graph, BRIEFING)
+    v = snap.values
+    assert all("2028" not in s["summary_ko"] for s in v["summaries"])          # 지어낸 요약은 버림
+    assert v["guard"]["invented"]["extra_dates"] == ["2028-01-01"]             # 브리핑이 옮겨 써도 잡힘
+    await tools.stop()
+
+
+async def test_briefing_stays_within_requested_substance():
+    """외부 검토 ②: DEHP를 물었는데 TCE 문서·P003이 영향으로 들어오던 문제."""
+    graph, tools = await make_graph()
+    _, _, snap = await run(graph, "최근 미국 관보에 DEHP 관련 변경 있어? 브리핑해줘")
+    v = snap.values
+    assert "117-81-7" in v["plan"]["focus_cas"]
+    assert v["documents"] and not any(d["in_scope"] for d in v["documents"])
+    assert v["impacts"] == [] and v["summaries"] == [] and not snap.next     # 영향 제품·승인 없음
+    assert "찾지 못했습니다" in v["scope_note"] and v["plan"]["days"] == 30  # 기간을 넓혀 다시 찾고도 없음
+    assert "요청 범위 확인 결과" in v["final"] and "참고: 요청 범위 밖의 변경" in v["final"]
+    doc_no = v["documents"][0]["document_number"]
+    assert doc_no in v["final"] and not v["guard"]["invented"]     # 참고 목록의 관보 번호는 지어낸 숫자가 아님 (재측정 B5)
+    await tools.stop()
+
+
+async def test_briefing_for_one_product_judges_only_that_product():
+    graph, tools = await make_graph()
+    _, _, snap = await run(graph, "P003 금속 탈지 세정제에 영향 주는 최근 미국 규제 변경 브리핑해줘")
+    v = snap.values
+    assert {i["product_id"] for i in v["impacts"]} == {"P003"}
+    assert any(d["in_scope"] for d in v["documents"])
+    await tools.stop()
+
+
+async def test_judge_tool_failure_is_reported_not_treated_as_no_impact():
+    """외부 검토 ④: 제품 판정 도구 실패 → TypeError로 전체가 멈추던 문제."""
+    graph, tools = await make_graph(fail_tools={"judge_product_compliance"})
+    _, _, snap = await run(graph, BRIEFING)
+    v = snap.values
+    assert any("P003 판정 확인 불가" in g for g in v["gaps"])
+    assert [i["product_id"] for i in v["impacts"] if i.get("unresolved")] == ["P003"]
+    pending = snap.tasks[0].interrupts[0].value                               # 확인 불가도 담당자에게
+    assert pending["impacted_products"][0]["outcomes"] == ["unresolved"]
+    await tools.stop()
+
+
 async def test_follow_up_resets_per_turn_state():
     graph, tools = await make_graph()
     await run(graph, "트리클로로에틸렌 규제 알려줘", thread="same")
@@ -137,4 +211,36 @@ async def test_baseline_graph_has_no_citations_or_checks():
     v = snap.values
     assert v["final"] and v.get("citations", []) == [] and not v.get("guard")
     assert "agent_start" not in kinds                                  # 병렬 에이전트 없음
+    await tools.stop()
+
+
+def test_scope_lines_are_added_by_code_with_matching_label():
+    """실모델이 범위 안내를 범위 안 문서에 붙이고 핵심 변경을 '범위 밖'으로 표시하던 문제 → 코드가 넣는다."""
+    from app.agents.graph import _add_scope
+    draft = "## 요약\n변경 1건.\n\n## 규제 변경 (지역별)\n- TCE 기한 연장 [1]\n\n## 우리 제품 영향\n- P003"
+    docs = [{"document_number": "2026-1", "title": "TCE", "in_scope": True},
+            {"document_number": "2026-2", "title": "SNUR 26-1", "publication_date": "2026-10-15", "in_scope": False}]
+    general = _add_scope(draft, {"documents": docs, "plan": {"focus_cas": []}, "scope_note": ""})
+    assert "요청 범위 확인 결과" not in general and "요청 범위 밖" not in general
+    assert general.index("회사 제품 성분과 관련 없는 변경") < general.index("## 우리 제품 영향")
+    assert "SNUR 26-1 (관보 2026-2" in general and "- TCE 기한 연장 [1]" in general
+    focused = _add_scope(draft, {"documents": docs, "plan": {"focus_cas": ["117-81-7"]}, "scope_note": "DEHP 문서 없음"})
+    assert focused.startswith("## 요약\n**요청 범위 확인 결과**: DEHP 문서 없음") and "참고: 요청 범위 밖의 변경" in focused
+
+
+class RefListingLLM(FakeLLM):
+    """근거 번호를 '[1], [2], [3]'처럼 나열하는 LLM (재측정 B2·B4)."""
+
+    async def write_briefing(self, question, summaries, judgements, citations, feedback, on_token=None):
+        text, usage = await super().write_briefing(question, summaries, judgements, citations, feedback, on_token)
+        refs = ", ".join(f"[{n}]" for n in range(1, citations.count("\n[") + 2))
+        return text.replace("## 우리 제품 영향", f"- 근거 {refs}\n\n## 우리 제품 영향", 1), usage
+
+
+async def test_citation_numbers_are_not_counted_as_invented_numbers():
+    graph, tools = await make_graph(llm=RefListingLLM())
+    _, _, snap = await run(graph, "이번 주 미국 EPA 규제 변경 브리핑해줘")
+    v = snap.values
+    assert len(v["citations"]) >= 6 and "[6]" in v["draft"]
+    assert not v["guard"]["invented"] and v["writing_attempts"] == 1
     await tools.stop()

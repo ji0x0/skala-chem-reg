@@ -59,7 +59,7 @@ class FakeLLM:
     async def write_briefing(self, question, summaries, judgements, citations, feedback,
                              on_token: TokenCallback = None):
         report = ("## 요약\n(Fake) 수집한 문서와 판정 결과를 정리했습니다.\n\n## 규제 변경 (지역별)\n"
-                  f"{summaries}\n\n## 우리 제품 영향\n{judgements}\n\n## 할 일과 기한\n- 근거 문서 확인 [1]\n\n"
+                  f"{summaries}\n\n## 우리 제품 영향\n{judgements}\n\n## 할 일과 기한\n- 근거 문서 확인{' [1]' if citations.startswith('[') else ''}\n\n"
                   "## 확인이 필요한 항목\n- Fake LLM 결과이므로 실제 모델로 다시 확인")
         if on_token:
             for line in report.splitlines(keepends=True):
