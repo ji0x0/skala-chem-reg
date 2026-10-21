@@ -109,6 +109,7 @@ input:focus, textarea:focus, select:focus { outline: 2px solid var(--accent-soft
 .badge.exceeds { background: var(--danger-soft); color: var(--danger); }
 .badge.listed { background: var(--warn-soft); color: var(--warn); }
 .badge.review { background: var(--info-soft); color: var(--info); }
+.badge.unresolved { background: var(--panel-2); color: var(--danger); border: 1px dashed var(--danger); }
 .badge.below, .badge.official { background: var(--ok-soft); color: var(--ok); }
 .badge.to_verify { background: var(--warn-soft); color: var(--warn); }
 

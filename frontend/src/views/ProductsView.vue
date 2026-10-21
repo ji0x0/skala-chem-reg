@@ -2,6 +2,7 @@
 // 제품 관리 화면 (R54) — 목록(판정 요약) · 상세(배합표 + 판정) · 추가·수정
 // 제품은 앱 DB가 원본. 저장하면 서버가 검증 → 저장 → 판정까지 해서 돌려준다
 import { computed, inject, onMounted, ref, watch } from 'vue'
+import { outcomeKo } from '../lib/labels.js'
 import { api } from '../api/client.js'
 import JudgementTable from '../components/JudgementTable.vue'
 import ProductForm from '../components/ProductForm.vue'
@@ -83,9 +84,9 @@ onMounted(async () => {
           </div>
           <div class="row badges">
             <template v-for="o in ['exceeds', 'listed', 'review']" :key="o">
-              <span v-if="p.summary[o]" class="badge" :class="o">{{ o }} {{ p.summary[o] }}</span>
+              <span v-if="p.summary[o]" class="badge" :class="o">{{ outcomeKo(o) }} {{ p.summary[o] }}</span>
             </template>
-            <span v-if="!p.summary.exceeds && !p.summary.listed && !p.summary.review" class="badge below">해당 없음</span>
+            <span v-if="!p.summary.exceeds && !p.summary.listed && !p.summary.review" class="badge below">규제 문제 없음</span>
           </div>
         </li>
       </ul>

@@ -1,6 +1,7 @@
 <script setup>
 // 담당자 승인 (Human-in-the-loop) — 영향 제품을 다른 부서에 공유하기 전에 승인·반려
 import { ref } from 'vue'
+import { outcomeKo } from '../lib/labels.js'
 
 const props = defineProps({
   request: { type: Object, required: true },     // {impacted_products, message}
@@ -24,7 +25,7 @@ function decide(approved) {
         <tr v-for="p in props.request.impacted_products" :key="`${p.product_id}-${p.document_number}`">
           <td><strong>{{ p.product_id }}</strong> {{ p.product_name }}</td>
           <td class="mono">{{ p.document_number ?? '규제 DB 대조' }}</td>
-          <td><span v-for="o in p.outcomes" :key="o" class="badge" :class="o">{{ o }}</span></td>
+          <td><span v-for="o in p.outcomes" :key="o" class="badge" :class="o">{{ outcomeKo(o) }}</span></td>
         </tr>
       </tbody>
     </table>

@@ -4,6 +4,7 @@
 import { nextTick, onMounted, ref } from 'vue'
 import { api } from '../api/client.js'
 import { approvalStream, chatStream } from '../api/sse.js'
+import { OUTCOME_HELP, OUTCOME_KO } from '../lib/labels.js'
 import { renderMarkdown } from '../lib/markdown.js'
 import { describe } from '../lib/progress.js'
 import ApprovalPanel from '../components/ApprovalPanel.vue'
@@ -20,12 +21,7 @@ const EXAMPLES = [
   { label: '물질 동향', text: 'TSCA 트리클로로에틸렌 최근 규제 동향 브리핑해줘' },
   { label: '서비스 안내', text: '이 서비스는 뭘 할 수 있어?' },
 ]
-const OUTCOMES = [
-  ['exceeds', '기준 초과 — 조치 필요'],
-  ['listed', '등재 — 함량과 무관하게 해당'],
-  ['review', '확인 필요 — 불순물·기준 미확정'],
-  ['below', '기준 이하'],
-]
+const OUTCOMES = Object.entries(OUTCOME_HELP)
 
 const threadId = ref(load(THREAD_KEY))
 const messages = ref([])
@@ -54,6 +50,7 @@ function handler(msg) {
         threadId.value = data.thread_id
         save(THREAD_KEY, data.thread_id)
         msg.runId = data.run_id
+        loadThreads()                       // 새 대화가 목록에 생기고, 최근 사용 순서가 바뀐다
         break
       case 'token':
         if (data.attempt !== msg.attempt) { msg.draft = ''; msg.attempt = data.attempt }   // 재작성 → 새 초안
@@ -134,11 +131,52 @@ async function sendFeedback(msg, score) {
 
 function stop() { controller?.abort() }
 
-function newThread() {
+// ── 대화 목록: 001 규제 브리핑, 002 규제 브리핑 … (이름은 ✎로 바꿀 수 있음) ──
+const threads = ref([])
+const editingId = ref(null)
+const editTitle = ref('')
+
+async function loadThreads() {
+  try { threads.value = await api.threads() } catch { /* 백엔드가 꺼져 있으면 목록 없이 */ }
+}
+
+async function newThread() {
   if (busy.value) return
-  threadId.value = null
-  save(THREAD_KEY, null)
   messages.value = []
+  try {
+    const t = await api.createThread()
+    threadId.value = t.thread_id
+    await loadThreads()
+  } catch {
+    threadId.value = null                 // 백엔드가 꺼져 있으면 첫 질문 때 서버가 만든다
+  }
+  save(THREAD_KEY, threadId.value)
+}
+
+async function selectThread(id) {
+  if (busy.value || id === threadId.value) return
+  threadId.value = id
+  save(THREAD_KEY, id)
+  await restore(id)
+}
+
+function startRename(t) {
+  editingId.value = t.thread_id
+  editTitle.value = t.title
+  nextTick(() => document.getElementById(`rename-${t.thread_id}`)?.select())
+}
+
+async function finishRename(t) {
+  if (editingId.value !== t.thread_id) return
+  const title = editTitle.value.trim()
+  editingId.value = null
+  if (!title || title === t.title) return
+  try {
+    const updated = await api.renameThread(t.thread_id, title)
+    Object.assign(t, updated)
+  } catch (e) {
+    alert(`이름을 바꾸지 못했습니다: ${e.message}`)
+  }
 }
 
 // 본문의 [n]을 누르면 아래 근거 카드로 이동해 강조
@@ -179,11 +217,12 @@ const STATUS_TEXT = { completed: '완료', awaiting_approval: '승인 대기', f
 const tokens = n => n?.toLocaleString('ko-KR')
 
 // 새로고침 후 이전 대화 복원 — 서버 체크포인터에서 기록·승인 대기를 읽는다
-onMounted(async () => {
-  if (!threadId.value) return
+async function restore(id) {
+  messages.value = []
+  if (!id) return
   try {
-    const state = await api.thread(threadId.value)
-    if (!state.exists) return newThread()
+    const state = await api.thread(id)
+    if (!state.exists) return             // 목록에는 있지만 아직 질문하지 않은 대화
     for (const m of state.history) {
       if (m.role === 'user') messages.value.push({ role: 'user', content: m.content })
       else newAssistant({ status: 'completed', content: m.content, started: 0 })
@@ -198,19 +237,37 @@ onMounted(async () => {
   } catch {
     /* 백엔드가 꺼져 있으면 빈 대화로 시작 */
   }
+}
+
+onMounted(async () => {
+  await restore(threadId.value)           // 이 기능 이전 대화는 열 때 서버가 목록에 등록한다
+  await loadThreads()
 })
 </script>
 
 <template>
   <div class="chat">
     <aside class="side">
-      <section class="panel box">
+      <section class="panel box threads">
         <div class="row">
           <h2>대화</h2>
           <span class="spacer"></span>
-          <button class="small" :disabled="busy" @click="newThread">새 대화</button>
+          <button class="small" :disabled="busy" @click="newThread">+ 새 대화</button>
         </div>
-        <p class="small muted mono">{{ threadId ?? '첫 질문을 보내면 시작됩니다' }}</p>
+        <p v-if="!threads.length" class="small muted">첫 질문을 보내면 "001 규제 브리핑"이 만들어집니다.</p>
+        <ul>
+          <li v-for="t in threads" :key="t.thread_id" :class="{ on: t.thread_id === threadId }">
+            <input v-if="editingId === t.thread_id" :id="`rename-${t.thread_id}`" v-model="editTitle" maxlength="60"
+                   class="rename" @keydown.enter.prevent="!$event.isComposing && finishRename(t)" @keydown.esc="editingId = null"
+                   @blur="finishRename(t)" />
+            <template v-else>
+              <button class="ghost title" :disabled="busy" :title="t.title" @click="selectThread(t.thread_id)">
+                {{ t.title }}
+              </button>
+              <button class="ghost edit" title="이름 바꾸기" aria-label="이름 바꾸기" @click="startRename(t)">✎</button>
+            </template>
+          </li>
+        </ul>
       </section>
       <section class="panel box">
         <h2>예시 질문</h2>
@@ -222,7 +279,7 @@ onMounted(async () => {
       <section class="panel box small legend-box">
         <h2>판정 결과</h2>
         <div v-for="[o, text] in OUTCOMES" :key="o" class="legend">
-          <span class="badge" :class="o">{{ o }}</span> {{ text }}
+          <span class="badge" :class="o">{{ OUTCOME_KO[o] }}</span> {{ text }}
         </div>
         <p class="muted">판정은 코드가 규제 DB와 제품 배합을 대조해 내리고, LLM은 설명만 합니다.</p>
       </section>
@@ -241,7 +298,7 @@ onMounted(async () => {
           <article v-else class="bubble assistant panel">
             <ProgressLog :items="m.progress" :running="m.status === 'running'" :started="m.started" />
 
-            <p v-if="m.restored" class="small muted">새로고침 전에 작성된 브리핑이 승인을 기다리고 있습니다.</p>
+            <p v-if="m.restored" class="small muted">이 대화에 승인을 기다리는 브리핑이 있습니다.</p>
             <div v-if="m.content || m.draft" class="markdown" @click="onBodyClick($event, m, i)"
                  v-html="renderMarkdown(m.content || m.draft, m.citations.map(c => c.id))"></div>
             <p v-else-if="m.status === 'running'" class="muted small">생각하는 중…</p>
@@ -299,6 +356,14 @@ h2 { font-size: 13px; margin: 0 0 8px; }
   width: 100%; text-align: left; margin-bottom: 6px; line-height: 1.4;
 }
 .legend { margin-bottom: 4px; }
+.threads ul { list-style: none; margin: 8px 0 0; padding: 0; max-height: 220px; overflow-y: auto; }
+.threads li { display: flex; align-items: center; border-radius: 6px; }
+.threads li.on { background: var(--accent-soft); }
+.threads li .title { flex: 1; min-width: 0; text-align: left; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding: 4px 8px; }
+.threads li.on .title { color: var(--accent); font-weight: 600; }
+.threads li .edit { padding: 2px 6px; color: var(--muted); visibility: hidden; }
+.threads li:hover .edit, .threads li.on .edit { visibility: visible; }
+.threads .rename { padding: 3px 8px; font-size: 13px; }
 .main { display: flex; flex-direction: column; min-height: 0; min-width: 0; }
 .messages { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; padding-bottom: 12px; }
 .empty { margin: auto; text-align: center; max-width: 460px; }

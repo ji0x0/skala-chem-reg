@@ -8,6 +8,10 @@ class ChatRequest(BaseModel):
     thread_id: str | None = Field(default=None, max_length=64, description="비우면 새 대화")
 
 
+class ThreadRename(BaseModel):
+    title: str = Field(min_length=1, max_length=60, examples=["P003 TCE 규제 대응"])
+
+
 class ApprovalRequest(BaseModel):
     approved: bool
     comment: str = Field(default="", max_length=500)

@@ -72,7 +72,7 @@ onMounted(async () => {
             <span class="law small muted">{{ r.law }}</span>
             <span>{{ r.list_name }}</span>
             <span class="small muted">
-              {{ r.listing_count ? `등재 ${r.listing_count}` : '등재 데이터 없음' }}
+              {{ r.listing_count ? `등재 ${r.listing_count.toLocaleString('ko-KR')}` : (r.listing_note ? '지정 물질 없음·목록화 제외' : '등재 데이터 없음') }}
               <template v-if="r.unverified"> · 확인 전 {{ r.unverified }}</template>
             </span>
           </button>
@@ -100,7 +100,7 @@ onMounted(async () => {
             <table class="small">
               <thead><tr><th>규제</th><th>물질</th><th>항목</th><th>기준</th><th>조건</th><th>상태</th></tr></thead>
               <tbody>
-                <tr v-for="l in search.listings" :key="`${l.reg_id}-${l.cas}`">
+                <tr v-for="l in search.listings" :key="`${l.reg_id}-${l.cas}-${l.entry_ref}`">
                   <td><button type="button" class="link" @click="openReg(l.reg_id)">{{ regName(l.reg_id)?.region }} {{ regName(l.reg_id)?.list_name ?? l.reg_id }}</button></td>
                   <td>{{ l.name_ko }} <span class="mono muted">{{ l.cas }}</span></td>
                   <td class="nowrap">{{ l.entry_ref || '—' }}</td>
@@ -137,14 +137,15 @@ onMounted(async () => {
         </dl>
 
         <h3>등재 물질 {{ selected.listings.length }}개</h3>
-        <p v-if="!selected.listings.length" class="muted small">
+        <p v-if="selected.listing_note" class="small note">ℹ️ {{ selected.listing_note }}</p>
+        <p v-if="!selected.listings.length && !selected.listing_note" class="muted small">
           아직 등재 데이터를 넣지 않은 규제입니다. 판정에서 빠지므로 "해당 없음"으로 오해하지 않도록 주의하세요.
         </p>
         <div v-else class="scroll">
           <table class="small">
             <thead><tr><th>CAS</th><th>물질</th><th>항목</th><th>기준</th><th>조건</th><th>상태</th></tr></thead>
             <tbody>
-              <tr v-for="l in selected.listings" :key="l.cas">
+              <tr v-for="l in selected.listings" :key="`${l.cas}-${l.entry_ref}`">
                 <td><button type="button" class="link mono" title="이 물질 검색" @click="runSearch(l.cas)">{{ l.cas }}</button></td>
                 <td>{{ l.name_ko }}<div class="muted">{{ l.name_en }}</div></td>
                 <td class="nowrap">{{ l.entry_ref || '—' }}</td>
@@ -189,6 +190,7 @@ button.link { background: none; border: none; padding: 0; font: inherit; text-al
 .scroll table { min-width: 680px; }
 .chip { display: inline-block; background: var(--panel-2); border-radius: 6px; padding: 2px 8px; margin: 0 6px 4px 0; }
 .prods { padding-left: 18px; margin: 0; }
+.note { background: var(--panel-2); border-radius: 6px; padding: 6px 10px; }
 @media (max-width: 760px) {
   .regs { grid-template-columns: 1fr; grid-template-rows: 280px 1fr; padding: 12px; }
 }

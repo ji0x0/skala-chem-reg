@@ -22,6 +22,7 @@ class RunStarted(StreamEvent):
     event: Literal["run_started"] = "run_started"
     thread_id: str
     run_id: str
+    title: str = ""                   # 대화 이름 (예: 001 규제 브리핑)
 
 
 class Progress(StreamEvent):

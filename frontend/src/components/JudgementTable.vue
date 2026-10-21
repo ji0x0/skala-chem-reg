@@ -2,6 +2,7 @@
 // 제품 판정표 — 코드가 제품 배합 × 규제 DB를 대조한 결과 (LLM 없음)
 // 심각한 것부터: exceeds → listed → review. below(기준 이하)와 적용 제외는 접어 둔다
 import { computed, ref } from 'vue'
+import { outcomeKo } from '../lib/labels.js'
 
 const props = defineProps({ judgement: { type: Object, required: true } })
 const ORDER = { exceeds: 0, listed: 1, review: 2, below: 3 }
@@ -18,7 +19,7 @@ const pct = v => v == null ? '—' : `${v}%`
   <div class="judgement">
     <div class="row summary">
       <template v-for="(n, o) in judgement.summary" :key="o">
-        <span v-if="n" class="badge" :class="o">{{ o }} {{ n }}</span>
+        <span v-if="n" class="badge" :class="o">{{ outcomeKo(o) }} {{ n }}</span>
       </template>
       <span class="spacer"></span>
       <span v-if="judgement.unverified_data" class="small muted">⚠ 원본 확인 전 규제 데이터 포함</span>
@@ -33,8 +34,8 @@ const pct = v => v == null ? '—' : `${v}%`
         </thead>
         <tbody>
           <template v-for="list in [main, showBelow ? below : []]">
-            <tr v-for="f in list" :key="`${f.reg_id}-${f.cas}`">
-              <td><span class="badge" :class="f.outcome">{{ f.outcome }}</span></td>
+            <tr v-for="f in list" :key="`${f.reg_id}-${f.cas}-${f.entry_ref}`">
+              <td><span class="badge" :class="f.outcome">{{ outcomeKo(f.outcome) }}</span></td>
               <td>
                 <strong>{{ f.region }}</strong> {{ f.list_name }}
                 <div class="muted" v-if="f.entry_ref">{{ f.entry_ref }}</div>
@@ -67,7 +68,7 @@ const pct = v => v == null ? '—' : `${v}%`
       </button>
     </div>
     <ul v-if="showSkipped" class="skipped small muted">
-      <li v-for="s in judgement.skipped" :key="`${s.reg_id}-${s.cas}`">
+      <li v-for="s in judgement.skipped" :key="`${s.reg_id}-${s.cas}-${s.entry_ref}`">
         {{ s.region }} {{ s.list_name }} · {{ s.substance }} — {{ s.reason }}
       </li>
     </ul>

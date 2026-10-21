@@ -2,6 +2,7 @@
 // 답변 근거 (R56) — 원문 문장(코드가 추출) · 한국어 번역(무결성 통과분만) · 출처 · 기준일 · 검증 상태
 // 원문은 LLM이 쓰지 않는다. 번역이 없으면 무결성 검사에서 버려진 것 → 원문만 보여 준다
 import { ref } from 'vue'
+import { STATUS_KO as STATUS, outcomeKo } from '../lib/labels.js'
 
 defineProps({
   citations: { type: Array, required: true },
@@ -10,7 +11,6 @@ defineProps({
 })
 const showOriginal = ref({})                      // 번역이 있는 근거도 원문 펼쳐 보기
 
-const STATUS = { official: '공식 확인', to_verify: '원본 확인 전' }
 const host = url => { try { return new URL(url).host } catch { return url } }
 </script>
 
@@ -22,7 +22,7 @@ const host = url => { try { return new URL(url).host } catch { return url } }
       <header class="row">
         <span class="num">[{{ c.id }}]</span>
         <span class="badge" :class="c.kind === 'document' ? 'official' : ''">{{ c.kind === 'document' ? '규제 문서' : '규제 목록' }}</span>
-        <span v-if="c.extra?.outcome" class="badge" :class="c.extra.outcome">{{ c.extra.outcome }}</span>
+        <span v-if="c.extra?.outcome" class="badge" :class="c.extra.outcome">{{ outcomeKo(c.extra.outcome) }}</span>
         <strong class="title">{{ c.title }}</strong>
       </header>
 

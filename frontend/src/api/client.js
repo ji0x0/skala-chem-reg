@@ -21,12 +21,12 @@ function toApiError(status, body) {
   return new ApiError(status, `요청 실패 (HTTP ${status})`)
 }
 
-export async function request(path, { method = 'GET', body, signal } = {}) {
+export async function request(path, { method = 'GET', body, signal, headers = {} } = {}) {
   let res
   try {
     res = await fetch(`${API_BASE}${path}`, {
       method, signal,
-      headers: body ? { 'Content-Type': 'application/json' } : undefined,
+      headers: { ...(body ? { 'Content-Type': 'application/json' } : {}), ...headers },   // headers: 관리자 토큰 등
       body: body ? JSON.stringify(body) : undefined,
     })
   } catch (e) {
@@ -41,6 +41,9 @@ export async function request(path, { method = 'GET', body, signal } = {}) {
 export const api = {
   health: () => request('/health'),
   thread: id => request(`/threads/${encodeURIComponent(id)}`),
+  threads: () => request('/threads'),
+  createThread: () => request('/threads', { method: 'POST' }),
+  renameThread: (id, title) => request(`/threads/${encodeURIComponent(id)}`, { method: 'PATCH', body: { title } }),
   feedback: (runId, score, comment = '') =>
     request('/feedback', { method: 'POST', body: { run_id: runId, score, comment } }),
   products: () => request('/products'),

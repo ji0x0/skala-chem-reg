@@ -1,10 +1,8 @@
 """대화 API — 질문 스트리밍, 대화 상태, 승인, 피드백."""
-import uuid
-
 from fastapi import APIRouter, HTTPException, Request
 from fastapi.responses import StreamingResponse
 
-from .schemas import ApprovalRequest, ChatRequest, FeedbackRequest, HealthResponse
+from .schemas import ApprovalRequest, ChatRequest, FeedbackRequest, HealthResponse, ThreadRename
 
 router = APIRouter(prefix="/api/v1", tags=["chat"])
 SSE_HEADERS = {"Cache-Control": "no-cache", "X-Accel-Buffering": "no"}   # 프록시 버퍼링 끄기
@@ -25,9 +23,29 @@ async def health(request: Request):
 
 @router.post("/chat/stream", summary="질문 → SSE 스트림")
 async def chat_stream(request: Request, body: ChatRequest):
-    thread_id = body.thread_id or f"t-{uuid.uuid4().hex[:12]}"
+    thread_id = body.thread_id or service(request).threads.create()["thread_id"]   # 새 대화 → 001 규제 브리핑 …
     return StreamingResponse(service(request).stream_chat(body.message, thread_id),
                              media_type="text/event-stream", headers=SSE_HEADERS)
+
+
+@router.get("/threads", summary="대화 목록 (최근 사용 순)")
+async def list_threads(request: Request):
+    return service(request).threads.list()
+
+
+@router.post("/threads", status_code=201, summary="새 대화 (이름: 001 규제 브리핑, 002 규제 브리핑 …)")
+async def create_thread(request: Request):
+    return service(request).threads.create()
+
+
+@router.patch("/threads/{thread_id}", summary="대화 이름 바꾸기")
+async def rename_thread(request: Request, thread_id: str, body: ThreadRename):
+    try:
+        return service(request).threads.rename(thread_id, body.title)
+    except KeyError:
+        raise HTTPException(404, "없는 대화입니다.")
+    except ValueError as exc:
+        raise HTTPException(422, str(exc))
 
 
 @router.get("/threads/{thread_id}", summary="대화 상태·승인 대기 여부·근거")
