@@ -405,10 +405,11 @@ h2 { font-size: 13px; margin: 0 0 8px; }
   .side .box { min-width: 220px; overflow-y: auto; }
   .legend-box { display: none; }
 }
-.feedback { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-top: 8px; padding: 6px 10px;
+.feedback { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-top: 8px; padding: 3px 10px;
   border: 1px solid var(--border); border-radius: 8px; background: var(--panel-2); }
-.feedback .fb { font-size: 16px; padding: 2px 8px; }
+.feedback .fb { font-size: 16px; line-height: 1.2; padding: 2px 8px; }
 .feedback form { gap: 6px; flex: 1; }
-.feedback input { flex: 1; min-width: 180px; padding: 4px 8px; }
+.feedback input { flex: 1; min-width: 180px; padding: 2px 8px; }
+.feedback form button { padding: 2px 10px; line-height: 1.4; }
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 </style>
