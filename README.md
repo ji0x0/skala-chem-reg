@@ -11,7 +11,7 @@
 
 | 담당자의 문제 | 이 서비스 |
 | --- | --- |
-| 국내외 공고·관보를 매주 직접 찾아 읽는다 | 미국 연방 관보 API + 국내 법제처 행정규칙(고시) 실시간 조회 → 요청한 물질·제품과 관련된 문서만 골라 한국어 요약 (관련 변경이 없으면 없다고 먼저 답함). 국내 수집은 LLM이 검색어를 정하는 ReAct 에이전트 |
+| 국내외 공고·관보를 매주 직접 찾아 읽는다 (정기 브리핑: 매주 월요일 지난주 변경을 자동으로 정리) | 미국 연방 관보 API + 국내 법제처 행정규칙(고시) 실시간 조회 → 요청한 물질·제품과 관련된 문서만 골라 한국어 요약 (관련 변경이 없으면 없다고 먼저 답함). 국내 수집은 LLM이 검색어를 정하는 ReAct 에이전트 |
 | 우리 제품이 해당되는지 원료 목록과 일일이 대조한다 | 제품 CAS × 규제 DB를 **코드로 판정** (수출 지역, 성형품/혼합물, 함량 기준, 그룹 합산, 불순물) |
 | 번역·요약 중 숫자·CAS·날짜가 틀리면 대응이 틀어진다 | 원문과 번역의 CAS·날짜·숫자를 코드로 대조, 지어낸 사실은 가드가 차단 |
 | 판단 근거를 나중에 다시 찾기 어렵다 | 답변의 `[n]`마다 원문 문장·번역·출처 URL·기준일·검증 상태 |
@@ -26,6 +26,8 @@
 | ![범위 판정](docs/images/routing.jpg) | ![제품 관리](docs/images/products.jpg) |
 | **규제 목록: 물질 검색 → 등재 규제·함유 제품** | **관리자 페이지(`/admin/`): 처리량·승인·피드백·품질 평가** |
 | ![규제 목록](docs/images/regulations.jpg) | ![관리자](docs/images/admin.jpg) |
+| **정기 브리핑: 매주 지난주 변경을 주차별로, 검토 완료 표시** | |
+| ![정기 브리핑](docs/images/weekly.jpg) | |
 
 ## 구성
 
@@ -185,6 +187,7 @@ LLM_BACKEND=ollama uv run python scripts/run_eval.py --judge
 | --- | --- | --- |
 | POST | `/api/v1/chat/stream` | 질문 → SSE (진행·도구 호출·토큰·근거) |
 | GET | `/api/v1/threads/{id}` | 대화 상태, 근거 |
+| GET·POST | `/api/v1/weekly`, `/weekly/{주차}`, `/weekly/{주차}/review` | 정기 브리핑 목록·상세·검토 완료 (생성 `POST /weekly/run`은 관리자) |
 | POST | `/api/v1/feedback` | 👍/👎 → 로컬 기록 + LangSmith Run 피드백 |
 | GET·POST·PUT | `/api/v1/products` | 제품 목록·추가·수정 (검증 실패 시 422 + 오류 목록, 저장 즉시 판정) |
 | GET | `/api/v1/regulations`, `/api/v1/substances?q=` | 규제 목록·등재 물질, 물질 검색 |
@@ -221,13 +224,13 @@ frontend/        Vue 화면 (사용자 index.html · 관리자 admin.html)
 data/            규제 목록·가상 제품·용어집 CSV, 관보·국내 고시 스냅샷, 평가 질문
 scripts/         DB 빌드, 공식 목록 가져오기, 실행, 평가 스크립트
 Dockerfile, docker-compose.yml   배포 (frontend/Dockerfile·nginx.conf)
-tests/           pytest (백엔드 115개 · 화면 23개)
-docs/lab/        단계별 핸즈온 랩 (Step 0 → 9)
+tests/           pytest (백엔드 120개 · 화면 23개)
+docs/lab/        단계별 핸즈온 랩 (Step 0 → 10)
 ```
 
 ## 문서
 
-- [핸즈온 랩](docs/lab/README.md): Step 0(골격)부터 Step 9(질문 이해·범위 판정)까지, 단계마다 만든 파일·실행 명령·기대 결과·실제로 겪은 문제
+- [핸즈온 랩](docs/lab/README.md): Step 0(골격)부터 Step 10(정기 브리핑)까지, 단계마다 만든 파일·실행 명령·기대 결과·실제로 겪은 문제
 - [주제·페인포인트·설계](docs/topic-final.md) · [요구사항](REQUIREMENTS.md) · [개발 일지](DEVLOG.md) · [트러블슈팅](troubleshooting.md)
 
 ## 한계
