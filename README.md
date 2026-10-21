@@ -232,7 +232,7 @@ frontend/        Vue 화면 (사용자 index.html · 관리자 admin.html)
 data/            규제 목록·가상 제품·용어집 CSV, 관보·국내 고시·EU 법령 스냅샷, 정기 브리핑 예시 3주, 평가 질문
 scripts/         DB 빌드, 공식 목록 가져오기, 스냅샷 받기, 정기 브리핑·평가 실행
 Dockerfile, docker-compose.yml   배포 (frontend/Dockerfile·nginx.conf)
-tests/           pytest (백엔드 135개 · 화면 24개)
+tests/           pytest (백엔드 136개 · 화면 24개)
 docs/lab/        단계별 핸즈온 랩 (Step 0 → 12)
 ```
 

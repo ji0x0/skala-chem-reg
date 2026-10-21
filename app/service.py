@@ -159,7 +159,8 @@ class AgentService:
         snap = await self.graph.aget_state({"configurable": {"thread_id": thread_id}})
         values = snap.values or {}
         title = self.threads.register(thread_id)["title"] if values else None
-        return {"thread_id": thread_id, "title": title, "exists": bool(values), "history": values.get("history", []),
+        return {"thread_id": thread_id, "title": title, "exists": bool(values),
+                "history": self._with_runs(thread_id, values.get("history", [])),
                 "last": {k: values.get(k) for k in ("route", "plan", "impacts", "gaps", "judgement")},
                 "citations": values.get("citations", [])}
 
@@ -222,13 +223,29 @@ class AgentService:
         sent, reason = await asyncio.to_thread(send_feedback, run_id, score, comment)   # HTTP는 이벤트 루프 밖에서
         return {"stored": True, "langsmith": sent, **({"langsmith_reason": reason} if reason else {})}
 
-    def feedback_records(self, limit: int = 100) -> list[dict]:
-        """관리자 화면용: 최근 피드백 (실행 기록과 run_id로 이어 질문·경로를 붙인다)."""
+    def _with_runs(self, thread_id: str, history: list[dict]) -> list[dict]:
+        """다시 연 대화의 답변마다 Run ID와 남긴 피드백을 붙인다 → 지난 답변에도 담당자가 피드백할 수 있게.
+        완료된 질문 실행 1건 = 답변 1개. 실행 기록이 생기기 전(Step 7 이전) 답변이 있을 수 있어 최근 것부터 맞춘다."""
+        runs = [r for r in self.runs.for_thread(thread_id) if r["kind"] == "question" and r["status"] == "completed"]
+        given = {r["run_id"]: {"score": r["score"], "comment": r.get("comment") or ""}
+                 for r in reversed(self._feedback_lines())}            # 같은 답변에 여러 번이면 마지막 것
+        answers = [i for i, m in enumerate(history) if m.get("role") == "assistant"]
+        history = [dict(m) for m in history]
+        for i, run in zip(reversed(answers), reversed(runs)):
+            history[i].update(run_id=run["run_id"], feedback=given.get(run["run_id"]))
+        return history
+
+    def _feedback_lines(self, limit: int | None = None) -> list[dict]:
+        """feedback.jsonl — 최근 것부터."""
         log_path = self.settings.app_db_path.parent / "feedback.jsonl"
         if not log_path.exists():
             return []
-        lines = log_path.read_text(encoding="utf-8").splitlines()[-limit:]
-        records = [json.loads(line) for line in reversed(lines) if line.strip()]
+        lines = log_path.read_text(encoding="utf-8").splitlines()
+        return [json.loads(line) for line in reversed(lines[-limit:] if limit else lines) if line.strip()]
+
+    def feedback_records(self, limit: int = 100) -> list[dict]:
+        """관리자 화면용: 최근 피드백 (실행 기록과 run_id로 이어 질문·경로를 붙인다)."""
+        records = self._feedback_lines(limit)
         runs = {r["run_id"]: r for r in self.runs.recent(limit=1000)}
         for r in records:
             run = runs.get(r["run_id"], {})

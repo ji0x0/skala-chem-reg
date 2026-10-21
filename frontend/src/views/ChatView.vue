@@ -36,7 +36,8 @@ function newAssistant(extra = {}) {
   messages.value.push({
     role: 'assistant', status: 'running', progress: [], draft: '', attempt: 1, content: '',
     citations: [], usage: null, runId: null, error: '',
-    feedback: null, highlight: null, started: performance.now(), elapsed: null, ...extra,
+    feedback: null, feedbackComment: '', picking: null, draftComment: '',   // 담당자 피드백 (👍/👎 + 의견)
+    highlight: null, started: performance.now(), elapsed: null, ...extra,
   })
   return messages.value.at(-1)            // 반응형 프록시를 받아야 화면이 갱신된다
 }
@@ -105,10 +106,18 @@ async function send(text = input.value) {
   await run(msg, opts => chatStream(text, threadId.value, opts))
 }
 
-async function sendFeedback(msg, score) {
+// 담당자 피드백: 👍/👎를 고르면 의견 입력이 열리고, 보내면 관리자 피드백 탭·LangSmith에 남는다
+function pickFeedback(msg, score) {
+  msg.picking = score
+  nextTick(() => document.getElementById(`fb-${msg.runId}`)?.focus())
+}
+
+async function sendFeedback(msg, comment = '') {
   try {
-    await api.feedback(msg.runId, score)
-    msg.feedback = score
+    await api.feedback(msg.runId, msg.picking, comment.trim())
+    msg.feedback = msg.picking
+    msg.feedbackComment = comment.trim()
+    msg.picking = null
   } catch (e) {
     msg.error = `피드백 저장 실패: ${e.message}`
   }
@@ -228,7 +237,8 @@ async function restore(id) {
     if (!state.exists) return             // 목록에는 있지만 아직 질문하지 않은 대화
     for (const m of state.history) {
       if (m.role === 'user') messages.value.push({ role: 'user', content: m.content })
-      else newAssistant({ status: 'completed', content: m.content, started: 0 })
+      else newAssistant({ status: 'completed', content: m.content, started: 0, runId: m.run_id ?? null,   // 지난 답변에도 피드백
+                          feedback: m.feedback?.score ?? null, feedbackComment: m.feedback?.comment ?? '' })
     }
     if (messages.value.at(-1)?.role === 'assistant') messages.value.at(-1).citations = state.citations
     scrollToBottom(true)
@@ -315,15 +325,28 @@ onMounted(async () => {
               <span v-if="m.elapsed">{{ m.elapsed.toFixed(1) }}초</span>
               <span v-if="m.usage?.tokens">토큰 {{ tokens(m.usage.tokens) }}</span>
               <span v-if="m.usage?.usd && props.health?.llm_backend === 'openai'">${{ m.usage.usd.toFixed(4) }}</span>
-              <span class="spacer"></span>
-              <template v-if="m.status === 'completed' && m.runId">
-                <span v-if="m.feedback !== null">피드백 감사합니다 {{ m.feedback ? '👍' : '👎' }}</span>
-                <template v-else>
-                  <button class="ghost" title="도움이 됐어요" @click="sendFeedback(m, 1)">👍</button>
-                  <button class="ghost" title="도움이 안 됐어요" @click="sendFeedback(m, 0)">👎</button>
-                </template>
-              </template>
             </footer>
+            <!-- 담당자 피드백 -->
+            <div v-if="m.status === 'completed' && m.runId" class="feedback small">
+              <template v-if="m.feedback !== null">
+                <span>담당자 피드백 {{ m.feedback ? '👍 도움이 됐어요' : '👎 도움이 안 됐어요' }}</span>
+                <span v-if="m.feedbackComment" class="muted">— {{ m.feedbackComment }}</span>
+              </template>
+              <form v-else-if="m.picking !== null" class="row wrap" @submit.prevent="sendFeedback(m, m.draftComment)">
+                <span>{{ m.picking ? '👍' : '👎' }}</span>
+                <label class="sr-only" :for="`fb-${m.runId}`">의견</label>
+                <input :id="`fb-${m.runId}`" v-model="m.draftComment" maxlength="500"
+                       :placeholder="m.picking ? '좋았던 점 (선택)' : '틀린 점·빠진 내용 (선택)'"
+                       @keydown.esc="m.picking = null">
+                <button class="primary small" type="submit">보내기</button>
+                <button class="ghost small" type="button" @click="m.picking = null">취소</button>
+              </form>
+              <template v-else>
+                <span class="muted">이 답변이 도움이 됐나요?</span>
+                <button class="ghost fb" title="도움이 됐어요" aria-label="도움이 됐어요" @click="pickFeedback(m, 1)">👍</button>
+                <button class="ghost fb" title="도움이 안 됐어요" aria-label="도움이 안 됐어요" @click="pickFeedback(m, 0)">👎</button>
+              </template>
+            </div>
           </article>
         </template>
       </div>
@@ -382,4 +405,10 @@ h2 { font-size: 13px; margin: 0 0 8px; }
   .side .box { min-width: 220px; overflow-y: auto; }
   .legend-box { display: none; }
 }
+.feedback { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-top: 8px; padding: 6px 10px;
+  border: 1px solid var(--border); border-radius: 8px; background: var(--panel-2); }
+.feedback .fb { font-size: 16px; padding: 2px 8px; }
+.feedback form { gap: 6px; flex: 1; }
+.feedback input { flex: 1; min-width: 180px; padding: 4px 8px; }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 </style>

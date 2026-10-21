@@ -98,3 +98,17 @@ def test_deleted_thread_is_hidden_but_records_remain(client, monkeypatch):
 
     [run] = client.get("/api/v1/admin/runs", headers=AUTH).json()                  # 거부된 이어 질문은 기록하지 않음
     assert run["thread_id"] == thread_id and run["thread_deleted"] and run["thread_title"] == "001 규제 브리핑"
+
+
+def test_restored_answers_carry_run_id_and_feedback(client):
+    """다시 연 대화에도 담당자가 피드백할 수 있게 — 답변마다 Run ID, 이미 남긴 피드백(마지막 것)."""
+    first = sse(client.post("/api/v1/chat/stream", json={"message": "트리클로로에틸렌 해당 규제 알려줘"}).text)
+    thread_id, run1 = first[0][1]["thread_id"], first[0][1]["run_id"]
+    second = sse(client.post("/api/v1/chat/stream", json={"message": "P002 규제 문제 있어?", "thread_id": thread_id}).text)
+    run2 = second[0][1]["run_id"]
+    client.post("/api/v1/feedback", json={"run_id": run2, "score": 0, "comment": "처음 의견"})
+    client.post("/api/v1/feedback", json={"run_id": run2, "score": 1, "comment": "다시 보니 맞음"})
+
+    answers = [m for m in client.get(f"/api/v1/threads/{thread_id}").json()["history"] if m["role"] == "assistant"]
+    assert [a["run_id"] for a in answers] == [run1, run2]
+    assert answers[0]["feedback"] is None and answers[1]["feedback"] == {"score": 1, "comment": "다시 보니 맞음"}
