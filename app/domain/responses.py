@@ -19,7 +19,7 @@ def unsupported_regimes(names: list[str], covered_lists: str) -> str:
 def out_of_window(years: list[int], verified_on: str) -> str:
     """O3 — 수집하지 않는 기간."""
     return (f"> ⚠️ {', '.join(f'{y}년' for y in years)}의 규제 변경은 수집하지 않아 **확인할 수 없습니다** "
-            f"(변경 수집: 미국 최근 {FEED_WINDOW['US']}일 · 국내 최근 {FEED_WINDOW['KR'] // 365}년, "
+            f"(변경 수집: 미국 최근 {FEED_WINDOW['US']}일 · 국내·EU 최근 {FEED_WINDOW['KR'] // 365}년, "
             f"규제 목록 확인일 {verified_on}).")
 
 
@@ -27,7 +27,8 @@ def no_feed(regions: list[str], verified_on: str) -> str:
     """O4 — 변경 자동 수집기가 없는 지역."""
     names = ", ".join(REGION_KO.get(r, r) for r in regions)
     return (f"> ⚠️ **{names}** 규제 변경은 자동 수집하지 않아 실시간 변경은 **확인할 수 없습니다** "
-            f"(변경 수집: 미국 연방 관보 · 국내 법제처 고시). 아래는 규제 DB(확인일 {verified_on}) 기준 정보입니다.")
+            f"(변경 수집: 미국 연방 관보 · 국내 법제처 고시 · EU REACH·CLP 개정 법령). "
+            f"아래는 규제 DB(확인일 {verified_on}) 기준 정보입니다.")
 
 
 def general_knowledge() -> str:

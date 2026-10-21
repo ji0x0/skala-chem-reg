@@ -48,8 +48,11 @@ def find_substance_mentions(text: str, substances: list[dict]) -> list[dict]:
             if term.lower() not in low:
                 continue
             # 약어(대문자 2~5자)는 단어 경계와 대소문자를 엄격히, 이름은 대소문자 무시
-            flags = 0 if re.fullmatch(r"[A-Z0-9-]{2,5}", term) else re.IGNORECASE
-            n = len(re.findall(rf"(?<![A-Za-z0-9]){re.escape(term)}(?![A-Za-z0-9])", text, flags))
+            abbrev = re.fullmatch(r"[A-Z0-9-]{2,5}", term)
+            flags = 0 if abbrev else re.IGNORECASE
+            # 정식 이름은 더 큰 물질명의 조각이면 인정하지 않는다: "…bis[phenol]", "2-phenol…" (EU 법령의 물질명에서 발견)
+            before, after = ("A-Za-z0-9", "A-Za-z0-9") if abbrev else ("A-Za-z0-9\\[\\-,'’", "A-Za-z0-9\\]\\-")
+            n = len(re.findall(rf"(?<![{before}]){re.escape(term)}(?![{after}])", text, flags))
             if n:
                 count += n
                 hits.append(term)

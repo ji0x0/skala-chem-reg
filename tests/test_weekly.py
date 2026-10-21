@@ -75,3 +75,20 @@ def test_seed_and_scheduler(tmp_path):
     assert scheduler.due(monday_10_kst) is None                           # 지난주(W42)는 이미 있음
     assert scheduler.due(datetime(2026, 10, 26, 1, 0, tzinfo=timezone.utc))[0] == "2026-W43"
     assert scheduler.due(datetime(2026, 10, 26, 23, 0, tzinfo=timezone.utc)) is None    # 화요일 08시 KST
+
+
+def test_guard_accepts_given_values_in_weekly_briefings():
+    """코드가 넣은 고시 번호·기간을 가드가 '지어낸 숫자'로 잡아 정기 예시 3건 모두 경고가 붙었다 (Step 11에서 발견)."""
+    from app.agents.graph import _guard_reference
+    from app.domain import integrity
+    state = {"question": "2026-10-12~2026-10-18 국내외 화학물질 규제 변경 브리핑해줘",
+             "period": {"start": "2026-10-12", "end": "2026-10-18"},
+             "documents": [{"title": "안전거리 고시", "document_number": "2100000286678", "publication_date": "2026-10-13",
+                            "ref_label": "기후에너지환경부고시 제2026-258호", "official_dates": []},
+                           {"title": "Commission Regulation", "document_number": "32026R1168",
+                            "publication_date": "2026-06-02", "ref_label": "EU 2026/1168", "official_dates": []}]}
+    draft = ("이 기간(2026-10-12~2026-10-18)에 … 2026년 10월 12일부터 10월 18일까지 … "
+             "안전거리 고시 (기후에너지환경부고시 제2026-258호, 발령 2026-10-13), "
+             "EU 2026/1168 (게시 2026-06-02)")
+    report = integrity.check("", draft, reference=_guard_reference(state))
+    assert not report.extra_numbers and not report.extra_dates

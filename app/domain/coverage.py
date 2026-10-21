@@ -94,8 +94,8 @@ SECURITY = r"시스템 프롬프트|프롬프트 (?:보여|알려)|관리자 토
 # 규제 질문의 신호어 — 대상(제품·물질·제도)이 없는데 이것만 있으면 되묻기 (O10)
 DOMAIN_WORDS = r"수출|규제|문제|해당|등재|변경|물질|제품|기준|허가|판정"
 
-FEED_REGIONS = {"US", "KR"}                       # 변경 자동 수집 (미국 연방 관보, 국내 법제처 고시)
-FEED_WINDOW = {"US": 30, "KR": 365}              # 변경 수집이 볼 수 있는 최대 기간 (일)
+FEED_REGIONS = {"US", "KR", "EU"}                 # 변경 자동 수집 (미국 연방 관보, 국내 법제처 고시, EU REACH·CLP 개정 법령)
+FEED_WINDOW = {"US": 30, "KR": 365, "EU": 365}   # 변경 수집이 볼 수 있는 최대 기간 (일)
 
 
 def regimes_in(text: str) -> tuple[list[str], list[str]]:

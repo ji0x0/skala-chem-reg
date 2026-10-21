@@ -2,6 +2,7 @@
 
 - 미국: 연방 관보(Federal Register) API — 공개, 키 불필요
 - 국내: 법제처 국가법령정보 Open API(행정규칙 = 고시·훈령·예규) — LAW_API_OC 설정 시. 스냅샷은 data/feeds/kr_*
+- EU: 공식 문서 저장소 Cellar(SPARQL·XHTML) — REACH·CLP 개정 법령 (Step 11). 스냅샷은 data/feeds/eu_*
 
 실시간 호출이 실패하면 data/feeds/ 스냅샷으로 대신 답하고, 결과에 source(live/snapshot)를 표시한다.
 규제 판단에서는 "언제, 어디서 받은 데이터인지"가 중요하기 때문이다.
@@ -327,6 +328,119 @@ def get_kr_admin_rule(serial: str, max_chars: int = 60000) -> dict:
             "substance_mentions": _kr_mentions(change, substances, unique_ids),
             "body_mentions": [{k: m[k] for k in ("cas", "name_ko", "name_en", "mentions")}
                               for m in _kr_mentions(text, substances, unique_ids)]}
+
+
+# ── EU: 공식 문서 저장소(Cellar) — REACH·CLP를 개정한 법령 (Step 11) ─────────────────────
+# EUR-Lex 웹사이트는 자동 요청을 막지만(403), 같은 공식 문서를 EU 출판국 Cellar가 SPARQL·XHTML로 준다 (키 불필요)
+CELLAR_SPARQL = "https://publications.europa.eu/webapi/rdf/sparql"
+EU_BASE_ACTS = {"32006R1907": "REACH", "32008R1272": "CLP"}
+EU_SNAPSHOT = settings.feeds_dir / "eu_acts.json"            # 검색 결과 고정본
+EU_FULLTEXT_DIR = settings.feeds_dir / "eu_fulltext"         # 고정본 법령 본문 (평문)
+EU_CACHE_DIR = CACHE_DIR / "eu"
+OJ_DATE = re.compile(r"L series\s+\d{4}/\d+\s+(\d{1,2})\.(\d{1,2})\.(\d{4})")          # 관보 게재일 "2.6.2026"
+ADOPTED = re.compile(r"\bof (\d{1,2})\s+(January|February|March|April|May|June|July|August|September|October|"
+                     r"November|December) (\d{4})")                                     # 채택일 "of 8 August 2025"
+MONTHS_EN = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October",
+             "November", "December"]
+
+
+def eu_search_live(since: str, until: str, limit: int) -> list[dict]:
+    """REACH·CLP를 개정한 법령 (채택일 기준 기간). 결과: CELEX·채택일·제목·개정 대상."""
+    query = f"""PREFIX cdm: <http://publications.europa.eu/ontology/cdm#>
+SELECT DISTINCT ?celex ?date ?base ?title WHERE {{
+  VALUES ?base {{ {" ".join(f'"{b}"' for b in EU_BASE_ACTS)} }}
+  ?target cdm:resource_legal_id_celex ?baseLit . FILTER(STR(?baseLit) = ?base)
+  ?work cdm:resource_legal_amends_resource_legal ?target ; cdm:resource_legal_id_celex ?celex ;
+        cdm:work_date_document ?date .
+  OPTIONAL {{ ?expr cdm:expression_belongs_to_work ?work ;
+              cdm:expression_uses_language <http://publications.europa.eu/resource/authority/language/ENG> ;
+              cdm:expression_title ?title }}
+  FILTER(?date >= "{since}"^^<http://www.w3.org/2001/XMLSchema#date> &&
+         ?date <= "{until}"^^<http://www.w3.org/2001/XMLSchema#date>)
+}} ORDER BY DESC(?date) LIMIT {limit}"""
+    resp = httpx.get(CELLAR_SPARQL, params={"query": query}, timeout=settings.http_timeout_s * 3,
+                     headers={"Accept": "application/sparql-results+json"})
+    resp.raise_for_status()
+    acts: dict[str, dict] = {}
+    for b in resp.json()["results"]["bindings"]:
+        celex = b["celex"]["value"]
+        act = acts.setdefault(celex, _eu_meta(celex, b["date"]["value"], b.get("title", {}).get("value", "")))
+        act["amends"] = sorted(set(act.get("amends", [])) | {EU_BASE_ACTS[b["base"]["value"]]})
+    return list(acts.values())
+
+
+def _eu_meta(celex: str, adopted: str, title: str) -> dict:
+    number = f"{celex[1:5]}/{int(celex[6:])}" if len(celex) > 6 and celex[6:].isdigit() else celex
+    return {"celex": celex, "number": number, "title": re.sub(r"\s+", " ", title).strip()[:300], "adopted_on": adopted,
+            "html_url": f"https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:{celex}"}
+
+
+def _eu_snapshot() -> dict:
+    return json.loads(EU_SNAPSHOT.read_text(encoding="utf-8")) if EU_SNAPSHOT.exists() else {"acts": []}
+
+
+def _eu_from_snapshot(since: str, until: str, limit: int, warning: str) -> dict:
+    acts = [a for a in _eu_snapshot()["acts"] if _in_period(a["adopted_on"], since, until)]
+    return {"source": "snapshot", "warning": warning, "since": since, "until": until, "documents": acts[:limit]}
+
+
+def _eu_period(days: int, since: str | None, until: str | None, base: date) -> tuple[str, str]:
+    return since or (base - timedelta(days=days)).isoformat(), until or base.isoformat()
+
+
+@mcp.tool()
+def search_eu_acts(days: int = 90, since: str | None = None, until: str | None = None, limit: int = 10) -> dict:
+    """EU 공식 문서 저장소에서 REACH·CLP를 개정한 법령(위원회 규칙 등)을 최신 채택일 순으로 찾습니다.
+    since·until(YYYY-MM-DD)을 주면 그 기간, 없으면 최근 days일. 결과: CELEX·번호·제목·채택일·개정 대상(REACH/CLP).
+    주의: SVHC 후보 목록 추가는 법령이 아니라 ECHA 결정이라 여기 나오지 않습니다."""
+    if settings.feed_mode == "snapshot":
+        base = date.fromisoformat(_eu_snapshot().get("captured_on") or date.today().isoformat())
+        start, end = _eu_period(days, since, until, base)
+        return _eu_from_snapshot(start, end, limit, "스냅샷 모드 — 저장된 EU 개정 법령 목록 사용")
+    start, end = _eu_period(days, since, until, date.today())
+    try:
+        return {"source": "live", "since": start, "until": end, "documents": eu_search_live(start, end, limit)}
+    except (httpx.HTTPError, ValueError, KeyError) as exc:
+        return _eu_from_snapshot(start, end, limit, f"실시간 조회 실패({type(exc).__name__}) — 저장된 스냅샷 사용")
+
+
+def eu_fetch_live(celex: str) -> str:
+    """법령 본문 XHTML → 평문 (영어)."""
+    resp = httpx.get(f"https://publications.europa.eu/resource/celex/{celex}", follow_redirects=True,
+                     timeout=settings.http_timeout_s * 3,
+                     headers={"Accept": "application/xhtml+xml", "Accept-Language": "eng"})
+    resp.raise_for_status()
+    text = html.unescape(re.sub(r"<[^>]+>", " ", resp.text))
+    return re.sub(r"[ \t]+", " ", re.sub(r"\s*\n\s*", "\n", text)).strip()
+
+
+@mcp.tool()
+def get_eu_act(celex: str, max_chars: int = 60000) -> dict:
+    """EU 개정 법령 하나의 본문을 가져오고, 회사 제품 성분의 언급(영문 이름·CAS)을 찾습니다.
+    관보 게재일(본문 첫머리 "L series 2026/1168 2.6.2026")도 돌려줍니다. celex 예: 32025R1731"""
+    meta = next((a for a in _eu_snapshot()["acts"] if a["celex"] == celex), None)
+    text, source = None, "snapshot"
+    for saved in (EU_FULLTEXT_DIR / f"{celex}.txt", EU_CACHE_DIR / f"{celex}.txt"):
+        if saved.exists():
+            text = saved.read_text(encoding="utf-8")
+            break
+    if text is None:
+        if settings.feed_mode == "snapshot":
+            raise ValueError(f"저장된 본문이 없습니다 (스냅샷 모드): {celex}")
+        text, source = eu_fetch_live(celex), "live"
+        EU_CACHE_DIR.mkdir(parents=True, exist_ok=True)
+        (EU_CACHE_DIR / f"{celex}.txt").write_text(text, encoding="utf-8")
+    m = OJ_DATE.search(text[:2000])
+    oj = f"{m.group(3)}-{int(m.group(2)):02d}-{int(m.group(1)):02d}" if m else None
+    a = ADOPTED.search(text[:3000].replace("\xa0", " "))
+    adopted = (meta or {}).get("adopted_on") or (
+        f"{a.group(3)}-{MONTHS_EN.index(a.group(2)) + 1:02d}-{int(a.group(1)):02d}" if a else "")
+    title = (meta or {}).get("title") or next((line for line in text.splitlines() if "REGULATION" in line), celex)
+    return {"source": source, **_eu_meta(celex, adopted, title),
+            "amends": (meta or {}).get("amends", []), "published_on": oj,
+            "text": text[:max_chars], "text_truncated": len(text) > max_chars,
+            "cas_numbers": find_cas_numbers(text),
+            "substance_mentions": find_substance_mentions(text, db.company_substances())}
 
 
 if __name__ == "__main__":

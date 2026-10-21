@@ -79,7 +79,7 @@ onMounted(load)
         <span class="spacer"></span>
         <button class="ghost small" :disabled="loading" @click="load">새로고침</button>
       </div>
-      <p class="muted small">매주 월요일 지난주(월~일) 미국 관보·국내 고시 변경을 정리합니다.</p>
+      <p class="muted small">매주 월요일 지난주(월~일) 미국 관보·국내 고시·EU 개정 법령을 정리합니다.</p>
       <div v-if="error" class="error-box small" role="alert">{{ error }}</div>
       <p v-if="!loading && !weeks.length" class="muted small">아직 정기 브리핑이 없습니다.</p>
       <button v-for="w in weeks" :key="w.week_id" class="week" :class="{ on: selected?.week_id === w.week_id }"

@@ -1,0 +1,65 @@
+L_202601168EN.000101.fmx.xml
+Official Journal of the European Union
+EN
+L series
+2026/1168
+2.6.2026
+COMMISSION REGULATION (EU) 2026/1168
+of 1 June 2026
+amending Annex XVII to Regulation (EC) No 1907/2006 of the European Parliament and of the Council as regards synthetic polymer microparticles
+(Text with EEA relevance)
+THE EUROPEAN COMMISSION,
+Having regard to the Treaty on the Functioning of the European Union,
+Having regard to Regulation (EC) No 1907/2006 of the European Parliament and of the Council of 18 December 2006 concerning the Registration, Evaluation, Authorisation and Restriction of Chemicals (REACH), establishing a European Chemicals Agency, amending Directive 1999/45/EC and repealing Council Regulation (EEC) No 793/93 and Commission Regulation (EC) No 1488/94 as well as Council Directive 76/769/EEC and Commission Directives 91/155/EEC, 93/67/EEC, 93/105/EC and 2000/21/EC  ( 1 ) , and in particular Article 68(1) thereof,
+Whereas:
+(1)
+Commission Regulation (EU) 2023/2055  ( 2 ) amends Annex XVII to Regulation (EC) No 1907/2006 by adding entry 78 which restricts the placing on the market of synthetic polymer microparticles. Pursuant to paragraphs 4, 5 and 16 of that entry, the prohibition of the placing on the market does not apply to synthetic polymer microparticles (i) for use at industrial sites, in certain products or subject to certain conditions during intended end use, or (ii) placed on the market before 17 October 2023. For most products containing synthetic polymer microparticles derogated from the prohibition of the placing on the market, entry 78 lays down information, labelling and reporting requirements aiming to minimise and monitor emissions of synthetic polymer microparticles. Entry 78 also provides that the prohibition of placing on the market of synthetic polymer microparticles in certain products is deferred by 4 to 12 years, depending on the product.
+(2)
+Pursuant to paragraph 4, point (b), of entry 78 of Annex XVII to Regulation (EC) No 1907/2006, the restriction of the placing on the market does not apply to synthetic polymer microparticles in medicinal products within the scope of Directive 2001/83/EC of the European Parliament and of the Council  ( 3 ) and veterinary medicinal products within the scope of Regulation (EU) 2019/6 of the European Parliament and of the Council  ( 4 ) . The current wording of that derogation does not reflect the original intention of the Commission and the Member States in the REACH Committee, which was to include the placing on the market of all medicinal products for human and veterinary use in the scope of the derogation. Contrary to the original intention, the derogation does not cover any medicinal product used in clinical trials or in pre-clinical safety testing preparatory to those trials, such as analytical, physical, toxicological, stability and batch-release testing. Paragraph 4, point (b), of entry 78 of Annex XVII to Regulation (EC) No 1907/2006 should therefore be amended to include all medicinal products used in clinical trials and related pre-clinical safety testing in the scope of the derogation.
+(3)
+It was the intention of the Commission and the Member States in the REACH Committee to exempt the placing on the market of synthetic polymer microparticles for use in product and process-oriented research and development (‘PPORD’), as defined in Article 3(22) of Regulation (EC) No 1907/2006, in quantities of 1 tonne per year or less. However, an explicit derogation for PPORD uses was not included in entry 78 of Annex XVII to that Regulation because it was assumed that PPORD would systematically take place at industrial sites and therefore the placing on the market of synthetic polymer microparticles used for PPORD would be covered by the derogation under paragraph 4, point (a), of that entry. Recent experience from the practical implementation of the restriction has shown that PPORD may also take place outside of industrial sites, for example in hospitals and universities. Since the derogation in paragraph 4, point (a), of entry 78 does not apply in those cases, paragraph 4 of that entry should be amended to include a new derogation for the placing on the market of synthetic polymer microparticles used in PPORD that also applies when PPORD takes place outside of industrial sites.
+(4)
+Paragraph 5, point (c), of entry 78 of Annex XVII to Regulation (EC) No 1907/2006 provides a derogation from the prohibition on the placing on the market of synthetic polymer microparticles where the risk from releases is expected to be minimised because those microparticles are permanently enclosed in a solid matrix during end use. This derogation was not meant to apply to intended end uses of short duration, where the solid matrix is frequently removed or replaced, so that the incorporation of the synthetic polymer microparticles in the solid matrix is short-lived, because this would be contrary to the objective of emission minimisation. Paragraph 5, point (c), of that entry should therefore be amended to clarify that it only covers cases where the end use is foreseen to last for one year or longer. The application of the amendment to paragraph 5, point (c) of the entry should be deferred by two years from the entry into force of this Regulation to allow stakeholders sufficient time to take appropriate measures, such as reformulating products and disposing of existing stocks, to comply with the modified derogation.
+(5)
+During the process leading to the adoption of Regulation (EU) 2023/2055, Member States and stakeholders were informed of the intention to provide a derogation from the prohibition on the placing on the market for synthetic polymer microparticles (i) in all medicinal products for human and veterinary use, which includes those used in clinical trials and related pre-clinical safety testing and (ii) for PPORD, irrespective of the place where the PPORD takes place. However, the placing on the market of synthetic polymer microparticles for those uses is not completely covered by the wording of the derogations provided for in entry 78 of Annex XVII to Regulation (EC) No 1907/2006. Therefore, such placing on the market would constitute non-compliance with the restriction introduced by that entry, which was not the intention of the restriction. It is necessary that the two corresponding amendments of Annex XVII to that Regulation should exceptionally have retroactive application as from 17 October 2023, when Regulation (EU) 2023/2055 entered into force, to ensure the application of the scope of the restriction as intended, to facilitate its enforcement and to protect the legitimate interests of economic operators who may have relied upon the intention that was communicated in the adoption process.
+(6)
+Regulation (EC) No 1907/2006 should therefore be amended accordingly.
+(7)
+The measures provided for in this Regulation are in accordance with the opinion of the Committee established by Article 133 of Regulation (EC) No 1907/2006,
+HAS ADOPTED THIS REGULATION:
+Article 1
+Annex XVII to Regulation (EC) No 1907/2006 is amended in accordance with the Annex to this Regulation.
+Article 2
+This Regulation shall enter into force on the twentieth day following that of its publication in the Official Journal of the European Union .
+Point 1 in the Annex shall apply from 17 October 2023.
+Point 2 in the Annex shall apply from 22 June 2028.
+This Regulation shall be binding in its entirety and directly applicable in all Member States.
+Done at Brussels, 1 June 2026.
+For the Commission
+The President
+Ursula VON DER LEYEN
+( 1 )
+OJ L 396, 30.12.2006, p. 1 , ELI: http://data.europa.eu/eli/reg/2006/1907/oj .
+( 2 )   Commission Regulation (EU) 2023/2055 of 25 September 2023 amending Annex XVII to Regulation (EC) No 1907/2006 of the European Parliament and of the Council concerning the Registration, Evaluation, Authorisation and Restriction of Chemicals (REACH) as regards synthetic polymer microparticles ( OJ L 238, 27.9.2023, p. 67 , ELI: http://data.europa.eu/eli/reg/2023/2055/oj ).
+( 3 )   Directive 2001/83/EC of the European Parliament and of the Council of 6 November 2001 on the Community code relating to medicinal products for human use (
+OJ L 311, 28.11.2001, p. 67 , ELI: http://data.europa.eu/eli/dir/2001/83/oj ).
+( 4 )   Regulation (EU) 2019/6 of the European Parliament and of the Council of 11 December 2018 on veterinary medicinal products and repealing Directive 2001/82/EC (
+OJ L 4, 7.1.2019, p. 43 , ELI: http://data.europa.eu/eli/reg/2019/6/oj ).
+ANNEX
+In Annex XVII to Regulation (EC) No 1907/2006, entry 78 is amended as follows:
+(1)
+paragraph 4 is amended as follows:
+(a)
+point (b) is replaced by the following:
+‘(b)
+“medicinal products’” as defined by Directive 2001/83/EC or ”veterinary medicinal products’ as defined by Regulation (EU) 2019/6;’
+(b)
+the following point (g) is added:
+‘(g)
+synthetic polymer microparticles, on their own or in mixtures, for use in product and process orientated research and development, in quantities of 1 tonne per year or less.’
+(2)
+in paragraph 5, point (c) is replaced by the following:
+‘(c)
+synthetic polymer microparticles which are permanently incorporated into a solid matrix during an intended end use of a duration of one year or longer.’
+ELI: http://data.europa.eu/eli/reg/2026/1168/oj
+ISSN 1977-0677 (electronic edition)

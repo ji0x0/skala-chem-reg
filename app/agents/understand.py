@@ -128,6 +128,8 @@ async def understand_node(state: AgentState, deps: AgentDeps) -> dict:
                     inform["list"] = [r for r, region in REG_REGION.items() if region in no_feed][:2]
             if not change_regions:
                 types.remove("change_briefing")
+            if "EU" in change_regions and "EU_REACH_SVHC" in regs:   # SVHC 추가는 법령이 아니라 수집에 안 보인다 → DB 기준
+                inform.setdefault("list", []).append("EU_REACH_SVHC")
 
     if "explain_regulation" in types:
         inform["explain"] = regs[:4]

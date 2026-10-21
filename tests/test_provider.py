@@ -15,7 +15,7 @@ async def tools():
 
 
 async def test_calls_tools_prompt_resource(tools):
-    assert len(tools.tool_names()) == 13
+    assert len(tools.tool_names()) == 15
     judged = await tools.call("judge_product_compliance", {"product_id": "P003"})
     # 미국 불순물 2건 + 국내 제한물질(TCE·PCE: 가정용 세정제·에어러졸 용도만 금지) 2건 — 용도 확인 필요
     assert judged["summary"]["review"] == 4

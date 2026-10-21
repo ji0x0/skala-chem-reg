@@ -25,7 +25,7 @@ from app.domain.mentions import ABBREVIATIONS, name_variants
 from .deps import AgentDeps
 from .tooling import call_tool
 
-AGENT_LABELS = {"us_feed": "해외 수집 에이전트 (미국 관보)",
+AGENT_LABELS = {"us_feed": "해외 수집 에이전트 (미국 관보)", "eu_feed": "해외 수집 에이전트 (EU 법령)",
                 "kr_feed": "국내 수집 에이전트 (법제처 행정규칙)",
                 "regdb": "규제 DB 대조 에이전트"}
 
@@ -69,11 +69,52 @@ async def _us_feed(task: dict, deps: AgentDeps, errors: list[dict]) -> dict:
                        + (f" · 요청 범위 {scoped}건" if focus else "")}
 
 
+# ── EU 수집 (Step 11) — REACH·CLP 개정 법령 ─────────────────────────────────
+SVHC_GAP = ("EU SVHC 후보 목록 추가는 법령이 아니라 ECHA 결정이라 자동 수집하지 않음 — "
+            "규제 DB(확인일 기준)의 SVHC 최근 등재를 참고")
+
+
+async def _eu_feed(task: dict, deps: AgentDeps, errors: list[dict]) -> dict:
+    agent = "eu_feed"
+    period = {k: task[k] for k in ("since", "until") if task.get(k)}
+    found = await call_tool(deps, agent, "search_eu_acts", {"days": task.get("days", 90), "limit": 8, **period}, errors)
+    acts = (found or {}).get("documents", [])[:6]
+    focus = set(task.get("focus_cas") or [])
+    errors.append({"agent": agent, "tool": "search_eu_acts", "kind": "degraded", "error": SVHC_GAP})
+    documents = []
+    for act in acts:
+        full = await call_tool(deps, agent, "get_eu_act", {"celex": act["celex"], "max_chars": 200000}, errors)
+        if not full:
+            continue
+        mentions = full["substance_mentions"]
+        in_scope = bool(mentions) and (not focus or any(m["cas"] in focus for m in mentions))
+        if focus and in_scope:
+            mentions = [m for m in mentions if m["cas"] in focus]
+        terms = [t for m in mentions[:6] for t in name_variants(m["name_en"]) + ABBREVIATIONS.get(m["cas"], [])]
+        adopted = full["adopted_on"] or act["adopted_on"]
+        documents.append({
+            "region": "EU", "agency": "European Commission", "source": full["source"], "text_source": "full_text",
+            "document_number": full["celex"], "title": act.get("title") or full["title"],
+            "type": f"Commission Regulation ({', '.join(act.get('amends') or full.get('amends') or [])} 개정)",
+            "publication_date": full["published_on"] or adopted, "effective_on": None, "comments_close_on": None,
+            "html_url": full["html_url"], "ref_label": f"EU {full['number']}",
+            "mentions": mentions[:6], "quotes": extract_quotes(full["text"], terms) if in_scope else [],
+            "official_dates": [x for x in ({"label": "채택일", "date": adopted, "source": "EU 출판국"},
+                                           {"label": "관보 게재일", "date": full["published_on"], "source": "EU 관보"})
+                               if x["date"]],
+            "in_scope": in_scope,
+        })
+    scoped = sum(d["in_scope"] for d in documents)
+    return {"documents": documents,
+            "summary": f"REACH·CLP 개정 법령 {len(acts)}건 중 회사 물질 언급 {scoped}건"}
+
+
 # ── 국내 수집 (ReAct + 안전장치) ─────────────────────────────────────────────
 # 안전장치: 물질 목록을 정하거나 바꾸는 고시는 LLM이 놓치거나 실패해도 항상 확인한다
 # (시설·교육·업무처리 고시처럼 넓은 범위는 ReAct 에이전트가 찾는다)
 KR_CORE_QUERIES = ["사고대비물질", "제한물질", "금지물질", "허가물질", "유해화학물질", "관리대상"]
 KR_DESIGNATION = re.compile(r"지정|제한물질|금지물질|허가물질|분류 및 표시|관리대상|유해성심사")
+KR_CHEMICAL = re.compile(r"화학|물질|유해|독성|위험물|산업안전|취급|사고대비|분류|표시")
 KR_IRRELEVANT = re.compile(r"운영규정|운영지침|인사|조직|직제|공무원|위원회 운영|복무")
 MAX_KR_DOCS = 10
 
@@ -145,7 +186,8 @@ async def _kr_feed(task: dict, deps: AgentDeps, errors: list[dict]) -> dict:
     # ① ReAct: LLM이 검색어를 더 정해 찾고 관련 고시를 고른다
     picked, usage = await _kr_react(task, deps, errors, seen)
     how = "LLM 선택" if picked is not None else "안전장치(기본 검색어)"
-    picked = [s for s in (picked or []) if not KR_IRRELEVANT.search(seen[s]["title"])]
+    # LLM이 고른 고시도 화학물질 관련 제목이어야 싣는다 (정기 예시 W41에서 "신의료기술 평가" 고시를 고름)
+    picked = [s for s in (picked or []) if KR_CHEMICAL.search(seen[s]["title"]) and not KR_IRRELEVANT.search(seen[s]["title"])]
     core = sorted(dict.fromkeys(core), key=lambda n: seen[n]["issued_on"] or "", reverse=True)
     candidates = list(dict.fromkeys(picked + core))[:MAX_KR_DOCS]
 
@@ -196,7 +238,7 @@ async def _regdb(task: dict, deps: AgentDeps, errors: list[dict]) -> dict:
     return {"judgements": judgements, "summary": f"제품 {len(judgements)}개 판정"}
 
 
-RUNNERS = {"us_feed": _us_feed, "kr_feed": _kr_feed, "regdb": _regdb}
+RUNNERS = {"us_feed": _us_feed, "eu_feed": _eu_feed, "kr_feed": _kr_feed, "regdb": _regdb}
 
 
 async def run_subagent(payload: dict, deps: AgentDeps) -> dict:

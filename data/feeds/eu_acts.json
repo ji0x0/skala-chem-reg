@@ -1,0 +1,36 @@
+{
+ "captured_on": "2026-10-21",
+ "days": 400,
+ "acts": [
+  {
+   "celex": "32026R1168",
+   "number": "2026/1168",
+   "title": "Commission Regulation (EU) 2026/1168 of 1 June 2026 amending Annex XVII to Regulation (EC) No 1907/2006 of the European Parliament and of the Council as regards synthetic polymer microparticles",
+   "adopted_on": "2026-06-01",
+   "html_url": "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32026R1168",
+   "amends": [
+    "REACH"
+   ]
+  },
+  {
+   "celex": "32026R0859",
+   "number": "2026/859",
+   "title": "Commission Regulation (EU) 2026/859 of 20 April 2026 amending Annex XVII to Regulation (EC) No 1907/2006 of the European Parliament and of the Council concerning the Registration, Evaluation, Authorisation and Restriction of Chemicals (REACH) as regards 2,4-dinitrotoluene in articles",
+   "adopted_on": "2026-04-20",
+   "html_url": "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32026R0859",
+   "amends": [
+    "REACH"
+   ]
+  },
+  {
+   "celex": "32025R1988",
+   "number": "2025/1988",
+   "title": "Commission Regulation (EU) 2025/1988 of 2 October 2025 amending Annex XVII to Regulation (EC) No 1907/2006 of the European Parliament and of the Council as regards per- and polyfluoroalkyl substances in firefighting foams",
+   "adopted_on": "2025-10-02",
+   "html_url": "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32025R1988",
+   "amends": [
+    "REACH"
+   ]
+  }
+ ]
+}

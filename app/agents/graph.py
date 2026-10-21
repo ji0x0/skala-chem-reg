@@ -25,7 +25,7 @@ from langgraph.graph import END, START, StateGraph
 from langgraph.types import Send
 
 from app.domain import integrity
-from app.domain.coverage import SUPPORTED, SUPPORTED_TEXT, regions_in
+from app.domain.coverage import FEED_REGIONS, SUPPORTED, SUPPORTED_TEXT, regions_in
 from app.domain.citations import (citations_text, from_document, from_finding, from_listing, from_regulation,
                                   quote_in_source)
 from app.domain.judge import OUTCOME_KO
@@ -42,8 +42,7 @@ from .tooling import call_tool
 log = logging.getLogger(__name__)
 FALLBACK = FakeLLM()      # LLM 구조화 출력이 깨졌을 때 쓰는 코드 규칙
 
-FEED_REGIONS = {"US", "KR"}           # 변경 문서를 자동 수집하는 지역 (미국 연방 관보, 국내 법제처 행정규칙)
-KR_MIN_DAYS, KR_WIDE_DAYS = 90, 365   # 국내 고시는 개정이 드물다 → 최소 90일, 없으면 1년으로 넓혀 다시
+KR_MIN_DAYS, KR_WIDE_DAYS = 90, 365   # 국내 고시·EU 개정 법령은 드물다 → 최소 90일, 없으면 1년으로 넓혀 다시
 REQUIRED_SECTIONS = ["요약", "규제 변경", "제품 영향", "할 일", "확인이 필요한"]
 
 
@@ -213,7 +212,11 @@ async def gate_node(state: AgentState, deps: AgentDeps) -> dict:
                       "substances": [names[c] for c in focus_cas if c in names], "question": question, **period,
                       "purpose": "국내 행정규칙(고시) 개정 수집" + (f" ({period_label})" if period else "")
                                  + (" (요청 범위 우선)" if focus_cas else "")})
-    no_feed = [r for r in regions if r not in FEED_REGIONS | {"KR"}]
+    if "EU" in regions:                         # Step 11: REACH·CLP 개정 법령
+        tasks.append({"agent": "eu_feed", "days": max(plan.get("days", 7), KR_MIN_DAYS), "focus_cas": focus_cas,
+                      **period, "purpose": "EU REACH·CLP 개정 법령 수집" + (f" ({period_label})" if period else "")
+                                           + (" (요청 범위 우선)" if focus_cas else "")})
+    no_feed = [r for r in regions if r not in FEED_REGIONS]
     if no_feed:
         gaps.append(f"{', '.join(no_feed)} 변경 문서 자동 수집은 아직 지원하지 않음 — 등재 목록 대조로만 확인")
     if products:                                # 언급 제품만 목록 대조 (변경 요청을 "전체 목록 대조"로 바꾸지 않는다)
@@ -238,7 +241,7 @@ async def review_node(state: AgentState, deps: AgentDeps) -> dict:
     rnd = state.get("research_round", 0) + 1
     plan, tasks, reasons = state["plan"], [], []
     ran = {t["agent"]: t for t in state.get("tasks", [])}
-    ran_feeds = ({"US"} if "us_feed" in ran else set()) | ({"KR"} if "kr_feed" in ran else set())
+    ran_feeds = {region for agent, region in (("us_feed", "US"), ("kr_feed", "KR"), ("eu_feed", "EU")) if agent in ran}
     if any(e["agent"] == "kr_feed" and e.get("kind") == "disabled" for e in state.get("errors", [])):
         ran_feeds.discard("KR")                     # 키가 없어 꺼진 수집은 "검색했지만 없음"이 아니다
     feeds = set(plan.get("feeds_ran") or []) | ran_feeds
@@ -256,15 +259,22 @@ async def review_node(state: AgentState, deps: AgentDeps) -> dict:
                       "purpose": f"{what} 국내 고시가 없어 기간을 1년으로 넓혀 재검색"})
         reasons.append(f"최근 {ran['kr_feed'].get('days')}일에 {what} 국내 고시가 없어 1년으로 확대")
         plan = {**plan, "kr_days": KR_WIDE_DAYS}
+    if "EU" in ran_feeds and "EU" not in scoped and rnd < 2 and not fixed:
+        tasks.append({**ran["eu_feed"], "days": KR_WIDE_DAYS,
+                      "purpose": f"{what} EU 개정 법령이 없어 기간을 1년으로 넓혀 재검색"})
+        reasons.append(f"최근 {ran['eu_feed'].get('days')}일에 {what} EU 개정 법령이 없어 1년으로 확대")
+        plan = {**plan, "eu_days": KR_WIDE_DAYS}
     plan = {**plan, "feeds_ran": sorted(feeds)}
     scope_note = ""
     if fixed and feeds and not (scoped & feeds):
-        basis = " · ".join((["미국 연방 관보 EPA TSCA"] if "US" in feeds else []) + (["국내 법제처 고시"] if "KR" in feeds else []))
+        basis = " · ".join((["미국 연방 관보 EPA TSCA"] if "US" in feeds else []) + (["국내 법제처 고시"] if "KR" in feeds else [])
+                           + (["EU REACH·CLP 개정 법령"] if "EU" in feeds else []))
         scope_note = (f"이 기간({fixed['start']}~{fixed['end']})에 회사 제품 성분과 관련된 규제 변경 문서가 없습니다 "
                       f"({basis} 검색 기준).")
     elif feeds and focus and not (scoped & feeds) and not tasks:
         basis = " · ".join(([f"미국 연방 관보 EPA TSCA 최근 {plan.get('days', 7)}일"] if "US" in feeds else [])
-                           + ([f"국내 법제처 행정규칙 최근 {plan.get('kr_days', KR_MIN_DAYS)}일"] if "KR" in feeds else []))
+                           + ([f"국내 법제처 행정규칙 최근 {plan.get('kr_days', KR_MIN_DAYS)}일"] if "KR" in feeds else [])
+                           + ([f"EU REACH·CLP 개정 법령 최근 {plan.get('eu_days', KR_MIN_DAYS)}일"] if "EU" in feeds else []))
         scope_note = (f"요청한 범위({_scope_names(plan, deps)})와 관련된 규제 변경 문서를 찾지 못했습니다 "
                       f"({basis} 검색 기준).")
     gaps = list(state.get("gaps", []))
@@ -422,7 +432,22 @@ def _summaries_text(state: AgentState) -> str:
         dates = ", ".join(f"{d['label']} {d['date']}" for d in s["official_dates"])
         lines.append(f"- [{s['region']}] {s['title_ko']} ({dates})\n  요약: {s['summary_ko']}\n"
                      f"  할 일: {s['action_ko']}\n  근거: {', '.join(f'[{i}]' for i in s['citation_ids'])}")
-    return "\n".join(lines) or "(요청 범위와 관련된 규제 변경 문서 없음)"
+    if not lines:
+        lines.append("(요청 범위·회사 제품 성분과 관련된 규제 변경 문서 없음)")
+    # 출처별 상태를 코드가 알린다 — 모델이 "변경 없음"이나 다른 출처·확인하지 않은 지역의 결과를 지어내지 않게
+    # (한 출처의 "관련 없는 변경"을 모든 출처에 있는 것처럼 쓴 사례: 정기 브리핑 W40)
+    feeds = {"US": "미국 연방 관보", "KR": "국내 법제처 고시", "EU": "EU REACH·CLP 개정 법령"}
+    docs = _unique_documents(state, in_scope=True) + _unique_documents(state, in_scope=False)
+    for region in (state.get("plan") or {}).get("feeds_ran", []):
+        mine = [d for d in docs if d["region"] == region]
+        status = ("회사 관련 변경 있음 (위 요약)" if any(d.get("in_scope", True) for d in mine)
+                  else "회사와 관련 없는 변경만 있음 (시스템이 참고 목록으로 덧붙인다)" if mine
+                  else "회사 관련 변경 문서 없음")
+        lines.append(f"- {feeds.get(region, region)}: {status}")
+    if (state.get("plan") or {}).get("feeds_ran"):
+        lines.append("이 밖의 지역·출처는 확인하지 않았다 — 결과를 쓰지 않는다. "
+                     "관련 없는 변경만 있는 출처는 '변경이 없다'가 아니라 '회사 제품과 관련된 변경은 없다'고 쓴다")
+    return "\n".join(lines)
 
 
 def _add_scope(draft: str, state: AgentState) -> str:
@@ -498,6 +523,19 @@ def strip_code_fence(text: str) -> str:
 
 
 # ── 10. 브리핑: 사실·근거 검사 (코드) ────────────────────────────────────────
+def _guard_reference(state: AgentState) -> str:
+    """가드가 '주어진 값'으로 인정하는 공식 메타데이터 — 문서 제목·번호·게시일·문서 표기, 오늘, 브리핑 기간, 질문.
+    국내·EU 문서 표기(고시 제2026-18호, EU 2026/1168)·정기 브리핑 기간·질문 원문은 사실이 아니라 주어진 값이다
+    (정기 브리핑 예시 3건 모두 이 값들을 "지어낸 숫자"로 잡아 경고가 붙었다 — Step 11에서 발견)."""
+    period = state.get("period") or {}
+    # 기간은 모델이 "10월 18일"처럼 연도 없이 쓰기도 한다 → 한국어 표기도 함께 (W42 예시에서 발견)
+    korean = " ".join(f"{int(v[5:7])}월 {int(v[8:10])}일" for v in (period.get("start"), period.get("end")) if v)
+    return (" ".join(f"{_doc_meta(d)} {d.get('document_number', '')} {d.get('publication_date', '')} "
+                     f"{d.get('ref_label', '')}" for d in state.get("documents", []))
+            + f" {date.today().isoformat()} {period.get('start', '')} {period.get('end', '')} {korean} "
+            + state.get("scope_note", "") + " " + state.get("question", ""))
+
+
 @node("guard")
 async def guard_node(state: AgentState, deps: AgentDeps) -> dict:
     draft = state["draft"]
@@ -507,9 +545,7 @@ async def guard_node(state: AgentState, deps: AgentDeps) -> dict:
     source = " ".join([c["quote"] for c in citations] + [c.get("translation_ko", "") for c in citations]
                       + [_impacts_text(state)])
     # 관보 번호·게시일도 공식 메타데이터 — 범위 밖 참고 목록에 코드가 넣은 번호를 "지어낸 숫자"로 잡던 문제 (재측정 B5)
-    reference = (" ".join(f"{_doc_meta(d)} {d.get('document_number', '')} {d.get('publication_date', '')}"
-                          for d in state.get("documents", []))
-                 + f" {date.today().isoformat()} " + state.get("scope_note", ""))
+    reference = _guard_reference(state)
     # 근거 번호 [n]은 숫자 사실이 아니다 — "없는 번호" 검사는 아래에서 따로 한다
     # ("[1], [2], … [6]"처럼 나열하면 4·5를 지어낸 숫자로 잡아 재작성을 반복했다)
     report = integrity.check(source, re.sub(r"\[\d+\]", " ", draft), reference=reference)
@@ -620,7 +656,9 @@ async def inform_node(state: AgentState, deps: AgentDeps) -> dict:
                                           citations=citations_text(citations), history="", on_token=token_writer())
         usage.append(u)
         answer = drop_unknown_refs(normalize_refs(answer), {c["id"] for c in citations})
-        sections.insert(0, "## 규제 설명\n" + answer)
+        # 설명 절은 변경을 다루지 않는다 (변경은 수집·목록 절이 근거로 답한다) — 지시를 어긴 문장은 코드가 뺀다
+        kept = [x for x in re.split(r"(?<=[.다])\s+", answer) if not re.search(r"최근 변경|변경 사항|개정 사항", x)]
+        sections.insert(0, "## 규제 설명\n" + (" ".join(kept) or answer))
     return {"sections": sections, "citations": citations, "errors": errors, "usage": usage}
 
 

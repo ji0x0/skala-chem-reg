@@ -12,14 +12,16 @@ async def ask(question, thread="u"):
     return snap.values, kinds
 
 
-async def test_r1_explain_and_change_for_region_without_feed():
-    """EU REACH 설명 + 최근 변경: 설명은 카탈로그 근거로, 변경은 '수집 미지원' + 목록 기준 최근 등재. 미국 문서 없음."""
+async def test_r1_explain_and_eu_change_briefing():
+    """EU REACH 설명 + 최근 변경 (Step 11부터 EU 개정 법령을 수집): 설명은 카탈로그 근거, 변경은 EU 법령 수집 +
+    법령으로 보이지 않는 SVHC 추가는 DB 기준 최근 등재. 미국 문서·전체 제품 판정 없음."""
     v, _ = await ask("EU REACH 란 무엇인지 알려주시고, 가장 최근 변경 사항 알려주세요.")
-    assert v["route"] == "inform" and v["intents"] == ["explain_regulation", "change_briefing"]
-    assert v["final"].startswith("> ⚠️ **EU** 규제 변경은 자동 수집하지 않아")
-    assert "## 규제 설명" in v["final"] and "2026-02-04 추가" in v["final"]
-    assert not v["documents"] and not v["judgements"]                 # 전체 제품 목록 대조로 바꾸지 않는다
-    assert {c["source_id"] for c in v["citations"]} == {"EU_REACH_SVHC", "EU_REACH_XVII"}
+    assert v["route"] == "briefing" and v["intents"] == ["explain_regulation", "change_briefing"]
+    assert v["plan"]["regions"] == ["EU"] and {d["region"] for d in v["documents"]} == {"EU"}
+    assert {d["document_number"] for d in v["documents"]} >= {"32026R1168"}            # 1년으로 넓혀 찾은 개정 법령
+    assert "## 규제 설명" in v["final"] and "2026-02-04 추가" in v["final"]          # SVHC는 DB 기준
+    assert "EU 2026/1168" in v["final"] and "2026-20964" not in v["final"]          # 미국 관보로 대신하지 않음
+    assert any("ECHA 결정" in g for g in v["gaps"]) and not v["judgements"]
 
 
 async def test_r2_r3_explain_uses_catalog_and_glossary():
