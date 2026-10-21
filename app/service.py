@@ -8,6 +8,7 @@ from __future__ import annotations
 import asyncio
 import json
 import logging
+import time
 import uuid
 from contextlib import AsyncExitStack
 from datetime import datetime, timezone
@@ -18,19 +19,20 @@ from langgraph.types import Command
 from app.agents.baseline import build_baseline_graph
 from app.agents.deps import AgentDeps
 from app.agents.graph import build_graph
-from app.core.config import DATA_DIR, Settings
+from app.core.config import Settings
 from app.core.tracing import send_feedback
 from app.llm.base import AgentLLM
 from app.llm.langchain_llm import build_llm
 from app.repositories.product_db import ProductDB
 from app.repositories.reg_db import RegDB
+from app.repositories.run_log import RunLog
+from app.repositories.thread_db import ThreadDB
 from app.streaming.converter import convert
 from app.streaming.events import ApprovalRequired, Done, Error, RunStarted
 from app.streaming.sse import format_sse
 from app.tools.provider import ToolProvider
 
 log = logging.getLogger(__name__)
-FEEDBACK_LOG = DATA_DIR / "feedback.jsonl"
 
 
 class AgentService:
@@ -42,6 +44,8 @@ class AgentService:
         self.products = ProductDB(settings.app_db_path)
         self.products.seed_if_empty(settings.products_path)
         self.regdb = RegDB(settings.reg_db_path, self.products)
+        self.threads = ThreadDB(settings.app_db_path)          # 대화 목록 (이름·번호). 내용은 체크포인터
+        self.runs = RunLog(settings.app_db_path)               # 실행 기록 (관리자 화면: 처리량·비용·승인 이력)
         self.deps = AgentDeps(settings, llm, tools)
         builder = build_baseline_graph if pipeline == "baseline" else build_graph
         self.graph = builder(self.deps, checkpointer=checkpointer)
@@ -75,7 +79,7 @@ class AgentService:
                 "run_name": f"chem-reg:{self.pipeline}", "tags": [self.pipeline, self.settings.llm_backend],
                 "metadata": {"thread_id": thread_id}, "max_concurrency": 4}
 
-    async def _run(self, graph_input, thread_id: str) -> AsyncIterator[str]:
+    async def _run(self, graph_input, thread_id: str, record: dict) -> AsyncIterator[str]:
         run_id = str(uuid.uuid4())
         lock = self._locks.setdefault(thread_id, asyncio.Lock())
         if lock.locked():                                   # 같은 대화에서 동시에 두 요청 방지
@@ -83,21 +87,41 @@ class AgentService:
             yield format_sse(Done(thread_id=thread_id, run_id=run_id, status="failed"))
             return
         async with lock:
-            yield format_sse(RunStarted(thread_id=thread_id, run_id=run_id))
-            status = "completed"
+            title = self.threads.ensure(thread_id)["title"]
+            yield format_sse(RunStarted(thread_id=thread_id, run_id=run_id, title=title))
+            status, usage, impacted, started = "completed", {}, [], time.perf_counter()
+            config = self._config(thread_id, run_id)
             try:
-                config = self._config(thread_id, run_id)
                 async for mode, payload in self.graph.astream(graph_input, config, stream_mode=["custom", "updates"]):
                     for event in convert(mode, payload, thread_id):
                         if event.event == "approval_required":
                             status = "awaiting_approval"
+                            impacted = list(dict.fromkeys(p["product_id"] for p in event.impacted_products))  # 문서별 중복 제거
                             event = await self._with_draft(event, config)
+                        elif event.event == "final":
+                            usage = event.usage           # 한 턴의 사용량은 final에 한 번만 실린다 (승인 대기 실행은 0)
                         yield format_sse(event)
             except Exception as exc:                        # 스트림 중간 실패도 이벤트로 알리고 정상 종료
                 log.exception("그래프 실행 실패", extra={"thread_id": thread_id, "run_id": run_id})
                 status = "failed"
                 yield format_sse(Error(message=f"처리 중 오류가 발생했습니다 ({type(exc).__name__})"))
+            await self._record(run_id, thread_id, config, status, usage, impacted,
+                               int((time.perf_counter() - started) * 1000), record)
             yield format_sse(Done(thread_id=thread_id, run_id=run_id, status=status))
+
+    async def _record(self, run_id, thread_id, config, status, usage, impacted, latency_ms, record) -> None:
+        """실행 기록 한 줄. 기록 실패가 사용자 응답을 막지 않게 한다."""
+        try:
+            values = (await self.graph.aget_state(config)).values or {}
+            judgement = values.get("judgement") or {}
+            self.runs.record(run_id=run_id, thread_id=thread_id, route=values.get("route"),
+                             question=(values.get("question") or "")[:300], status=status, latency_ms=latency_ms,
+                             tokens=usage.get("tokens", 0), usd=usage.get("usd", 0.0),
+                             quality_passed=(int(judgement["passed"]) if "passed" in judgement   # 브리핑 질문에만
+                                             and record["kind"] == "question" else None),
+                             impacted=",".join(impacted) or None, **record)
+        except Exception:
+            log.exception("실행 기록 저장 실패", extra={"run_id": run_id})
 
     async def _with_draft(self, event: ApprovalRequired, config: dict) -> ApprovalRequired:
         """승인 대기에서는 final 이벤트가 없다 → 승인할 브리핑과 근거를 상태에서 꺼내 함께 보낸다.
@@ -106,11 +130,12 @@ class AgentService:
         return event.model_copy(update={"draft": values.get("draft", ""), "citations": values.get("citations", [])})
 
     def stream_chat(self, message: str, thread_id: str) -> AsyncIterator[str]:
-        return self._run({"question": message}, thread_id)
+        return self._run({"question": message}, thread_id, {"kind": "question"})
 
     def stream_approval(self, thread_id: str, approved: bool, comment: str, approver: str) -> AsyncIterator[str]:
         return self._run(Command(resume={"approved": approved, "comment": comment, "approver": approver}),
-                         thread_id)
+                         thread_id, {"kind": "approval", "approved": int(approved), "approver": approver,
+                                     "comment": comment[:300] or None})
 
     async def thread_state(self, thread_id: str) -> dict:
         snap = await self.graph.aget_state({"configurable": {"thread_id": thread_id}})
@@ -119,7 +144,8 @@ class AgentService:
         for task in snap.tasks or []:
             for intr in getattr(task, "interrupts", []) or []:
                 pending = intr.value
-        return {"thread_id": thread_id, "exists": bool(values), "awaiting_approval": pending is not None,
+        title = self.threads.register(thread_id)["title"] if values else None
+        return {"thread_id": thread_id, "title": title, "exists": bool(values), "awaiting_approval": pending is not None,
                 "pending_approval": pending, "history": values.get("history", []),
                 "draft": values.get("draft", "") if pending else "",
                 "last": {k: values.get(k) for k in ("route", "plan", "impacts", "gaps", "judgement", "approval")},
@@ -129,8 +155,22 @@ class AgentService:
     async def feedback(self, run_id: str, score: int, comment: str) -> dict:
         record = {"run_id": run_id, "score": score, "comment": comment,
                   "ts": datetime.now(timezone.utc).isoformat()}
-        FEEDBACK_LOG.parent.mkdir(parents=True, exist_ok=True)
-        with FEEDBACK_LOG.open("a", encoding="utf-8") as f:
+        log_path = self.settings.app_db_path.parent / "feedback.jsonl"   # 앱 DB와 같은 곳 (배포 시 영구 볼륨)
+        log_path.parent.mkdir(parents=True, exist_ok=True)
+        with log_path.open("a", encoding="utf-8") as f:
             f.write(json.dumps(record, ensure_ascii=False) + "\n")
         sent, reason = await asyncio.to_thread(send_feedback, run_id, score, comment)   # HTTP는 이벤트 루프 밖에서
         return {"stored": True, "langsmith": sent, **({"langsmith_reason": reason} if reason else {})}
+
+    def feedback_records(self, limit: int = 100) -> list[dict]:
+        """관리자 화면용: 최근 피드백 (실행 기록과 run_id로 이어 질문·경로를 붙인다)."""
+        log_path = self.settings.app_db_path.parent / "feedback.jsonl"
+        if not log_path.exists():
+            return []
+        lines = log_path.read_text(encoding="utf-8").splitlines()[-limit:]
+        records = [json.loads(line) for line in reversed(lines) if line.strip()]
+        runs = {r["run_id"]: r for r in self.runs.recent(limit=1000)}
+        for r in records:
+            run = runs.get(r["run_id"], {})
+            r.update(question=run.get("question"), route=run.get("route"), thread_id=run.get("thread_id"))
+        return records

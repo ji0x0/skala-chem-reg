@@ -35,10 +35,10 @@ def create_app(settings: Settings | None = None, **service_overrides) -> FastAPI
     app = FastAPI(title="국내외 화학물질 규제 브리핑·영향 분석 에이전트", version="0.1.0", lifespan=lifespan,
                   description="LangGraph 멀티에이전트 + MCP + SSE. 법률 자문이 아니며 최종 판단은 담당자가 합니다.")
     app.add_middleware(CORSMiddleware, allow_origins=settings.cors_origin_list,
-                       allow_methods=["GET", "POST", "PUT"], allow_headers=["Content-Type"])
+                       allow_methods=["GET", "POST", "PUT", "PATCH"], allow_headers=["Content-Type", "Authorization"])   # Authorization: 관리자 토큰
 
-    from app.api import chat, products, regulations
-    for module in (chat, products, regulations):
+    from app.api import admin, chat, products, regulations
+    for module in (chat, products, regulations, admin):
         app.include_router(module.router)
     return app
 

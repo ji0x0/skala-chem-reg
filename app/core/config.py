@@ -56,6 +56,11 @@ class Settings(BaseSettings):
     checkpoint_db_path: Path = DATA_DIR / "checkpoints.db"  # 대화·승인 대기 상태 (재시작해도 유지)
     cors_origins: str = "http://localhost:5173,http://127.0.0.1:5173"
 
+    # ── Step 7: 관리자 페이지 ──
+    # 관리자 API(/api/v1/admin/*)는 이 토큰이 있어야 열린다. 비어 있으면 관리자 API 전체를 닫는다 (기본 잠금)
+    admin_token: str | None = None
+    experiments_dir: Path = ROOT_DIR / "docs" / "experiments"    # Before/After 평가 결과 (scripts/run_eval.py)
+
     @property
     def cors_origin_list(self) -> list[str]:
         return [o.strip() for o in self.cors_origins.split(",") if o.strip()]
