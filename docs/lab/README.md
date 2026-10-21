@@ -17,3 +17,4 @@
 | 8 | [step08-kr-feed.md](step08-kr-feed.md) | 국내 변경 수집: 법제처 행정규칙 ReAct 에이전트 + 안전장치, 개정 내용으로 영향 판단, 1년 재검색 | ✅ |
 | 9 | [step09-routing.md](step09-routing.md) | 질문 이해·범위 판정: 의도 분해, 범위 밖·확인 불가 안내, 규제 설명·목록 조회, 후속 질문, 대화 승인 제거 | ✅ |
 | 10 | [step10-weekly.md](step10-weekly.md) | 정기 브리핑: 기간 고정 수집, 주차별 저장, 매주 월요일 스케줄러, 정기 브리핑 탭·검토 완료, 지난 3주 예시 | ✅ |
+| 11 | [step11-eu-feed.md](step11-eu-feed.md) | EU 수집: REACH·CLP 개정 법령(Cellar SPARQL·본문), 채택일·관보 게재일, SVHC 한계 안내 | ✅ |
