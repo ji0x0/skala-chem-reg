@@ -21,3 +21,5 @@ data/feedback.jsonl
 frontend/node_modules/
 frontend/dist/
 frontend/.env.local
+data/regulations/raw/
+.claude/

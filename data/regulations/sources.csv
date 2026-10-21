@@ -1,14 +1,12 @@
-reg_id,region,law,list_name,authority,rule_type,applies_when,default_threshold_wt_pct,obligation_ko,source_url,priority
-KR_CCA_HAZ,KR,화학물질관리법,유해화학물질(인체급성·인체만성·생태유해성물질),환경부·국립환경과학원,listing,국내 제조·수입·판매·사용,,영업허가·취급시설 기준·표시 의무 (물질별 함량 기준 적용),https://ncis.nier.go.kr,1
-KR_CCA_PERMIT,KR,화학물질관리법,허가물질,환경부,listing,국내 제조·수입·사용,,제조·수입·사용 전 허가 필요,https://ncis.nier.go.kr,1
-KR_CCA_RESTRICTED,KR,화학물질관리법,제한물질,환경부,restriction,고시된 용도로 제조·수입·판매·사용,,해당 용도 사용 제한,https://ncis.nier.go.kr,1
-KR_CCA_PROHIBITED,KR,화학물질관리법,금지물질,환경부,restriction,모든 용도,,제조·수입·판매·보관·사용 금지,https://ncis.nier.go.kr,1
-KR_OSHA_SPECIAL,KR,산업안전보건법,특별관리물질,고용노동부,listing,국내 사업장 취급,1.0,취급 일지 작성·근로자 고지 등 특별 관리,https://www.law.go.kr,1
-KR_OSHA_MANAGED,KR,산업안전보건법,관리대상유해물질,고용노동부,listing,국내 사업장 취급,1.0,설비 기준·작업환경측정·MSDS 관리,https://www.law.go.kr,1
-US_TSCA_S6,US,TSCA,제6조 위험관리 규칙 대상 물질,EPA,restriction,미국 제조·수입·가공·사용,,규칙에 따른 용도 금지·제한·작업자 보호 프로그램,https://www.federalregister.gov,1
-US_TSCA_SNUR,US,TSCA,중요 신규 사용 규칙(SNUR),EPA,notification,미국에서 규칙이 정한 신규 용도로 사용,,해당 신규 용도 개시 90일 전 EPA 신고,https://www.federalregister.gov,1
-EU_REACH_SVHC,EU,REACH,고위험 우려물질(SVHC) 후보 목록,ECHA,listing,EU로 수출하는 성형품(article),0.1,성형품 내 0.1 wt% 초과 시 수요자 정보 제공(제33조)·SCIP 통보,https://echa.europa.eu/candidate-list-table,1
-EU_REACH_XVII,EU,REACH,부속서 XVII 제한 물질,ECHA,restriction,EU 시장 출시(항목별 조건),,항목별 용도·농도 조건 위반 시 출시 금지,https://echa.europa.eu/substances-restricted-under-reach,2
-EU_CLP_ANNEX_VI,EU,CLP,부속서 VI 조화된 분류,ECHA,classification,EU 시장 출시 물질·혼합물,,조화된 분류에 따른 라벨·포장·SDS 작성,https://echa.europa.eu/information-on-chemicals/annex-vi-to-clp,2
-CN_PRIORITY,CN,중국 생태환경부 고시,우선관리 화학물질 목록,생태환경부(MEE),listing,중국 제조·수입·사용,,환경 위험 관리 조치(배출 관리·대체·정보 공개 등),https://www.mee.gov.cn,3
-JP_CSCL_C1,JP,화학물질심사규제법(화심법),제1종 특정화학물질,경제산업성·후생노동성·환경성,restriction,일본 제조·수입·사용,,제조·수입 사실상 금지(허가제),https://www.meti.go.jp/policy/chemical_management/kasinhou/,3
+reg_id,region,law,list_name,authority,rule_type,applies_when,default_threshold_wt_pct,obligation_ko,source_url,priority,listing_note
+KR_CCA_HAZ,KR,화학물질관리법,유해화학물질(인체급성·인체만성·생태유해성물질),환경부·국립환경과학원,listing,국내 제조·수입·판매·사용,,영업허가·취급시설 기준·표시 의무 (물질별 함량 기준 적용),https://www.law.go.kr/LSW/admRulInfoP.do?admRulSeq=2100000276378,1,화학물질안전원고시 제2026-5호 별표 첨부 목록 전체 (고유번호별 혼합물 함량 기준 포함)
+KR_CCA_RESTRICTED,KR,화학물질관리법,제한물질,환경부,restriction,고시된 용도로 제조·수입·판매·사용,,해당 용도 사용 제한,https://www.law.go.kr/LSW/admRulInfoP.do?admRulSeq=2100000268296,1,기후에너지환경부고시 제2025-28호 [별표 2·3] — 특정 용도만 금지 (용도 확인 필요)
+KR_CCA_PROHIBITED,KR,화학물질관리법,금지물질,환경부,restriction,모든 용도,,제조·수입·판매·보관·사용 금지,https://www.law.go.kr/LSW/admRulInfoP.do?admRulSeq=2100000268296,1,기후에너지환경부고시 제2025-28호 [별표 4·5] — 모든 용도 금지
+KR_OSHA_SPECIAL,KR,산업안전보건법,특별관리물질,고용노동부,listing,국내 사업장 취급,0.1,"취급 일지 작성·근로자 고지 등 특별 관리 (중량비율 0.1%, 일부 0.3% 이상 함유 혼합물 포함)",https://www.law.go.kr/LSW/lsBylInfoPLinkR.do?lsiSeq=273603&bylNo=0012&bylBrNo=00&bylCls=BE&bylEfYd=20260302&bylEfYdYn=Y,1,"산업안전보건기준에 관한 규칙 [별표 12] 중 특별관리물질 표시 물질 (0.1%, 일부 0.3% 이상 혼합물)"
+KR_OSHA_MANAGED,KR,산업안전보건법,관리대상유해물질,고용노동부,listing,국내 사업장 취급,1.0,설비 기준·작업환경측정·MSDS·보호구 등 (중량비율 1% 이상 함유 혼합물 포함),https://www.law.go.kr/LSW/lsBylInfoPLinkR.do?lsiSeq=273603&bylNo=0012&bylBrNo=00&bylCls=BE&bylEfYd=20260302&bylEfYdYn=Y,1,산업안전보건기준에 관한 규칙 [별표 12] 관리대상 유해물질 181종 (1% 이상 혼합물)
+US_TSCA_S6,US,TSCA,제6조 위험관리 규칙 대상 물질,EPA,restriction,미국 제조·수입·가공·사용,,규칙에 따른 용도 금지·제한·작업자 보호 프로그램,https://www.federalregister.gov,1,eCFR 40 CFR 751(TCE·PCE·CTC·DCM·백석면·PBT 5종) + 761(PCB 50 ppm 이상) + 749.68(냉각탑 6가크롬 수처리제). 747(금속가공유)은 PMN 번호·일반명만 있어 CAS 대조 제외. TSCA Inventory(기존화학물질 목록)는 규제 목록이 아니라 제외
+EU_REACH_SVHC,EU,REACH,고위험 우려물질(SVHC) 후보 목록,ECHA,listing,EU로 수출하는 성형품(article),0.1,성형품 내 0.1 wt% 초과 시 수요자 정보 제공(제33조)·SCIP 통보,https://echa.europa.eu/candidate-list-table,1,ECHA 후보 목록 253개 항목 (그룹 항목의 구성 물질 CAS 포함)
+EU_REACH_XVII,EU,REACH,부속서 XVII 제한 물질,ECHA,restriction,EU 시장 출시(항목별 조건),,항목별 용도·농도 조건 위반 시 출시 금지,https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:02006R1907-20260622,2,"REACH 통합본 02006R1907-20260622 부속서 XVII 항목·부록 (조건은 핵심 항목만 정리, 나머지는 원문 확인)"
+EU_CLP_ANNEX_VI,EU,CLP,부속서 VI 조화된 분류,ECHA,classification,EU 시장 출시 물질·혼합물,,조화된 분류에 따른 라벨·포장·SDS 작성,https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:02008R1272-20260701,2,CLP 통합본 02008R1272-20260701 부속서 VI 표 3 전체
+CN_PRIORITY,CN,중국 생태환경부 고시,우선관리 화학물질 목록,생태환경부(MEE),listing,중국 제조·수입·사용,,환경 위험 관리 조치(배출 관리·대체·정보 공개 등),https://www.mee.gov.cn/xxgk2018/xxgk/xxgk01/202011/t20201102_805937.html,3,우선관리 화학물질 1차(2017년 제83호)·2차(2020년 제47호) 40종 (CAS 없는 그룹 4종 제외)
+JP_CSCL_C1,JP,화학물질심사규제법(화심법),제1종 특정화학물질,경제산업성·후생노동성·환경성,restriction,일본 제조·수입·사용,,제조·수입 사실상 금지(허가제),https://www.nite.go.jp/chem/jcheck/list6.action?category=211&request_locale=ja,3,"제1종 특정화학물질 40종 (NITE J-CHECK, 구성 물질 CAS 포함)"

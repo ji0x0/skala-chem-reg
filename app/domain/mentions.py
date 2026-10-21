@@ -33,6 +33,7 @@ def find_substance_mentions(text: str, substances: list[dict]) -> list[dict]:
     """substances: [{"cas", "name_en", "name_ko"}] — 본문에 이름·약어·CAS로 언급된 물질과 횟수."""
     found = {}
     cas_in_text = set(find_cas_numbers(text))
+    low = text.lower()                    # 수천 개 물질 이름 중 대부분은 본문에 없다 → 부분 문자열 검사로 먼저 거른다
     for s in substances:
         count, hits = 0, []
         if s["cas"] in AMBIGUOUS:
@@ -43,6 +44,8 @@ def find_substance_mentions(text: str, substances: list[dict]) -> list[dict]:
         else:
             terms = name_variants(s["name_en"]) + ABBREVIATIONS.get(s["cas"], [])
         for term in terms:
+            if term.lower() not in low:
+                continue
             # 약어(대문자 2~5자)는 단어 경계와 대소문자를 엄격히, 이름은 대소문자 무시
             flags = 0 if re.fullmatch(r"[A-Z0-9-]{2,5}", term) else re.IGNORECASE
             n = len(re.findall(rf"(?<![A-Za-z0-9]){re.escape(term)}(?![A-Za-z0-9])", text, flags))

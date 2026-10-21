@@ -50,13 +50,28 @@ class RegDB:
     def listings_for_reg(self, reg_id: str) -> list[dict]:
         return self._query("SELECT * FROM listings WHERE reg_id=? ORDER BY name_en", (reg_id,))
 
-    def search_substance(self, keyword: str) -> list[dict]:
-        """CAS 또는 영문·한글 이름 일부로 등재 물질을 찾는다."""
+    def search_substance(self, keyword: str, limit: int | None = None) -> list[dict]:
+        """CAS 또는 영문·한글 이름 일부로 등재 물질을 찾는다 (CAS마다 한 행 — 목록마다 영문 표기가 달라도)."""
         like = f"%{keyword}%"
-        return self._query(
-            "SELECT DISTINCT cas, name_en, name_ko FROM listings "
-            "WHERE cas=? OR name_en LIKE ? OR name_ko LIKE ? ORDER BY name_en",
-            (keyword, like, like))
+        # 영문 이름은 정리한 행(listings.csv)의 표기를 우선 — "(DEHP)" 같은 약어가 들어 있어 질문 속 약어 매칭에 쓰인다
+        sql = ("SELECT cas, COALESCE(MAX(CASE WHEN origin='listings.csv' AND name_en != '' THEN name_en END), "
+               "MIN(NULLIF(name_en, '')), '') AS name_en, MAX(name_ko) AS name_ko FROM listings "
+               "WHERE cas=? OR name_en LIKE ? OR name_ko LIKE ? GROUP BY cas "
+               "ORDER BY MAX(name_ko) = '', MIN(name_en)")
+        return self._query(sql + (f" LIMIT {int(limit)}" if limit else ""), (keyword, like, like))
+
+    def company_substances(self) -> list[dict]:
+        """회사 제품에 든 성분 중 규제 DB에 있는 물질 (+ 제품 배합의 성분명). 관보 본문의 물질명 매칭용 —
+        수천 개 전체 목록으로 찾으면 회사와 무관한 물질이 잡힌다."""
+        ingredients = self._products.ingredient_names()
+        if not ingredients:
+            return []
+        marks = ",".join("?" * len(ingredients))
+        rows = self._query(f"SELECT cas, name_en, MAX(name_ko) AS name_ko FROM listings WHERE cas IN ({marks}) "
+                           f"GROUP BY cas, name_en", tuple(ingredients))
+        listed = {r["cas"] for r in rows}
+        rows += [{"cas": cas, "name_en": name, "name_ko": ""} for cas, name in ingredients.items() if cas in listed]
+        return rows
 
     # ── 제품 (app.db의 ProductDB에 위임) ─────────────────────────────────────
     def products(self) -> list[dict]:

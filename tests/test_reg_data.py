@@ -36,7 +36,9 @@ def test_source_data_is_valid():
 
 def test_validation_catches_bad_rows():
     sources = [{"reg_id": "EU_REACH_SVHC", "region": "EU"}]
-    listings = [{"reg_id": "NOPE", "cas": "71-43-3", "name_en": "x", "threshold_wt_pct": "0.1"}]
+    listings = [{"reg_id": "NOPE", "cas": "71-43-3", "name_en": "x", "threshold_wt_pct": "0.1", "status": "to_verify"},
+                {"reg_id": "EU_REACH_SVHC", "cas": "71-43-2", "name_en": "y", "threshold_wt_pct": "", "status": "official",
+                 "verified_on": "", "evidence": ""}]
     products = [{"product_id": "P1", "cas": "71-43-2", "ingredient_name": "x", "role": "",
                  "export_regions": "EU;XX", "wt_pct": "90"}]
     errors = validate(sources, listings, products)
@@ -45,16 +47,17 @@ def test_validation_catches_bad_rows():
     assert any("수출 지역" in e for e in errors)
     assert any("함량 합계" in e for e in errors)
     assert any("역할(role) 누락" in e for e in errors)
+    assert any("official인데 확인일·근거 없음" in e for e in errors)      # 공식 확인했다면 언제·무엇으로 했는지 필수
 
 
 def test_build_creates_db(tmp_path):
     settings = Settings(_env_file=None, reg_db_path=tmp_path / "reg.db")
     counts = build(settings)
-    assert counts["regulations"] == 13 and counts["products"] == 12
+    assert counts["regulations"] == 11 and counts["products"] == 20
     with sqlite3.connect(settings.reg_db_path) as conn:
         regions = {r[0] for r in conn.execute(
             "SELECT r.region FROM listings l JOIN regulations r USING(reg_id) WHERE l.cas='79-01-6'")}
-    assert regions == {"KR", "US", "EU"}     # TCE는 국내·미국·EU 규제에 동시에 등재
+    assert regions == {"KR", "US", "EU", "CN"}     # TCE는 국내·미국·EU·중국 규제에 동시에 등재
 
 
 def test_minor_components_are_modelled(tmp_path):
@@ -68,5 +71,6 @@ def test_minor_components_are_modelled(tmp_path):
     per_product = {p["product_id"]: p["ingredient_count"] for p in products.products()}
     minor_hits = {pid for pid in per_product
                   for i in products.product(pid)["ingredients"] if i["wt_pct"] < 1 and i["cas"] in listed}
-    assert min(per_product.values()) >= 5
+    assert min(n for pid, n in per_product.items() if pid <= "P012") >= 5   # 규제 문제가 있는 제품: 상세 배합
+    assert min(per_product.values()) >= 3                                    # 규정 준수 제품(P013~P020) 포함
     assert len(minor_hits) >= 8        # 미량 성분이 규제 목록에 걸리는 제품이 여러 개

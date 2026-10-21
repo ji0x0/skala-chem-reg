@@ -27,9 +27,12 @@ def list_regulations() -> list[dict]:
 
 @mcp.tool()
 def lookup_substance(keyword: str) -> dict:
-    """CAS 번호나 물질 이름(영문·한글 일부)으로 어떤 규제에 등재됐는지 조회합니다."""
+    """CAS 번호나 물질 이름(영문·한글 일부)으로 어떤 규제에 등재됐는지 조회합니다.
+    keyword가 비어 있으면 물질 목록만 돌려줍니다 (이름 매칭용 — 수천 행의 등재 정보는 싣지 않음)."""
     substances = db.search_substance(keyword)
-    listings = db.listings_for_cas([s["cas"] for s in substances])
+    if not keyword.strip():
+        return {"keyword": keyword, "substances": substances, "listings": []}
+    listings = db.listings_for_cas([s["cas"] for s in substances[:50]])
     return {"keyword": keyword, "substances": substances, "listings": listings}
 
 

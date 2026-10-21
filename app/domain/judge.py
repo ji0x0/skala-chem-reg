@@ -21,6 +21,20 @@ from typing import Literal
 from app.repositories.reg_db import RegDB
 
 Outcome = Literal["exceeds", "listed", "review", "below"]
+# 화면·답변에 쓰는 한글 표기 (내부 값은 영어로 유지 — API·평가·테스트의 안정적인 키)
+OUTCOME_KO = {"exceeds": "기준 초과", "listed": "등재 해당", "review": "확인 필요", "below": "기준 이하",
+              "unresolved": "판정 불가"}
+# 원문이 "기준 이상(≥)"인 규제. 나머지는 "초과(>)" — 예: REACH 부속서 XVII는 "equal to or greater than 0,1 %",
+# SVHC 제33조는 "above 0,1 %" (docs/regulation-verification.md)
+INCLUSIVE_THRESHOLD = {"EU_REACH_XVII", "KR_OSHA_MANAGED", "KR_OSHA_SPECIAL",   # 산안법 별표 12: "중량비율 1%(0.1%) 이상"
+                       "KR_CCA_HAZ", "KR_CCA_RESTRICTED", "KR_CCA_PROHIBITED"}    # 화관법 고시: "○% 이상 함유한 혼합물"
+# 항목 단위로 "이상"인 경우 — 미국 PCB: "50 ppm or greater" (40 CFR 761.1(b))
+INCLUSIVE_ENTRIES = {("US_TSCA_S6", "40 CFR 761")}
+# 특정 용도에서만 금지되는 목록: 기준 이상이어도 제품 용도를 모르므로 "확인 필요"로 (예: TCE는 가정용 세정제·에어러졸 용도만 금지)
+USE_RESTRICTED = {"KR_CCA_RESTRICTED"}
+# 기준이 "제품 전체"가 아니라 "특정 소재" 중량 대비인 항목. 제품 전체 대비로 기준 이상이면 소재 대비로도 이상이지만,
+# 기준 미만이면 소재 비율에 따라 넘을 수 있어 "기준 이하"로 단정하지 않는다
+MATERIAL_BASIS = {("EU_REACH_XVII", "Entry 51"): "가소화 소재", ("EU_REACH_XVII", "Entry 63"): "PVC 소재"}
 
 DOMESTIC_REGION = "KR"
 
@@ -57,6 +71,8 @@ class Finding:
     obligation: str
     source_url: str
     data_status: str
+    verified_on: str = ""            # 공식 원본 확인일 (근거의 기준일)
+    evidence: str = ""               # 무엇을 보고 확인했는지
 
 
 @dataclass
@@ -107,7 +123,8 @@ def judge_product(db: RegDB, product_id: str) -> ProductJudgement:
                     entry_ref=lst["entry_ref"] or "", cas=lst["cas"],
                     substance=lst["name_ko"] or lst["name_en"], role=ing["role"],
                     wt_pct=ing["wt_pct"], source_url=lst["source_url"],
-                    data_status=lst["status"])
+                    data_status=lst["status"], verified_on=lst.get("verified_on") or "",
+                    evidence=lst.get("evidence") or "")
 
         # 1. 적용 지역
         if lst["region"] != DOMESTIC_REGION and lst["region"] not in product["export_regions"]:
@@ -129,6 +146,12 @@ def judge_product(db: RegDB, product_id: str) -> ProductJudgement:
         severity = SEVERITY.get(lst["rule_type"], "medium")
         obligation = lst["condition_ko"] or lst["obligation_ko"]
 
+        # 조건부 등재 (예: 산안법 '니켈 화합물 중 불용성만 특별관리물질'): 기본 기준으로 판정하지 않는다
+        if (lst["condition_ko"] or "").startswith("조건부"):
+            result.findings.append(Finding(**base, threshold_wt_pct=None, outcome="review", severity=severity,
+                                           reason=lst["condition_ko"], obligation=lst["obligation_ko"]))
+            continue
+
         # 3. 함량으로 판정할 수 없는 경우
         if key in NON_CONTENT_BASIS:
             result.findings.append(Finding(**base, threshold_wt_pct=None, outcome="review",
@@ -147,19 +170,48 @@ def judge_product(db: RegDB, product_id: str) -> ProductJudgement:
             amount = group_totals.get(key, ing["wt_pct"])
             label = f"{lst['entry_ref']} 대상 물질 합계 {amount:g} wt%" if key in GROUP_SUM \
                 else f"함량 {amount:g} wt%"
-            if amount > threshold:
+            inclusive = lst["reg_id"] in INCLUSIVE_THRESHOLD or key in INCLUSIVE_ENTRIES
+            amount = round(amount, 6)                       # 소수 합산 오차 (0.07 + 0.03 = 0.09999…)
+            reached = amount >= threshold if inclusive else amount > threshold
+            if reached and lst["reg_id"] in USE_RESTRICTED:
+                result.findings.append(Finding(**base, threshold_wt_pct=threshold, outcome="review", severity=severity,
+                                               reason=f"{label} {'≥' if inclusive else '>'} 기준 {threshold:g} wt% — "
+                                                      f"제한 용도에 해당하는지 확인 필요",
+                                               obligation=lst["condition_ko"] or lst["obligation_ko"]))
+            elif reached:
                 result.findings.append(Finding(**base, threshold_wt_pct=threshold, outcome="exceeds",
                                                severity=severity,
-                                               reason=f"{label} > 기준 {threshold:g} wt%",
+                                               reason=f"{label} {'≥' if inclusive else '>'} 기준 {threshold:g} wt%",
                                                obligation=lst["obligation_ko"]))
+            elif key in MATERIAL_BASIS:
+                result.findings.append(Finding(**base, threshold_wt_pct=threshold, outcome="review",
+                                               severity=severity,
+                                               reason=f"{label} — 기준은 {MATERIAL_BASIS[key]} 중량 대비 {threshold:g} wt%라 "
+                                                      f"제품 전체 대비 값으로는 판단할 수 없음 (소재 비율로 다시 계산 필요)",
+                                               obligation=lst["condition_ko"] or lst["obligation_ko"]))
             else:
                 result.findings.append(Finding(**base, threshold_wt_pct=threshold, outcome="below",
                                                severity="info",
-                                               reason=f"{label} ≤ 기준 {threshold:g} wt%",
+                                               reason=f"{label} {'<' if inclusive else '≤'} 기준 {threshold:g} wt%",
                                                obligation=""))
             continue
 
-        # 5. 함량 기준이 없는 등재: 존재로 해당. 단 불순물이면 규칙 적용 여부 확인
+        # 5. 조건을 정리하지 않은 제한 항목 (공식 전체 목록에서 가져온 부속서 XVII 항목·부록): 해당 여부를 단정하지 않는다
+        if lst["reg_id"] == "EU_REACH_XVII":
+            result.findings.append(Finding(**base, threshold_wt_pct=None, outcome="review", severity=severity,
+                                           reason=f"부속서 XVII {lst['entry_ref']} 제한 대상 — 용도·농도 조건을 원문으로 확인 필요",
+                                           obligation=obligation))
+            continue
+
+        # 6. 조화된 분류(CLP 부속서 VI): 판매 금지가 아니라 함유 혼합물의 분류·표시·SDS에 반영할 정보
+        if lst["rule_type"] == "classification":
+            result.findings.append(Finding(**base, threshold_wt_pct=None, outcome="listed", severity=severity,
+                                           reason=f"조화된 분류 대상 ({lst['condition_ko'][:120]}) — 함유 혼합물의 "
+                                                  f"분류·표시·SDS에 반영 (농도 한계·형태 조건은 원문 확인)",
+                                           obligation=lst["obligation_ko"]))
+            continue
+
+        # 7. 함량 기준이 없는 등재: 존재로 해당. 단 불순물이면 규칙 적용 여부 확인
         if "불순물" in ing["role"] and lst["rule_type"] in ("restriction", "notification"):
             result.findings.append(Finding(
                 **base, threshold_wt_pct=None, outcome="review", severity=severity,

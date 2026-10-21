@@ -15,6 +15,12 @@ CSV는 사람이 고치기 쉽고 Git에서 변경 이력을 보기 좋다. 서�
 4. 제품의 원료 함량 합계는 100 ± 0.5 wt%여야 한다
 5. 수출 지역은 KR·US·EU·CN·JP 중 하나여야 한다
 6. 모든 성분에 역할(role: 주원료·첨가제·잔류 단량체·불순물 등)이 있어야 한다
+7. 등재 행의 상태는 official 또는 to_verify. official이면 확인일(verified_on)과 근거(evidence)가 있어야 한다
+
+등재 데이터는 두 곳에서 온다.
+- listings.csv: 사람이 조건·기준 함량·한글 설명을 정리한 행 (판정에 직접 쓰는 핵심 행)
+- bulk/*.csv: 공식 원본의 전체 목록 (scripts/import_official_lists.py 또는 브라우저 확인으로 만든 행)
+같은 (규제, CAS, 항목)이면 listings.csv 행이 우선한다. 한글 이름은 names_ko.csv로 CAS마다 채운다.
 """
 import csv
 import sqlite3
@@ -38,20 +44,42 @@ def to_float(value: str) -> float | None:
     return float(value) if value.strip() else None
 
 
+def load_listings(regs_dir: Path) -> list[dict]:
+    """listings.csv(정리한 행) + bulk/*.csv(공식 전체 목록)를 합친다. 정리한 행이 같은 규제·CAS·항목의 bulk 행보다 우선."""
+    curated = [{**r, "origin": "listings.csv"} for r in read_csv(regs_dir / "listings.csv")]
+    keys = {(r["reg_id"], r["cas"], r["entry_ref"]) for r in curated}
+    keys_any_entry = {(r["reg_id"], r["cas"]) for r in curated if not r["entry_ref"]}
+    bulk = []
+    for path in sorted((regs_dir / "bulk").glob("*.csv")):
+        for r in read_csv(path):
+            if (r["reg_id"], r["cas"], r["entry_ref"]) in keys or (r["reg_id"], r["cas"]) in keys_any_entry:
+                continue
+            bulk.append({**r, "origin": f"bulk/{path.name}"})
+    names = {r["cas"]: r["name_ko"] for r in read_csv(regs_dir / "names_ko.csv")}
+    for r in curated + bulk:
+        r["name_ko"] = r["name_ko"] or names.get(r["cas"], "")
+    return curated + bulk
+
+
 def validate(sources: list[dict], listings: list[dict], products: list[dict]) -> list[str]:
     errors = []
     reg_ids = {s["reg_id"] for s in sources}
     for s in sources:
         if s["region"] not in REGIONS:
             errors.append(f"sources: {s['reg_id']} 지역 코드 오류 '{s['region']}'")
-    for i, row in enumerate(listings, start=2):            # 2행부터 데이터 (1행은 헤더)
+    for i, row in enumerate(listings, start=2):
+        where = f"{row.get('origin', 'listings.csv')} ({row['reg_id']} {row['cas']})"
         if not is_valid_cas(row["cas"]):
-            errors.append(f"listings {i}행: CAS 오류 '{row['cas']}' ({row['name_en']})")
+            errors.append(f"{where}: CAS 오류 '{row['cas']}' ({row['name_en']})")
         if row["reg_id"] not in reg_ids:
-            errors.append(f"listings {i}행: 없는 규제 ID '{row['reg_id']}'")
+            errors.append(f"{where}: 없는 규제 ID '{row['reg_id']}'")
         t = to_float(row["threshold_wt_pct"])
         if t is not None and not 0 < t <= 100:
-            errors.append(f"listings {i}행: 기준 함량 범위 오류 {t}")
+            errors.append(f"{where}: 기준 함량 범위 오류 {t}")
+        if row["status"] not in ("official", "to_verify"):
+            errors.append(f"{where}: 상태 값 오류 '{row['status']}'")
+        if row["status"] == "official" and not (row.get("verified_on") and row.get("evidence")):
+            errors.append(f"{where}: official인데 확인일·근거 없음")
     totals: dict[str, float] = defaultdict(float)
     for i, row in enumerate(products, start=2):
         if not row.get("role", "").strip():
@@ -70,7 +98,7 @@ def validate(sources: list[dict], listings: list[dict], products: list[dict]) ->
 
 def build(settings: Settings) -> dict:
     sources = read_csv(settings.regulations_dir / "sources.csv")
-    listings = read_csv(settings.regulations_dir / "listings.csv")
+    listings = load_listings(settings.regulations_dir)
     products = read_csv(settings.products_path)
     glossary = read_csv(settings.glossary_path)
 
@@ -86,20 +114,22 @@ def build(settings: Settings) -> dict:
     conn.executescript("""
         CREATE TABLE regulations (reg_id TEXT PRIMARY KEY, region TEXT, law TEXT, list_name TEXT,
             authority TEXT, rule_type TEXT, applies_when TEXT, default_threshold_wt_pct REAL,
-            obligation_ko TEXT, source_url TEXT, priority INTEGER);
+            obligation_ko TEXT, source_url TEXT, priority INTEGER, listing_note TEXT);
         CREATE TABLE listings (reg_id TEXT REFERENCES regulations(reg_id), cas TEXT, name_en TEXT,
             name_ko TEXT, entry_ref TEXT, threshold_wt_pct REAL, condition_ko TEXT, status TEXT,
-            source_url TEXT);
+            source_url TEXT, verified_on TEXT, evidence TEXT, origin TEXT);
+        CREATE INDEX idx_listings_reg ON listings(reg_id);
         CREATE INDEX idx_listings_cas ON listings(cas);
         CREATE TABLE glossary (term TEXT, lang TEXT, ko TEXT, definition_ko TEXT);
     """)
-    conn.executemany("INSERT INTO regulations VALUES (?,?,?,?,?,?,?,?,?,?,?)", [
+    conn.executemany("INSERT INTO regulations VALUES (?,?,?,?,?,?,?,?,?,?,?,?)", [
         (s["reg_id"], s["region"], s["law"], s["list_name"], s["authority"], s["rule_type"],
          s["applies_when"], to_float(s["default_threshold_wt_pct"]), s["obligation_ko"],
-         s["source_url"], int(s["priority"])) for s in sources])
-    conn.executemany("INSERT INTO listings VALUES (?,?,?,?,?,?,?,?,?)", [
+         s["source_url"], int(s["priority"]), s.get("listing_note", "")) for s in sources])
+    conn.executemany("INSERT INTO listings VALUES (?,?,?,?,?,?,?,?,?,?,?,?)", [
         (r["reg_id"], r["cas"], r["name_en"], r["name_ko"], r["entry_ref"],
-         to_float(r["threshold_wt_pct"]), r["condition_ko"], r["status"], r["source_url"])
+         to_float(r["threshold_wt_pct"]), r["condition_ko"], r["status"], r["source_url"],
+         r.get("verified_on", ""), r.get("evidence", ""), r["origin"])
         for r in listings])
     conn.executemany("INSERT INTO glossary VALUES (?,?,?,?)", [
         (g["term"], g["lang"], g["ko"], g["definition_ko"]) for g in glossary])
@@ -127,7 +157,7 @@ def main() -> None:
           f"용어 {counts['glossary']}개")
     print(f"  제품 초기 데이터 검증 통과: {counts['products']}개(성분 {counts['ingredients']}행) "
           f"→ app.db가 비어 있으면 서버 시작 시 채워짐")
-    print(f"  ⚠️ 공식 원본 확인 전(to_verify): {counts['to_verify']}행")
+    print(f"  공식 원본 확인(official): {counts['listings'] - counts['to_verify']}행 · 확인 전(to_verify): {counts['to_verify']}행")
 
 
 if __name__ == "__main__":

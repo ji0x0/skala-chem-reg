@@ -82,6 +82,10 @@ class ProductDB:
             f"JOIN products p USING(product_id) WHERE i.cas IN ({marks}) ORDER BY p.product_id",
             tuple(cas_list))
 
+    def ingredient_names(self) -> dict[str, str]:
+        """제품들에 든 성분 CAS → 성분명 (영문)."""
+        return {r["cas"]: r["ingredient_name"] for r in self._query("SELECT DISTINCT cas, ingredient_name FROM ingredients")}
+
     def next_id(self) -> str:
         nums = [int(m.group(1)) for r in self._query("SELECT product_id FROM products")
                 if (m := re.fullmatch(r"P(\d+)", r["product_id"]))]

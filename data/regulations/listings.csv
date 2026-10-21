@@ -1,60 +1,31 @@
-reg_id,cas,name_en,name_ko,entry_ref,threshold_wt_pct,condition_ko,status,source_url
-KR_CCA_HAZ,71-43-2,Benzene,벤젠,,,세부 분류(인체급성·인체만성·생태)와 함량 기준 확인 필요,to_verify,https://ncis.nier.go.kr
-KR_CCA_HAZ,50-00-0,Formaldehyde,포름알데히드,,,세부 분류와 함량 기준 확인 필요,to_verify,https://ncis.nier.go.kr
-KR_OSHA_SPECIAL,71-43-2,Benzene,벤젠,,,발암성 특별관리물질,to_verify,https://www.law.go.kr
-KR_OSHA_SPECIAL,79-01-6,Trichloroethylene,트리클로로에틸렌,,,특별관리물질,to_verify,https://www.law.go.kr
-KR_OSHA_SPECIAL,50-00-0,Formaldehyde,포름알데히드,,,특별관리물질,to_verify,https://www.law.go.kr
-KR_OSHA_SPECIAL,106-99-0,"1,3-Butadiene","1,3-부타디엔",,,특별관리물질,to_verify,https://www.law.go.kr
-KR_OSHA_MANAGED,108-88-3,Toluene,톨루엔,,,관리대상유해물질(유기화합물),to_verify,https://www.law.go.kr
-KR_OSHA_MANAGED,67-56-1,Methanol,메탄올,,,관리대상유해물질(유기화합물),to_verify,https://www.law.go.kr
-KR_OSHA_MANAGED,1330-20-7,Xylene,크실렌,,,관리대상유해물질(유기화합물),to_verify,https://www.law.go.kr
-KR_OSHA_MANAGED,75-09-2,Dichloromethane,디클로로메탄,,,관리대상유해물질(유기화합물),to_verify,https://www.law.go.kr
-US_TSCA_S6,79-01-6,Trichloroethylene,트리클로로에틸렌,TCE rule,,대부분 용도 단계적 금지 (준수일 연장 제안 2026-10-14 관보),to_verify,https://www.federalregister.gov
-US_TSCA_S6,127-18-4,Tetrachloroethylene,테트라클로로에틸렌,PCE rule,,일부 용도 금지·작업장 화학물질 보호 프로그램,to_verify,https://www.federalregister.gov
-US_TSCA_S6,56-23-5,Carbon tetrachloride,사염화탄소,CTC rule,,일부 용도 금지·작업장 화학물질 보호 프로그램,to_verify,https://www.federalregister.gov
-US_TSCA_S6,75-09-2,Dichloromethane,디클로로메탄,DCM rule,,소비자·대부분 상업 용도 금지,to_verify,https://www.federalregister.gov
-EU_REACH_SVHC,117-81-7,Bis(2-ethylhexyl) phthalate (DEHP),프탈산 비스(2-에틸헥실) (DEHP),,0.1,,to_verify,https://echa.europa.eu/candidate-list-table
-EU_REACH_SVHC,84-74-2,Dibutyl phthalate (DBP),프탈산 디부틸 (DBP),,0.1,,to_verify,https://echa.europa.eu/candidate-list-table
-EU_REACH_SVHC,85-68-7,Benzyl butyl phthalate (BBP),프탈산 벤질부틸 (BBP),,0.1,,to_verify,https://echa.europa.eu/candidate-list-table
-EU_REACH_SVHC,84-69-5,Diisobutyl phthalate (DIBP),프탈산 디이소부틸 (DIBP),,0.1,,to_verify,https://echa.europa.eu/candidate-list-table
-EU_REACH_SVHC,80-05-7,Bisphenol A,비스페놀 A,,0.1,,to_verify,https://echa.europa.eu/candidate-list-table
-EU_REACH_SVHC,7439-92-1,Lead,납,,0.1,,to_verify,https://echa.europa.eu/candidate-list-table
-EU_REACH_SVHC,10043-35-3,Boric acid,붕산,,0.1,,to_verify,https://echa.europa.eu/candidate-list-table
-EU_REACH_SVHC,85535-85-9,"Medium-chain chlorinated paraffins (MCCP, Alkanes C14-17 chloro)",중쇄 염화파라핀 (MCCP),,0.1,,to_verify,https://echa.europa.eu/candidate-list-table
-EU_REACH_SVHC,13560-89-9,Dechlorane Plus,데클로란 플러스,,0.1,,to_verify,https://echa.europa.eu/candidate-list-table
-EU_REACH_SVHC,335-67-1,Perfluorooctanoic acid (PFOA),과불화옥탄산 (PFOA),,0.1,,to_verify,https://echa.europa.eu/candidate-list-table
-EU_REACH_SVHC,25637-99-4,Hexabromocyclododecane (HBCDD),헥사브로모사이클로도데칸 (HBCDD),,0.1,,to_verify,https://echa.europa.eu/candidate-list-table
-EU_REACH_SVHC,25973-55-1,UV-328,UV-328 (자외선 흡수제),,0.1,,to_verify,https://echa.europa.eu/candidate-list-table
-EU_REACH_SVHC,79-01-6,Trichloroethylene,트리클로로에틸렌,,0.1,,to_verify,https://echa.europa.eu/candidate-list-table
-EU_REACH_XVII,117-81-7,Bis(2-ethylhexyl) phthalate (DEHP),프탈산 비스(2-에틸헥실) (DEHP),Entry 51,0.1,"가소화된 성형품 소재 내 DEHP·DBP·BBP·DIBP 합계 0.1 wt% 이하",to_verify,https://echa.europa.eu/substances-restricted-under-reach
-EU_REACH_XVII,84-74-2,Dibutyl phthalate (DBP),프탈산 디부틸 (DBP),Entry 51,0.1,"가소화된 성형품 소재 내 4종 프탈레이트 합계 0.1 wt% 이하",to_verify,https://echa.europa.eu/substances-restricted-under-reach
-EU_REACH_XVII,85-68-7,Benzyl butyl phthalate (BBP),프탈산 벤질부틸 (BBP),Entry 51,0.1,"가소화된 성형품 소재 내 4종 프탈레이트 합계 0.1 wt% 이하",to_verify,https://echa.europa.eu/substances-restricted-under-reach
-EU_REACH_XVII,84-69-5,Diisobutyl phthalate (DIBP),프탈산 디이소부틸 (DIBP),Entry 51,0.1,"가소화된 성형품 소재 내 4종 프탈레이트 합계 0.1 wt% 이하",to_verify,https://echa.europa.eu/substances-restricted-under-reach
-EU_REACH_XVII,71-43-2,Benzene,벤젠,Entry 5,0.1,일반 공급 물질·혼합물 내 0.1 wt% 이상 출시 금지,to_verify,https://echa.europa.eu/substances-restricted-under-reach
-EU_REACH_XVII,7439-92-1,Lead,납,Entry 63,0.1,PVC 성형품 내 0.1 wt% 이상 출시 금지(예외·유예 조건 확인),to_verify,https://echa.europa.eu/substances-restricted-under-reach
-EU_REACH_XVII,50-00-0,Formaldehyde,포름알데히드,Entry 77,,가구·차량 실내 등 방출량 기준 (함량이 아닌 방출 시험 필요),to_verify,https://echa.europa.eu/substances-restricted-under-reach
-EU_CLP_ANNEX_VI,71-43-2,Benzene,벤젠,,,"Carc. 1A, Muta. 1B, Flam. Liq. 2, Asp. Tox. 1",to_verify,https://echa.europa.eu/information-on-chemicals/annex-vi-to-clp
-EU_CLP_ANNEX_VI,108-88-3,Toluene,톨루엔,,,"Flam. Liq. 2, Repr. 2, Asp. Tox. 1, STOT RE 2",to_verify,https://echa.europa.eu/information-on-chemicals/annex-vi-to-clp
-EU_CLP_ANNEX_VI,67-56-1,Methanol,메탄올,,,"Flam. Liq. 2, Acute Tox. 3, STOT SE 1",to_verify,https://echa.europa.eu/information-on-chemicals/annex-vi-to-clp
-EU_CLP_ANNEX_VI,50-00-0,Formaldehyde,포름알데히드,,,"Carc. 1B, Muta. 2, Skin Corr. 1B, Skin Sens. 1",to_verify,https://echa.europa.eu/information-on-chemicals/annex-vi-to-clp
-EU_CLP_ANNEX_VI,79-01-6,Trichloroethylene,트리클로로에틸렌,,,"Carc. 1B, Muta. 2",to_verify,https://echa.europa.eu/information-on-chemicals/annex-vi-to-clp
-EU_CLP_ANNEX_VI,117-81-7,Bis(2-ethylhexyl) phthalate (DEHP),프탈산 비스(2-에틸헥실) (DEHP),,,Repr. 1B,to_verify,https://echa.europa.eu/information-on-chemicals/annex-vi-to-clp
-EU_CLP_ANNEX_VI,80-05-7,Bisphenol A,비스페놀 A,,,"Repr. 1B, Eye Dam. 1, Skin Sens. 1, STOT SE 3",to_verify,https://echa.europa.eu/information-on-chemicals/annex-vi-to-clp
-EU_CLP_ANNEX_VI,75-09-2,Dichloromethane,디클로로메탄,,,Carc. 2,to_verify,https://echa.europa.eu/information-on-chemicals/annex-vi-to-clp
-CN_PRIORITY,106-99-0,"1,3-Butadiene","1,3-부타디엔",1차(2017),,우선관리 화학물질,to_verify,https://www.mee.gov.cn
-CN_PRIORITY,75-09-2,Dichloromethane,디클로로메탄,2차(2020),,우선관리 화학물질,to_verify,https://www.mee.gov.cn
-JP_CSCL_C1,335-67-1,Perfluorooctanoic acid (PFOA),과불화옥탄산 (PFOA),,,제1종 특정화학물질 (염 포함 여부 확인),to_verify,https://www.meti.go.jp/policy/chemical_management/kasinhou/
-JP_CSCL_C1,25637-99-4,Hexabromocyclododecane (HBCDD),헥사브로모사이클로도데칸 (HBCDD),,,제1종 특정화학물질,to_verify,https://www.meti.go.jp/policy/chemical_management/kasinhou/
-KR_OSHA_SPECIAL,75-01-4,Vinyl chloride,염화비닐,,,특별관리물질,to_verify,https://www.law.go.kr
-KR_OSHA_MANAGED,100-41-4,Ethylbenzene,에틸벤젠,,,관리대상유해물질(유기화합물),to_verify,https://www.law.go.kr
-KR_OSHA_MANAGED,108-95-2,Phenol,페놀,,,관리대상유해물질,to_verify,https://www.law.go.kr
-KR_OSHA_MANAGED,110-54-3,n-Hexane,노말헥산,,,관리대상유해물질(유기화합물),to_verify,https://www.law.go.kr
-EU_CLP_ANNEX_VI,75-01-4,Vinyl chloride,염화비닐,,,"Flam. Gas 1, Carc. 1A",to_verify,https://echa.europa.eu/information-on-chemicals/annex-vi-to-clp
-EU_CLP_ANNEX_VI,1309-64-4,Antimony trioxide,삼산화안티몬,,,Carc. 2,to_verify,https://echa.europa.eu/information-on-chemicals/annex-vi-to-clp
-EU_CLP_ANNEX_VI,108-95-2,Phenol,페놀,,,"Muta. 2, Acute Tox. 3, Skin Corr. 1B, STOT RE 2",to_verify,https://echa.europa.eu/information-on-chemicals/annex-vi-to-clp
-EU_CLP_ANNEX_VI,110-54-3,n-Hexane,노말헥산,,,"Flam. Liq. 2, Repr. 2, Asp. Tox. 1, STOT RE 2",to_verify,https://echa.europa.eu/information-on-chemicals/annex-vi-to-clp
-EU_CLP_ANNEX_VI,100-41-4,Ethylbenzene,에틸벤젠,,,"Flam. Liq. 2, Acute Tox. 4, STOT RE 2, Asp. Tox. 1",to_verify,https://echa.europa.eu/information-on-chemicals/annex-vi-to-clp
-EU_CLP_ANNEX_VI,127-18-4,Tetrachloroethylene,테트라클로로에틸렌,,,Carc. 2,to_verify,https://echa.europa.eu/information-on-chemicals/annex-vi-to-clp
-EU_CLP_ANNEX_VI,56-23-5,Carbon tetrachloride,사염화탄소,,,"Carc. 2, Acute Tox. 3, STOT RE 1",to_verify,https://echa.europa.eu/information-on-chemicals/annex-vi-to-clp
-EU_CLP_ANNEX_VI,106-89-8,Epichlorohydrin,에피클로로히드린,,,"Carc. 1B, Acute Tox. 3, Skin Corr. 1B, Skin Sens. 1",to_verify,https://echa.europa.eu/information-on-chemicals/annex-vi-to-clp
-EU_CLP_ANNEX_VI,1314-13-2,Zinc oxide,산화아연,,,"Aquatic Acute 1, Aquatic Chronic 1",to_verify,https://echa.europa.eu/information-on-chemicals/annex-vi-to-clp
+reg_id,cas,name_en,name_ko,entry_ref,threshold_wt_pct,condition_ko,status,source_url,verified_on,evidence
+US_TSCA_S6,79-01-6,Trichloroethylene,트리클로로에틸렌,TCE rule,,"최종 규칙 89 FR 102568 (2024-12-17): 소비자 용도 금지, 대부분 산업·상업 용도 단계적 금지(전환 기간 작업자 보호), 일부 한시 면제. 준수일 연장: 2025-09-17 임시 최종 규칙, 2026-10-14 연장 제안",official,https://www.federalregister.gov/d/2024-29274,2026-10-20,"연방 관보 2024-29274 (89 FR 102568), 후속 2025-17948·2026-20964"
+US_TSCA_S6,127-18-4,Tetrachloroethylene,테트라클로로에틸렌,PCE rule,,"최종 규칙 89 FR 103560 (2024-12-18): 소비자 용도 금지, 일부 산업·상업 용도 금지, 나머지 용도 작업장 화학물질 보호 프로그램(WCPP). 2026-07-28 WCPP 준수일 연장",official,https://www.federalregister.gov/d/2024-30117,2026-10-20,"연방 관보 2024-30117 (89 FR 103560), 후속 2026-15192"
+US_TSCA_S6,56-23-5,Carbon tetrachloride,사염화탄소,CTC rule,,"최종 규칙 89 FR 103512 (2024-12-18): 대부분 용도 WCPP, 사용이 중단된 용도는 제조·수입·가공·유통 금지, 기록·하류 통지. 2026-07-28 WCPP 준수일 연장",official,https://www.federalregister.gov/d/2024-29517,2026-10-20,"연방 관보 2024-29517 (89 FR 103512), 후속 2026-15192"
+US_TSCA_S6,75-09-2,Dichloromethane,디클로로메탄,DCM rule,,"최종 규칙 89 FR 39254 (2024-05-08): 소비자 용도 금지, 대부분 산업·상업 용도 금지, 나머지 용도 WCPP. 2025-11-13 실험실 WCPP 준수일 연장",official,https://www.federalregister.gov/d/2024-09606,2026-10-20,"연방 관보 2024-09606 (89 FR 39254), 후속 2025-19881"
+EU_REACH_SVHC,117-81-7,Bis(2-ethylhexyl) phthalate (DEHP),프탈산 비스(2-에틸헥실) (DEHP),,0.1,성형품 내 0.1 wt% 초과 시 정보 제공(제33조)·SCIP 통보,official,https://echa.europa.eu/candidate-list-table,2026-10-20,"ECHA 후보 목록 2008-10-28 등재 (2026-10-20 조회, 총 253개 항목)"
+EU_REACH_SVHC,84-74-2,Dibutyl phthalate (DBP),프탈산 디부틸 (DBP),,0.1,성형품 내 0.1 wt% 초과 시 정보 제공(제33조)·SCIP 통보,official,https://echa.europa.eu/candidate-list-table,2026-10-20,"ECHA 후보 목록 2008-10-28 등재 (2026-10-20 조회, 총 253개 항목)"
+EU_REACH_SVHC,85-68-7,Benzyl butyl phthalate (BBP),프탈산 벤질부틸 (BBP),,0.1,성형품 내 0.1 wt% 초과 시 정보 제공(제33조)·SCIP 통보,official,https://echa.europa.eu/candidate-list-table,2026-10-20,"ECHA 후보 목록 2008-10-28 등재 (2026-10-20 조회, 총 253개 항목)"
+EU_REACH_SVHC,84-69-5,Diisobutyl phthalate (DIBP),프탈산 디이소부틸 (DIBP),,0.1,성형품 내 0.1 wt% 초과 시 정보 제공(제33조)·SCIP 통보,official,https://echa.europa.eu/candidate-list-table,2026-10-20,"ECHA 후보 목록 2010-01-13 등재 (2026-10-20 조회, 총 253개 항목)"
+EU_REACH_SVHC,80-05-7,Bisphenol A,비스페놀 A,,0.1,성형품 내 0.1 wt% 초과 시 정보 제공(제33조)·SCIP 통보,official,https://echa.europa.eu/candidate-list-table,2026-10-20,"ECHA 후보 목록 2017-01-12 등재 (2026-10-20 조회, 총 253개 항목)"
+EU_REACH_SVHC,7439-92-1,Lead,납,,0.1,성형품 내 0.1 wt% 초과 시 정보 제공(제33조)·SCIP 통보,official,https://echa.europa.eu/candidate-list-table,2026-10-20,"ECHA 후보 목록 2018-06-27 등재 (2026-10-20 조회, 총 253개 항목)"
+EU_REACH_SVHC,10043-35-3,Boric acid,붕산,,0.1,성형품 내 0.1 wt% 초과 시 정보 제공(제33조)·SCIP 통보,official,https://echa.europa.eu/candidate-list-table,2026-10-20,"ECHA 후보 목록 2010-06-18 등재 (2026-10-20 조회, 총 253개 항목)"
+EU_REACH_SVHC,85535-85-9,"Medium-chain chlorinated paraffins (MCCP, Alkanes C14-17 chloro)",중쇄 염화파라핀 (MCCP),,0.1,"성형품 내 0.1 wt% 초과 시 정보 제공(제33조)·SCIP 통보 — 그룹 등재(공식 표 CAS 칸 '-'), 대표 CAS로 대조",official,https://echa.europa.eu/candidate-list-table,2026-10-20,"ECHA 후보 목록 2021-07-08 등재 (2026-10-20 조회, 총 253개 항목)"
+EU_REACH_SVHC,13560-89-9,Dechlorane Plus,데클로란 플러스,,0.1,"성형품 내 0.1 wt% 초과 시 정보 제공(제33조)·SCIP 통보 — 그룹 등재(공식 표 CAS 칸 '-'), 대표 CAS로 대조",official,https://echa.europa.eu/candidate-list-table,2026-10-20,"ECHA 후보 목록 2018-01-15 등재 (2026-10-20 조회, 총 253개 항목)"
+EU_REACH_SVHC,335-67-1,Perfluorooctanoic acid (PFOA),과불화옥탄산 (PFOA),,0.1,성형품 내 0.1 wt% 초과 시 정보 제공(제33조)·SCIP 통보,official,https://echa.europa.eu/candidate-list-table,2026-10-20,"ECHA 후보 목록 2013-06-20 등재 (2026-10-20 조회, 총 253개 항목)"
+EU_REACH_SVHC,25637-99-4,Hexabromocyclododecane (HBCDD),헥사브로모사이클로도데칸 (HBCDD),,0.1,성형품 내 0.1 wt% 초과 시 정보 제공(제33조)·SCIP 통보,official,https://echa.europa.eu/candidate-list-table,2026-10-20,"ECHA 후보 목록 2008-10-28 등재 (2026-10-20 조회, 총 253개 항목)"
+EU_REACH_SVHC,25973-55-1,UV-328,UV-328 (자외선 흡수제),,0.1,성형품 내 0.1 wt% 초과 시 정보 제공(제33조)·SCIP 통보,official,https://echa.europa.eu/candidate-list-table,2026-10-20,"ECHA 후보 목록 2014-12-17 등재 (2026-10-20 조회, 총 253개 항목)"
+EU_REACH_SVHC,79-01-6,Trichloroethylene,트리클로로에틸렌,,0.1,성형품 내 0.1 wt% 초과 시 정보 제공(제33조)·SCIP 통보,official,https://echa.europa.eu/candidate-list-table,2026-10-20,"ECHA 후보 목록 2010-06-18 등재 (2026-10-20 조회, 총 253개 항목)"
+EU_REACH_XVII,117-81-7,Bis(2-ethylhexyl) phthalate (DEHP),프탈산 비스(2-에틸헥실) (DEHP),Entry 51,0.1,성형품의 가소화 소재 중 DEHP·DBP·BBP·DIBP 단독 또는 합계 0.1 wt% 이상 출시 금지 (2020-07-07부터). 예외: 점막·장기 피부 접촉이 없는 산업·농업 전용 성형품 등,official,https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32018R2005,2026-10-20,"Commission Regulation (EU) 2018/2005 부속서 (Entry 51 대체), REACH 통합본 02006R1907-20260622"
+EU_REACH_XVII,84-74-2,Dibutyl phthalate (DBP),프탈산 디부틸 (DBP),Entry 51,0.1,성형품의 가소화 소재 중 DEHP·DBP·BBP·DIBP 단독 또는 합계 0.1 wt% 이상 출시 금지 (2020-07-07부터). 예외: 점막·장기 피부 접촉이 없는 산업·농업 전용 성형품 등,official,https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32018R2005,2026-10-20,"Commission Regulation (EU) 2018/2005 부속서 (Entry 51 대체), REACH 통합본 02006R1907-20260622"
+EU_REACH_XVII,85-68-7,Benzyl butyl phthalate (BBP),프탈산 벤질부틸 (BBP),Entry 51,0.1,성형품의 가소화 소재 중 DEHP·DBP·BBP·DIBP 단독 또는 합계 0.1 wt% 이상 출시 금지 (2020-07-07부터). 예외: 점막·장기 피부 접촉이 없는 산업·농업 전용 성형품 등,official,https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32018R2005,2026-10-20,"Commission Regulation (EU) 2018/2005 부속서 (Entry 51 대체), REACH 통합본 02006R1907-20260622"
+EU_REACH_XVII,84-69-5,Diisobutyl phthalate (DIBP),프탈산 디이소부틸 (DIBP),Entry 51,0.1,성형품의 가소화 소재 중 DEHP·DBP·BBP·DIBP 단독 또는 합계 0.1 wt% 이상 출시 금지 (2020-07-07부터). 예외: 점막·장기 피부 접촉이 없는 산업·농업 전용 성형품 등,official,https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32018R2005,2026-10-20,"Commission Regulation (EU) 2018/2005 부속서 (Entry 51 대체), REACH 통합본 02006R1907-20260622"
+EU_REACH_XVII,71-43-2,Benzene,벤젠,Entry 5,0.1,"물질 또는 다른 물질의 성분·혼합물로 0.1 wt% 이상 출시·사용 금지 (자동차 연료 등 예외), 완구 5 mg/kg",official,https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32009R0552,2026-10-20,"Commission Regulation (EC) No 552/2009 부속서 Entry 5, REACH 통합본 02006R1907-20260622"
+EU_REACH_XVII,7439-92-1,Lead,납,Entry 63,0.1,"PVC 성형품에서 납이 PVC 소재 중량 대비 0.1 wt% 이상이면 출시·사용 금지 (2024-11-29부터). 재생 PVC 유예(경질 1.5 wt%, 2033-05-28까지 등)",official,https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32023R0923,2026-10-20,"Commission Regulation (EU) 2023/923 부속서 (Entry 63 제15~18항), REACH 통합본 02006R1907-20260622"
+EU_REACH_XVII,50-00-0,Formaldehyde,포름알데히드,Entry 77,,"성형품의 포름알데히드 방출 농도: 가구·목재 0.062 mg/m³, 그 외 0.080 mg/m³ 초과 시 출시 금지 (2026-08-06부터), 차량 실내 0.062 mg/m³ (2027-08-06부터). 함량이 아닌 방출 시험 기준",official,https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32023R1464,2026-10-20,"Commission Regulation (EU) 2023/1464 부속서 (Entry 77), REACH 통합본 02006R1907-20260622"
+CN_PRIORITY,106-99-0,"1,3-Butadiene","1,3-부타디엔",PC002 (1차),,우선관리 화학물질 — 배출 관리·청정생산 심사·정보 공개·사용 제한·대체 등 위험 관리 조치,official,https://www.mee.gov.cn/gkml/hbb/bgg/201712/t20171229_428832.htm,2026-10-20,환경보호부 공고 2017년 제83호 (1차) 부속서 PC002
+CN_PRIORITY,75-09-2,Dichloromethane,디클로로메탄,PC006 (1차),,우선관리 화학물질 — 배출 관리·청정생산 심사·정보 공개·사용 제한·대체 등 위험 관리 조치,official,https://www.mee.gov.cn/gkml/hbb/bgg/201712/t20171229_428832.htm,2026-10-20,환경보호부 공고 2017년 제83호 (1차) 부속서 PC006 — 기존 데이터의 '2차(2020)'는 오류로 확인되어 수정
+JP_CSCL_C1,335-67-1,Perfluorooctanoic acid (PFOA),과불화옥탄산 (PFOA),政令番号 34,,제1종 특정화학물질 — PFOA·분지 C8 PFCA 또는 그 염 (관련 물질은 政令番号 35). 제조·수입 허가제(원칙적 금지)·사용 제한,official,https://www.nite.go.jp/chem/jcheck/list6.action?category=211&request_locale=ja,2026-10-20,"NITE J-CHECK 제1종 특정화학물질 목록 (40건, 2026-10-20 조회) 政令番号 34"
+JP_CSCL_C1,25637-99-4,Hexabromocyclododecane (HBCDD),헥사브로모사이클로도데칸 (HBCDD),政令番号 30,,제1종 특정화학물질 — 제조·수입 허가제(원칙적 금지)·사용 제한·지정 제품 수입 제한,official,https://www.nite.go.jp/chem/jcheck/list6.action?category=211&request_locale=ja,2026-10-20,"NITE J-CHECK 제1종 특정화학물질 목록 (40건, 2026-10-20 조회) 政令番号 30"
+EU_REACH_SVHC,84852-53-9,"1,1'-(ethane-1,2-diyl)bis[pentabromobenzene] (DBDPE)",데카브로모디페닐에탄 (DBDPE),,0.1,성형품 내 0.1 wt% 초과 시 정보 제공(제33조)·SCIP 통보,official,https://echa.europa.eu/candidate-list-table,2026-10-20,ECHA 후보 목록 2025-11-05 등재 (vPvB) — 2026-10-20 조회 시 새로 발견
+EU_REACH_SVHC,110-54-3,n-hexane,노말헥산,,0.1,성형품 내 0.1 wt% 초과 시 정보 제공(제33조)·SCIP 통보,official,https://echa.europa.eu/candidate-list-table,2026-10-20,ECHA 후보 목록 2026-02-04 등재 (반복 노출 특정표적장기독성) — 2026-10-20 조회 시 새로 발견

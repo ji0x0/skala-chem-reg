@@ -17,7 +17,8 @@ async def tools():
 async def test_calls_tools_prompt_resource(tools):
     assert len(tools.tool_names()) == 11
     judged = await tools.call("judge_product_compliance", {"product_id": "P003"})
-    assert judged["summary"]["review"] == 2
+    # 미국 불순물 2건 + 국내 제한물질(TCE·PCE: 가정용 세정제·에어러졸 용도만 금지) 2건 — 용도 확인 필요
+    assert judged["summary"]["review"] == 4
     assert "숫자·CAS·날짜" in await tools.get_prompt("briefing_procedure", {"period": "최근 7일"})
     assert "TSCA" in await tools.read_resource("regulation://US_TSCA_S6")
 
